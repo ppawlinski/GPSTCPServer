@@ -18,7 +18,20 @@ namespace GPSTCPServer
             connection = new SQLiteConnection("Data Source=database.sqlite3");
 
             if (!File.Exists("./database.sqlite3"))
+            {
                 SQLiteConnection.CreateFile("database.sqlite3");
+                initDatabase();
+            }
+        }
+
+        private void initDatabase()
+        {
+            OpenConnection();
+            SQLiteCommand command = new SQLiteCommand("CREATE TABLE \"user\" (\"id\"    INTEGER,\"password\"  TEXT NOT NULL,\"username\"  TEXT NOT NULL UNIQUE,PRIMARY KEY(\"id\" AUTOINCREMENT))",connection);
+            command.ExecuteNonQuery();
+            command = new SQLiteCommand("CREATE TABLE \"locations\" ( \"id\"    INTEGER, \"name\"  TEXT NOT NULL,\"userID\"    INTEGER NOT NULL,\"osmID\" TEXT NOT NULL,PRIMARY KEY(\"id\" AUTOINCREMENT))", connection);
+            command.ExecuteNonQuery();
+            CloseConnection();
         }
 
         public void OpenConnection()
