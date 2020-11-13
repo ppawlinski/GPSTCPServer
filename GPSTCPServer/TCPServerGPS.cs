@@ -28,9 +28,9 @@ namespace GPSTCPServer
                     await Listener.AcceptTcpClientAsync().ContinueWith(async (t) =>
                     {
                         //loop for logout to work
+                        byte[] buffer = new byte[1024];
                         while (true)
                         {
-                            byte[] buffer = new byte[1024];
                             //account creation
                             bool accountCreated = false;
                             while (!accountCreated)
@@ -114,15 +114,15 @@ namespace GPSTCPServer
                     addr = await getAddress(client, buffer);
                 }
 
-                await Send(client, "Podaj nazwę pod jaką chcesz zapisać lokalizację: ");
+                await Send(client, "Podaj nazwę pod jaką chcesz zapisać lokalizację: \n");
                 string name = await getUserInput(client,buffer);
                 //ten if blokuje bazę
                 if(!db.AddLocation(user,addr.OsmType,addr.OsmId, name))
                 {
-                    await Send(client, "Nie udało się zapisać lokalizacji w bazie!");
+                    await Send(client, "Nie udało się zapisać lokalizacji w bazie!\n");
                     return false;
                 }
-                await Send(client,"Pomyślnie zapisano lokalizację.");
+                await Send(client,"Pomyślnie zapisano lokalizację.\n");
                 return true;
             }
             else if (choice == 1)
