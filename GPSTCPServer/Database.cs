@@ -21,13 +21,13 @@ namespace GPSTCPServer
                 SQLiteConnection.CreateFile("database.sqlite3");
                 initDatabase();
             }
- 
-                
+
+
         }
 
         private void initDatabase()
         {
-            using(var con = new SQLiteConnection(connectionString))
+            using (var con = new SQLiteConnection(connectionString))
             {
                 con.Open();
                 using (SQLiteCommand command = new SQLiteCommand("CREATE TABLE \"user\" (\"id\"    INTEGER,\"password\"  TEXT NOT NULL,\"username\"  TEXT NOT NULL UNIQUE,PRIMARY KEY(\"id\" AUTOINCREMENT))", con))
@@ -39,7 +39,7 @@ namespace GPSTCPServer
                 {
                     command.ExecuteNonQuery();
                 }
-            } 
+            }
         }
 
 
@@ -53,10 +53,10 @@ namespace GPSTCPServer
             }
 
             string query = $"select password from user where username=\"{username}\"";
-            using(var con = new SQLiteConnection(connectionString))
+            using (var con = new SQLiteConnection(connectionString))
             {
                 con.Open();
-                using(var command = new SQLiteCommand(query,con))
+                using (var command = new SQLiteCommand(query, con))
                 {
                     SQLiteDataReader result = command.ExecuteReader();
                     if (result.HasRows)
@@ -65,14 +65,15 @@ namespace GPSTCPServer
                         if ((string)result["password"] == password)
                         {
                             try { return true; }
-                            finally {
+                            finally
+                            {
                                 command.Dispose();
                                 con.Dispose();
-                            } 
+                            }
                         }
                     }
                 }
-  
+
             }
             return false;
         }
@@ -87,7 +88,7 @@ namespace GPSTCPServer
                 password = Convert.ToBase64String(data);
             }
             string query = $"insert into user(username, password) values (\"{username}\",\"{password}\")";
-            using(var con = new SQLiteConnection(connectionString))
+            using (var con = new SQLiteConnection(connectionString))
             {
                 con.Open();
                 using (SQLiteCommand command = new SQLiteCommand(query, con))
@@ -107,7 +108,7 @@ namespace GPSTCPServer
                             command.Dispose();
                             con.Dispose();
                         }
-                        
+
                     }
                     if (result == 1)
                     {
@@ -120,7 +121,7 @@ namespace GPSTCPServer
                             command.Dispose();
                             con.Dispose();
                         }
-                        
+
                     }
 
                     try
@@ -132,18 +133,19 @@ namespace GPSTCPServer
                         command.Dispose();
                         con.Dispose();
                     }
-                    
+
                 }
-                
+
             }
-            
+
         }
 
+        //unused
         private int getUserID(string user)
         {
-            int id=-1;
+            int id = -1;
             string query = $"select id from user where username=\"{user}\"";
-            using(var con = new SQLiteConnection(connectionString))
+            using (var con = new SQLiteConnection(connectionString))
             {
                 con.Open();
                 using (SQLiteCommand command = new SQLiteCommand(query, con))
@@ -156,18 +158,17 @@ namespace GPSTCPServer
                             id = Convert.ToInt32(result["id"]);
                         }
                     }
-                    
+
                 }
-                
+
             }
-            
+
             return id;
         }
 
-        public bool AddLocation(string user, string osmType ,long osmId, string name)
+        public bool AddLocation(string user, string osmType, long osmId, string name)
         {
-            int result;
-            //to zapytanie jeszcze działa
+            int result=-1;
             //int userID = getUserID(user);
             string osm = "";
             switch (osmType)
@@ -183,18 +184,16 @@ namespace GPSTCPServer
                     break;
             }
             string query = $"insert into locations(name,userID,osmID) values (\"{name}\",(select id from user where username=\"{user}\"),\"{osm}\")";
-            using(var con = new SQLiteConnection(connectionString))
+            using (var con = new SQLiteConnection(connectionString))
             {
                 Console.WriteLine(".");
                 con.Open();
                 using (SQLiteCommand command = new SQLiteCommand(query, con))
                 {
-                    Console.WriteLine(command.CommandText);
-                    //w tym momencie się blokuje baza
+                    //Console.WriteLine(command.CommandText);
                     try
                     {
                         result = command.ExecuteNonQuery();
-                        Console.WriteLine(result);
                     }
                     catch (Exception ex)
                     {
@@ -210,10 +209,131 @@ namespace GPSTCPServer
                         }
                     }
                 }
-                
+
             }
             if (result == 1) return true;
             return false;
+        }
+
+        public List<string> getUserLocations(string user)
+        {
+            string query = $"select name from locations where userID=(select id from user where username=\"{user}\")";
+            using (var con = new SQLiteConnection(connectionString))
+            {
+                con.Open();
+                using (var command = new SQLiteCommand(query, con))
+                {
+                    SQLiteDataReader result = command.ExecuteReader();
+                    if (result.HasRows)
+                    {
+                        List<string> names = new List<string>();
+                        while (result.Read())
+                        {
+                            names.Add((string)result["name"]);
+                        }
+
+                        try
+                        {
+                            return names;
+                        }
+                        finally
+                        {
+                            command.Dispose();
+                            con.Dispose();
+                        }
+                    }
+                }
+
+            }
+            return null;
+        }
+
+        public bool DeleteLocation(string user, string location)
+        {
+            int result=-1;
+            string query = $"delete from locations where userID=(select id from user where username=\"{user}\") and name=\"{location}\"";
+            Console.WriteLine(query);
+            using (var con = new SQLiteConnection(connectionString))
+            {
+                con.Open();
+                using (var command = new SQLiteCommand(query, con))
+                {
+
+                    try
+                    {
+                        result = command.ExecuteNonQuery();
+                    }
+                    finally
+                    {
+                        command.Dispose();
+                        con.Dispose();
+                    }
+                }
+
+            }
+            if (result == 1)    return true;
+            return false;
+        }
+
+        public bool EditLocation(string user, bool type, string name, string newValue)
+        {
+            int result = -1;
+            string query;
+            if(type) 
+                query = $"update locations set name=\"{newValue}\" where userID=(select id from user where username=\"{user}\") and name=\"{name}\"";
+            else
+                query = $"update locations set osmID=\"{newValue}\" where userID=(select id from user where username=\"{user}\") and name=\"{name}\"";
+            Console.WriteLine(query);
+            using (var con = new SQLiteConnection(connectionString))
+            {
+                con.Open();
+                using (var command = new SQLiteCommand(query, con))
+                {
+
+                    try
+                    {
+                        result = command.ExecuteNonQuery();
+                    }
+                    finally
+                    {
+                        command.Dispose();
+                        con.Dispose();
+                    }
+                }
+
+            }
+            if (result == 1) return true;
+            return false;
+        }
+
+        public string GetAddress(string user, string name)
+        {
+            string query = $"select osmID from locations where userID=(select id from user where username=\"{user}\" and name=\"{name}\")";
+            Console.WriteLine(query);
+            using (var con = new SQLiteConnection(connectionString))
+            {
+                con.Open();
+                using (var command = new SQLiteCommand(query, con))
+                {
+                    SQLiteDataReader result = command.ExecuteReader();
+                    if (result.HasRows)
+                    {
+
+                        try
+                        {
+                            result.Read();
+                            return (string)result["osmID"];
+                        }
+                        finally
+                        {
+                            command.Dispose();
+                            con.Dispose();
+                        }
+                    }
+                }
+
+            }
+            return null;
         }
     }
 }
