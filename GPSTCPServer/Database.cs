@@ -191,7 +191,7 @@ namespace GPSTCPServer
                     {
                         result = command.ExecuteNonQuery();
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
                         try
                         {
