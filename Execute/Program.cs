@@ -1,12 +1,4 @@
-﻿using System;
-using System.Data.SQLite;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
-using GPSTCPServer;
+﻿using System.Net;
 using GPSTCPServer;
 
 namespace Execute
@@ -17,8 +9,7 @@ namespace Execute
         {
             Database database = new Database("Data Source=database.sqlite3");
             GPSTCPServer.TCPServerGPS server = new TCPServerGPS(IPAddress.Any, 2048, database);
-            server.RunServer();
-            while (true) ;
+            server.RunServer().Wait();
         }
     }
 }

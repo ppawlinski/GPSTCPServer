@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using System.Xml.Serialization;
 using GPSTCPServer.Models;
 
 namespace GPSTCPServer
@@ -18,41 +16,38 @@ namespace GPSTCPServer
             this.db = db;
         }
 
-        public void RunServer()
+        public async Task RunServer()
         {
-            Task.Factory.StartNew(async () =>
+            Listener.Start();
+            while (true)
             {
-                Listener.Start();
-                while (true)
+                await Listener.AcceptTcpClientAsync().ContinueWith(async (t) =>
                 {
-                    await Listener.AcceptTcpClientAsync().ContinueWith(async (t) =>
+                    //login loop
+                    byte[] buffer = new byte[1024];
+                    while (true)
                     {
-                        //login loop
-                        byte[] buffer = new byte[1024];
-                        while (true)
+                        //account creation
+                        bool accountCreated = false;
+                        while (!accountCreated)
                         {
-                            //account creation
-                            bool accountCreated = false;
-                            while (!accountCreated)
-                            {
-                                accountCreated = await createAccount(t.Result, buffer);
-                            }
-                            //login
-                            string user = null;
-                            while (user == null)
-                            {
-                                user = await Login(t.Result, buffer);
-                            }
-                            //main loop until user logs out
-                            while (user != null)
-                            {
-                                user = await mainFunctionality(t.Result, buffer, user);
-                            }
+                            accountCreated = await createAccount(t.Result, buffer);
                         }
+                        //login
+                        string user = null;
+                        while (user == null)
+                        {
+                            user = await Login(t.Result, buffer);
+                        }
+                        //main loop until user logs out
+                        while (user != null)
+                        {
+                            user = await mainFunctionality(t.Result, buffer, user);
+                        }
+                    }
 
-                    });
-                }
-            });
+                });
+            }
         }
 
         private async Task<string> mainFunctionality(TcpClient client, byte[] buffer, string user)
