@@ -186,18 +186,15 @@ namespace GPSTCPServer
             string query = $"insert into locations(name,userID,osmID) values (\"{name}\",(select id from user where username=\"{user}\"),\"{osm}\")";
             using (var con = new SQLiteConnection(connectionString))
             {
-                Console.WriteLine(".");
                 con.Open();
                 using (SQLiteCommand command = new SQLiteCommand(query, con))
                 {
-                    //Console.WriteLine(command.CommandText);
                     try
                     {
                         result = command.ExecuteNonQuery();
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine(ex.Message);
                         try
                         {
                             return false;
@@ -252,7 +249,6 @@ namespace GPSTCPServer
         {
             int result=-1;
             string query = $"delete from locations where userID=(select id from user where username=\"{user}\") and name=\"{location}\"";
-            Console.WriteLine(query);
             using (var con = new SQLiteConnection(connectionString))
             {
                 con.Open();
@@ -283,7 +279,6 @@ namespace GPSTCPServer
                 query = $"update locations set name=\"{newValue}\" where userID=(select id from user where username=\"{user}\") and name=\"{name}\"";
             else
                 query = $"update locations set osmID=\"{newValue}\" where userID=(select id from user where username=\"{user}\") and name=\"{name}\"";
-            Console.WriteLine(query);
             using (var con = new SQLiteConnection(connectionString))
             {
                 con.Open();
@@ -309,7 +304,6 @@ namespace GPSTCPServer
         public string GetAddress(string user, string name)
         {
             string query = $"select osmID from locations where userID=(select id from user where username=\"{user}\" and name=\"{name}\")";
-            Console.WriteLine(query);
             using (var con = new SQLiteConnection(connectionString))
             {
                 con.Open();
