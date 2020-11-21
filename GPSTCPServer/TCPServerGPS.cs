@@ -202,6 +202,9 @@ namespace GPSTCPServer
             Array.Clear(buffer, 0, buffer.Length);
             await client.GetStream().ReadAsync(buffer, 0, buffer.Length);
             await client.GetStream().ReadAsync(new byte[10]);
+#if DEBUG 
+            Console.WriteLine(Encoding.UTF8.GetString(buffer).Trim().Replace("\0", String.Empty));
+#endif
             return Encoding.UTF8.GetString(buffer).Trim().Replace("\0", String.Empty);
         }
 
