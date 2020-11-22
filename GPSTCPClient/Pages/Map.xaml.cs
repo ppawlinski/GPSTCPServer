@@ -13,16 +13,20 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace GPSTCPClient
+namespace GPSTCPClient.Pages
 {
     /// <summary>
     /// Interaction logic for Map.xaml
     /// </summary>
     public partial class Map : Page
     {
-        public Map()
+        private NavigationService navService;
+        private Page prevPage;
+        public Map(NavigationService nav, Page prevP)
         {
             InitializeComponent();
+            navService = nav;
+            prevPage = prevP;
         }
     }
 }
