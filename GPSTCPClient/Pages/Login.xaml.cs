@@ -37,7 +37,7 @@ namespace GPSTCPClient.Pages
         {
             try
             {
-                Client.Connect(ServerAddressBox.Text, int.Parse(ServerPortBox.Text));
+                Task.Run(async () => await Client.Connect(ServerAddressBox.Text, int.Parse(ServerPortBox.Text))).Wait();
             } catch(FormatException)
             {
                 MessageBox.Show("Błędny format portu", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -54,6 +54,7 @@ namespace GPSTCPClient.Pages
                 byte[] data = md5.ComputeHash(utf8.GetBytes(PasswordBox.Password));
                 try
                 {
+                    //TODO loguj w zależności od odpwiedzi z bool Client.Login()
                     Task.Run(async () =>
                     {
                         await Client.Login(LoginBox.Text, Convert.ToBase64String(data));
@@ -80,6 +81,7 @@ namespace GPSTCPClient.Pages
 
         private void Register_Click(object sender, RoutedEventArgs e)
         {
+            
             //GPSTCPClient.Pages.Register registerPage = new Pages.Register(this);
             navService.Navigate(new Register(navService,this));
         }

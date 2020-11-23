@@ -20,11 +20,12 @@
         <Label Content="Hasło:" HorizontalAlignment="Left" Height="18" Padding="0" Margin="250,226,0,0" VerticalAlignment="Top" Width="85"/>
         <PasswordBox HorizontalAlignment="Center"  Margin="0,259,0,0" Name="PasswordConfirmBox" VerticalAlignment="Top" Width="120" Padding="0,4,0,0" Height="25"/>
         <Label Content="Powtórz hasło:" HorizontalAlignment="Left" Height="18" Padding="0" Margin="250,266,0,0" VerticalAlignment="Top" Width="85"/>
-        <Button Content="Zarejestruj się" HorizontalAlignment="Left" Height="40" Margin="250,342,0,0" Click="Register_Click" VerticalAlignment="Top" Width="210"/>
+        <Button Content="Zarejestruj się" HorizontalAlignment="Left" Height="40" Margin="250,344,0,0" Click="Register_Click" VerticalAlignment="Top" Width="210"/>
         <Button Style="{StaticResource ResourceKey=SpecialStyle}" BorderBrush="{x:Null}"  Name="BackButton" Click="Back_Click"   HorizontalAlignment="Left" Height="100" VerticalAlignment="Top" Width="100">
             <Image Source="..\Icons\back.png" />
         </Button>
-        <TextBlock FontSize="10" Name="RegisterFullfilmentError" Foreground="Red" TextWrapping="Wrap" FontWeight="Thin" HorizontalAlignment="Left" Height="48" Margin="250,289,0,0" VerticalAlignment="Top" Width="210"/>
+        <TextBlock FontSize="10" Name="RegisterFullfilmentError" Foreground="Red" TextWrapping="Wrap" FontWeight="Thin" HorizontalAlignment="Left" Height="50
+                   " Margin="250,289,0,0" VerticalAlignment="Top" Width="210"/>
     </Grid>
 
 </Page>

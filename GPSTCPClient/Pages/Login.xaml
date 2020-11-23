@@ -17,7 +17,9 @@
         <Label Content="Login:" HorizontalAlignment="Left" Height="18" Margin="250,186,0,0" Padding="0" VerticalAlignment="Top" Width="85"/>
         <PasswordBox HorizontalAlignment="Center"  Margin="0,219,0,0" Name="PasswordBox" VerticalAlignment="Top" Width="120" Padding="0,4,0,0" Height="25"/>
         <Label Content="Hasło:" HorizontalAlignment="Left" Height="18" Padding="0" Margin="250,226,0,0" VerticalAlignment="Top" Width="85"/>
-        <Button Content="Zaloguj się" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="250,266,0,0" Click="Login_Click" Width="210" Height="40"/>
-        <Button Content="Zarejestruj się" HorizontalAlignment="Left" Height="40" Margin="250,324,0,0" Click="Register_Click" VerticalAlignment="Top" Width="210"/>
+        <Button Content="Zaloguj się" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="250,304,0,0" Click="Login_Click" Width="210" Height="40"/>
+        <Button Content="Zarejestruj się" HorizontalAlignment="Left" Height="40" Margin="250,361,0,0" Click="Register_Click" VerticalAlignment="Top" Width="210"/>
+        <TextBlock HorizontalAlignment="Left" Height="50
+                   " Margin="250,249,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="210"/>
     </Grid>
 </Page>

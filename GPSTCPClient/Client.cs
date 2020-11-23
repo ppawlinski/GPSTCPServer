@@ -11,6 +11,7 @@ namespace GPSTCPClient
     {
         public static TcpClient TCP { get; set; }
         private static TcpListener Listener { get; set; }
+        private static string login;
         public async static Task Send(string message)
         {
             await TCP.GetStream().WriteAsync(Encoding.UTF8.GetBytes(message));
@@ -46,18 +47,31 @@ namespace GPSTCPClient
             return result == "SUCCESS";
         }
 
-        public async static Task<bool> Register(string login, string md5Password)
+        public async static Task<bool> Register(string login_, string md5Password)
         {
-            await Send($"REGISTER `{login}` `{md5Password}`");
-            byte[] buffer = new byte[1024];
+            await Send($"REGISTER `{login_}` `{md5Password}`");
             string result = "";
             await Listener.AcceptTcpClientAsync().ContinueWith(async (listen) =>
             {
                 result = await getUserInput(new byte[1024]);
             });
-            return result == "SUCCESS";
+            if (result == "SUCCESS")
+            {
+                login = login_;
+                return true;
+            }
+            else return false;
         }
-        public async static Task Disconnect()
+        public async static Task Logout()
+        {
+            await Send($"LOGOUT {login}");
+            //string result = "";
+            //await Listener.AcceptTcpClientAsync().ContinueWith(async (listen) =>
+            //{
+            //    result = await getUserInput(new byte[1024]);
+            //});
+        }
+        public static void Disconnect()
         {
             TCP.Close();
             TCP.Dispose();

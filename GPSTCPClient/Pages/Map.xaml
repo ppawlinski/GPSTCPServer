@@ -9,6 +9,7 @@
       Title="Map">
 
     <Grid>
-        
+        <Button Content="Wyloguj się" HorizontalAlignment="Left" Height="37" VerticalAlignment="Top" Width="115" Click="Logout_Click" Margin="675,10,0,0"/>
+
     </Grid>
 </Page>

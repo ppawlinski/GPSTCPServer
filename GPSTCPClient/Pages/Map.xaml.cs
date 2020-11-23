@@ -28,5 +28,22 @@ namespace GPSTCPClient.Pages
             navService = nav;
             prevPage = prevP;
         }
+
+        private void Logout_Click(object sender, RoutedEventArgs e)
+        {
+            Task.Run(async () =>
+            {
+                await Client.Logout();
+                Client.Disconnect();
+            }).ContinueWith((t) =>
+            {
+                Dispatcher.Invoke(() =>
+                {
+                    navService.GoBack();
+                });
+            });
+
+            
+        }
     }
 }
