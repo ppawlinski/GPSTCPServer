@@ -43,13 +43,6 @@ namespace GPSTCPServer
 
         public bool UserLogin(string username, string password)
         {
-            using (MD5CryptoServiceProvider md5 = new MD5CryptoServiceProvider())
-            {
-                UTF8Encoding utf8 = new UTF8Encoding();
-                byte[] data = md5.ComputeHash(utf8.GetBytes(password));
-                password = Convert.ToBase64String(data);
-            }
-
             string query = $"select password from user where username=\"{username}\"";
             using (var con = new SQLiteConnection(connectionString))
             {
@@ -79,12 +72,6 @@ namespace GPSTCPServer
         public bool CreateUser(string username, string password)
         {
             int result;
-            using (MD5CryptoServiceProvider md5 = new MD5CryptoServiceProvider())
-            {
-                UTF8Encoding utf8 = new UTF8Encoding();
-                byte[] data = md5.ComputeHash(utf8.GetBytes(password));
-                password = Convert.ToBase64String(data);
-            }
             string query = $"insert into user(username, password) values (\"{username}\",\"{password}\")";
             using (var con = new SQLiteConnection(connectionString))
             {

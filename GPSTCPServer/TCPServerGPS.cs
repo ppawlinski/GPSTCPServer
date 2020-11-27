@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -23,77 +24,213 @@ namespace GPSTCPServer
             {
                 await Listener.AcceptTcpClientAsync().ContinueWith(async (t) =>
                 {
-                    //login loop
                     byte[] buffer = new byte[1024];
+                    GPSUser user = new GPSUser(t.Result);
                     while (true)
                     {
-                        //account creation
-                        bool accountCreated = false;
-                        while (!accountCreated)
-                        {
-                            accountCreated = await createAccount(t.Result, buffer);
-                        }
-                        //login
-                        string user = null;
-                        while (user == null)
-                        {
-                            user = await Login(t.Result, buffer);
-                        }
-                        //main loop until user logs out
-                        while (user != null)
-                        {
-                            user = await mainFunctionality(t.Result, buffer, user);
-                        }
+                        await getUserInput(user.client, buffer);
+                        string response = await ProcessCommand(user, buffer);
+                        await Send(user.client, response);
                     }
 
                 });
             }
         }
 
-        private async Task<string> mainFunctionality(TcpClient client, byte[] buffer, string user)
+        private async Task<string> ProcessCommand(GPSUser user, byte[] buffer)
         {
-            await SendLine(client, "[0]Nawigacja GPS\r\n[1]Zarządzaj zapisanymi miejscami\r\n[2]Wyloguj");
-            int choice = await getUserInputInt(client,buffer);
-
-            if (choice == 0)
+            string fullMessage = Encoding.UTF8.GetString(buffer).Replace("\0", String.Empty);
+            string[] arguments = fullMessage.Split(",");
+            string command = arguments[0];
+            if (command == "LOGIN")
             {
-                Address addr1 = null;
-                string message;
-                while (addr1 == null)
+                if (user.LoggedIn || arguments.Length<3)    return "LOGINFAIL";
+                string arg1 = arguments[1].Trim();
+                string arg2 = arguments[2].Trim();
+                string username = await Login(arg1, arg2);
+                if (username != null)
                 {
-                    await Send(client, "Podaj pierwszy adres ([?] Wybierz z zapisanych): ");
-                    message = await getUserInput(client, buffer);
-                    if (message == "?") addr1 = await getSavedAddress(client, buffer, user);
-                    else addr1 = await getAddress(client, buffer, message);
+                    //login succesful
+                    user.Username = username;
+                    user.LoggedIn = true;
+                    return "LOGINSUCCESS";
                 }
-                Address addr2 = null;
-                while (addr2 == null)
+                else
                 {
-                    await Send(client, "Podaj drugi adres ([?] Wybierz z zapisanych): ");
-                    message = await getUserInput(client, buffer);
-                    if (message == "?") addr2 = await getSavedAddress(client, buffer, user);
-                    else addr2 = await getAddress(client, buffer, message);
+                    return "LOGINFAIL";
                 }
-                await SendLine(client, addr1.Lon + ":" + addr1.Lat);
-                await SendLine(client, addr2.Lon + ":" + addr2.Lat);
-                await getRoute(client, addr1, addr2);
-                return user;
             }
-            else if (choice == 1)
+            else if (command == "CREATEACCOUNT")
             {
-                while (!await manageSavedLocations(client, buffer, user)) ;
-                return user;
+                if (user.LoggedIn) throw new Exception();
+                if (await createAccount(arguments[1], arguments[2]))
+                {
+                    return "ACCOUNTCREATED";
+                }
+                else
+                {
+                    return "ACCOUNTEXISTS";
+                }
             }
-            else if (choice == 2) return null;
+            else if (command == "GETADDRESS")
+            {
+                if (!user.LoggedIn) throw new Exception();
+                //assuming that client replaced spaces with +
+                Address[] address = await getAddresses(arguments[1]);
+                if (address != null)
+                {
+                    //send address/list
+                    string result = JsonSerializer.Serialize<Address[]>(address);
+                    return "ADDRESSES " + result;
+                }
+                else
+                {
+                    return "ADDRESSNOTFOUND";
+                }
+            }
+            else if (command == "GETROUTE")
+            {
+                if (!user.LoggedIn) throw new Exception();
+                Address addr1 = await getAddress(arguments[1]);
+                Address addr2 = await getAddress(arguments[2]);
+                string instructions = await getRoute(addr1, addr2);
+                return "INSTRUCTIONS " + instructions;
+            }
+            else if (command == "LISTSAVEDADDRESSES")
+            {
+                if (!user.LoggedIn) throw new Exception();
+                string result = await ListSavedAddressess(user.Username);
+                return "SAVEDLIST " + result;
+            }
+            else if (command == "GETSAVEDADDRESS")
+            {
+                if (!user.LoggedIn) throw new Exception();
+                string result = await getSavedAddress(user, arguments[1]);
+                return "SAVEDADDRESS " + result;
 
-            return user;
+            }
+            return "UNKNOWNCOMMAND";
+        }
+
+        private async Task<string> ListSavedAddressess(string username)
+        {
+            List<string> names = db.getUserLocations(username);
+            string result = string.Empty;
+            foreach(var name in names)
+            {
+                result += name + ",";
+            }
+            return result;
+        }
+
+        private async Task<string> getSavedAddress(GPSUser user, string name)
+        {
+            var names = db.getUserLocations(user.Username);
+            if (names != null)
+            {
+                int i = 0;
+                foreach (var n in names)
+                {
+                    if (names[i] == name) break;
+                    i++;
+                }
+
+                string osmID = db.GetAddress(user.Username, names[i]);
+                string address = await GetRequest.GetFromURLAsync(String.Format("https://nominatim.openstreetmap.org/lookup?osm_ids={0}&format=json", osmID));
+                return address;
+
+            }
+            else
+                return null;
+        }
+
+        private async Task<string> getRoute(Address origin, Address destination)
+        {
+            string response = string.Empty;
+            RouterCalculator calculator = new RouterCalculator(origin, destination);
+            if (!calculator.OK)
+            {
+                response = "Nie można znaleźć połączenia między podanymi punktami";
+            }
+            string[] instructions = calculator.getInstructions();
+            foreach (var instruction in instructions)
+            {
+                if (instruction != string.Empty) response += instruction + "\n";
+            }
+            return response;
+        }
+
+        private async Task<Address> getAddress(string message)
+        {
+            Address[] address = JsonSerializer.Deserialize<Address[]>(await GetRequest.GetFromURLAsync(String.Format("https://nominatim.openstreetmap.org/search?q={0}&format=json", message.Replace(" ", "+"))));
+            if (address.Length == 0)
+            {
+                //address not found
+                return null;
+            }
+            else if (address.Length > 0)
+            {
+                //return address
+                return address[0];
+            }
+            else throw new Exception();
+        }
+        private async Task<Address[]> getAddresses(string message)
+        {
+            Address[] address = JsonSerializer.Deserialize<Address[]>(await GetRequest.GetFromURLAsync(String.Format("https://nominatim.openstreetmap.org/search?q={0}&format=json", message.Replace(" ", "+"))));
+            if (address.Length == 0)
+            {
+                //address not found
+                return null;
+            }
+            else if (address.Length > 0)
+            {
+                //return address
+                return address;
+            }
+            else throw new Exception();
+        }
+
+        private async Task<string> Login(string username, string password)
+        {
+
+            if (db.UserLogin(username, password))
+            {
+                return username;
+            }
+
+            return null;
+        }
+        private async Task<bool> createAccount(string username, string password)
+        {
+            if (db.CreateUser(username, password))
+            {
+                return true;
+            }
+            return false;
+        }
+        private async Task<string> getUserInput(TcpClient client, byte[] buffer)
+        {
+            Array.Clear(buffer, 0, buffer.Length);
+            await client.GetStream().ReadAsync(buffer, 0, buffer.Length);
+            await client.GetStream().ReadAsync(new byte[10]);
+            return Encoding.UTF8.GetString(buffer).Trim().Replace("\0", String.Empty);
+        }
+
+        public static async Task Send(TcpClient client, string message)
+        {
+            await client.GetStream().WriteAsync(Encoding.UTF8.GetBytes(message));
+        }
+
+        public static async Task SendLine(TcpClient client, string message)
+        {
+            await client.GetStream().WriteAsync(Encoding.UTF8.GetBytes(message + Environment.NewLine));
         }
 
 
-        private async Task<bool> manageSavedLocations(TcpClient client, byte[] buffer, string user)
+        //client side
+        /*private async Task<bool> manageSavedLocations(TcpClient client, byte[] buffer, string user)
         {
-            await SendLine(client, "[0] Dodaj nowe miejsce\r\n[1] Edytuj zapisane miejsce\r\n[2] Usuń zapisane miejsce\r\n[3] Cofnij");
-            int choice = await getUserInputInt(client, buffer);
             //add location
             if (choice == 0)
             {
@@ -195,175 +332,6 @@ namespace GPSTCPServer
             }
             else if (choice == 3) return true;
             return false;
-        }
-
-        private async Task<string> getUserInput(TcpClient client, byte[] buffer)
-        {
-            Array.Clear(buffer, 0, buffer.Length);
-            await client.GetStream().ReadAsync(buffer, 0, buffer.Length);
-            await client.GetStream().ReadAsync(new byte[10]);
-            return Encoding.UTF8.GetString(buffer).Trim().Replace("\0", String.Empty);
-        }
-
-        private async Task<int> getUserInputInt(TcpClient client, byte[] buffer)
-        {
-            string input = await getUserInput(client, buffer);
-            int number;
-            try
-            {
-                number = int.Parse(input);
-            }
-            catch (Exception)
-            {
-                return -1;
-            }
-            return number;
-        }
-
-        private async Task<bool> createAccount(TcpClient client, byte[] buffer)
-        {
-            await SendLine(client, "[0] Zaloguj\r\nlub\r\n[1] Stwórz konto");
-            int c = await getUserInputInt(client, buffer);
-            if (c == 1)
-            {
-                string username, p1 = null, p2 = null;
-                do
-                {
-                    if (p1 != null) await SendLine(client, "Hasła muszą być takie same!");
-                    await Send(client, "Podaj nazwę użytkownika: ");
-                    username = await getUserInput(client, buffer);
-                    await Send(client, "Podaj hasło: ");
-                    p1 = await getUserInput(client, buffer);
-                    await Send(client, "Powtórz hasło: ");
-                    p2 = await getUserInput(client, buffer);
-                } while (p1 != p2);
-
-
-                if (db.CreateUser(username, p1))
-                {
-                    await SendLine(client, "Konto utworzone pomyślnie.");
-                    return true;
-                }
-                await SendLine(client, "Użytkownik o podanej nazwie już istnieje!");
-                return false;
-            }
-            else if (c == 0) { return true; }
-            return false;
-        }
-
-        private async Task<string> Login(TcpClient client, byte[] buffer)
-        {
-            string username, password;
-            await Send(client, "Podaj nazwę użytkownika: ");
-            username = await getUserInput(client, buffer);
-
-            await Send(client, "Podaj hasło: ");
-            password = await getUserInput(client, buffer);
-
-            if (db.UserLogin(username, password))
-            {
-                await SendLine(client, $"Pomyślnie zalogowano jako {username}");
-                return username;
-            }
-
-            await SendLine(client, "Nieprawidłowa nazwa użytkownika lub hasło!");
-            return null;
-        }
-
-        public static async Task Send(TcpClient client, string message)
-        {
-            await client.GetStream().WriteAsync(Encoding.UTF8.GetBytes(message));
-        }
-
-        public static async Task SendLine(TcpClient client, string message)
-        {
-            await client.GetStream().WriteAsync(Encoding.UTF8.GetBytes(message + Environment.NewLine));
-        }
-
-        private async Task<Address> getAddress(TcpClient client, byte[] buffer, string message)
-        {
-            Address[] address = JsonSerializer.Deserialize<Address[]>(await GetRequest.GetFromURLAsync(String.Format("https://nominatim.openstreetmap.org/search?q={0}&format=json", message.Replace(" ", "+"))));
-            if (address.Length == 0)
-            {
-                await SendLine(client, "Nie znaleziono adresu");
-                return null;
-            }
-            else if (address.Length == 1)
-            {
-                return address[0];
-            }
-            else if (address.Length > 1)
-            {
-                await SendLine(client, "Znaleziono " + address.Length + " adresow.");
-                for (int i = 0; i < address.Length; i++)
-                {
-                    await SendLine(client, "[" + i + "]: " + address[i].DisplayName);
-                }
-                int choice = -1;
-                while (choice < 0 || choice >= address.Length || choice == -1)
-                {
-                    await Send(client, "(" + 0 + "-" + (address.Length - 1) + "), c - zmień adres: ");
-                    message = await getUserInput(client, buffer);
-                    try
-                    {
-                        choice = int.Parse(message);
-                    }
-                    catch (FormatException)
-                    {
-                        if (message == "c") return null;
-                    }
-                    catch (Exception) { }
-                }
-                return address[choice];
-            }
-            else throw new Exception();
-        }
-
-        private async Task<Address> getSavedAddress(TcpClient client, byte[] buffer, string user)
-        {
-            var names = db.getUserLocations(user);
-            if (names != null)
-            {
-                await SendLine(client, "Wybierz lokalizację:");
-                int i = 0;
-                foreach (var n in names)
-                {
-                    await SendLine(client, $"[{i}] {n}");
-                    i++;
-                }
-                await SendLine(client, $"[{names.Count}] Anuluj");
-
-                int index = -1;
-                while (index < 0 || index >= names.Count)
-                {
-                    if (index == names.Count) return null;
-                    index = await getUserInputInt(client, buffer);
-                }
-                string osmID = db.GetAddress(user, names[index]);
-                Address[] address = JsonSerializer.Deserialize<Address[]>(await GetRequest.GetFromURLAsync(String.Format("https://nominatim.openstreetmap.org/lookup?osm_ids={0}&format=json", osmID)));
-                return address[0];
-
-            }
-            else await SendLine(client, $"Użytkownik {user} nie posiada zapisanych lokalizacji");
-            return null;
-        }
-
-        private async Task getRoute(TcpClient client, Address origin, Address destination)
-        {
-
-            RouterCalculator calculator = new RouterCalculator(origin, destination);
-            if (!calculator.OK)
-            {
-                await SendLine(client, "Nie można znaleźć połączenia między podanymi punktami");
-                return;
-            }
-            string[] instructions = calculator.getInstructions();
-            foreach (var instruction in instructions)
-            {
-                if (instruction != String.Empty) await SendLine(client, instruction);
-            }
-        }
-
-
+        }*/
     }
 }
