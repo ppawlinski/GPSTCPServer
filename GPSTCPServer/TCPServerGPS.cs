@@ -40,11 +40,11 @@ namespace GPSTCPServer
         private async Task<string> ProcessCommand(GPSUser user, byte[] buffer)
         {
             string fullMessage = Encoding.UTF8.GetString(buffer).Replace("\0", String.Empty);
-            string[] arguments = fullMessage.Split(",");
+            string[] arguments = fullMessage.Split(" ");
             string command = arguments[0];
             if (command == "LOGIN")
             {
-                if (user.LoggedIn || arguments.Length<3)    return "LOGINFAIL";
+                if (user.LoggedIn || arguments.Length != 3) return "FAIL";
                 string arg1 = arguments[1].Trim();
                 string arg2 = arguments[2].Trim();
                 string username = await Login(arg1, arg2);
@@ -53,72 +53,134 @@ namespace GPSTCPServer
                     //login succesful
                     user.Username = username;
                     user.LoggedIn = true;
-                    return "LOGINSUCCESS";
+                    return "SUCCESS";
                 }
                 else
                 {
-                    return "LOGINFAIL";
+                    return "FAIL";
                 }
+            }
+            else if (command == "LOGOUT")
+            {
+                if (!user.LoggedIn) return "FAIL";
+                user.LoggedIn = false;
+                user.Username = null;
+                return "SUCCESS";
             }
             else if (command == "CREATEACCOUNT")
             {
-                if (user.LoggedIn) throw new Exception();
+                if (user.LoggedIn || arguments.Length != 3) return "FAIL";
                 if (await createAccount(arguments[1], arguments[2]))
                 {
                     return "ACCOUNTCREATED";
                 }
                 else
                 {
-                    return "ACCOUNTEXISTS";
+                    return "FAIL";
                 }
             }
             else if (command == "GETADDRESS")
             {
-                if (!user.LoggedIn) throw new Exception();
+                if (!user.LoggedIn) return "FAIL";
                 //assuming that client replaced spaces with +
                 Address[] address = await getAddresses(arguments[1]);
                 if (address != null)
                 {
-                    //send address/list
                     string result = JsonSerializer.Serialize<Address[]>(address);
                     return "ADDRESSES " + result;
                 }
                 else
                 {
-                    return "ADDRESSNOTFOUND";
+                    return "FAIL";
                 }
             }
             else if (command == "GETROUTE")
             {
-                if (!user.LoggedIn) throw new Exception();
+                if (!user.LoggedIn) return "FAIL";
                 Address addr1 = await getAddress(arguments[1]);
                 Address addr2 = await getAddress(arguments[2]);
                 string instructions = await getRoute(addr1, addr2);
-                return "INSTRUCTIONS " + instructions;
+                if (instructions != null) return "INSTRUCTIONS " + instructions;
+                else return "FAIL";
             }
             else if (command == "LISTSAVEDADDRESSES")
             {
-                if (!user.LoggedIn) throw new Exception();
+                if (!user.LoggedIn) return "FAIL";
                 string result = await ListSavedAddressess(user.Username);
-                return "SAVEDLIST " + result;
+                if (result != null) return "SAVEDLIST " + result;
+                else return "FAIL";
             }
             else if (command == "GETSAVEDADDRESS")
             {
-                if (!user.LoggedIn) throw new Exception();
+                if (!user.LoggedIn) return "FAIL";
                 string result = await getSavedAddress(user, arguments[1]);
                 return "SAVEDADDRESS " + result;
-
+            }
+            else if (command == "EDITADDRESS")
+            {
+                if (!user.LoggedIn) return "FAIL";
+                if (arguments.Length == 3)
+                {
+                    if (await EditAddress(user.Username, arguments[1], arguments[2]))
+                    {
+                        return "SUCCESS";
+                    }
+                }
+                else if (arguments.Length == 5)
+                {
+                    if (await EditAddress(user.Username, arguments[1], arguments[2], arguments[3], arguments[4]))
+                    {
+                        return "SUCCESS";
+                    }
+                }
+                else return "FAIL";
+            }
+            else if (command == "ADDADDRESS")
+            {
+                if (!user.LoggedIn || arguments.Length != 3) return "FAIL";
+                if (db.AddLocation(user.Username, arguments[1], arguments[2], arguments[3])) return "SUCCESS";
+                else return "FAIL";
+            }
+            else if(command == "DELETEADDRESS")
+            {
+                if (!user.LoggedIn || arguments.Length != 2) return "FAIL";
+                if (db.DeleteLocation(user.Username, arguments[1])) return "SUCCESS";
+                else return "FAIL";
             }
             return "UNKNOWNCOMMAND";
+        }
+
+        private async Task<bool> EditAddress(String username, string name, string newName, string osmType = null, string osmId = null)
+        {
+            if (osmId == null || osmType == null)
+            {
+                return db.EditLocation(username, name, newName);
+            }
+            string osm = string.Empty;
+            //should be done on clients side
+            switch (osmType)
+            {
+                case "node":
+                    osm = "N" + osmId;
+                    break;
+                case "way":
+                    osm = "W" + osmId;
+                    break;
+                case "relation":
+                    osm = "R" + osmId;
+                    break;
+            }
+            return db.EditLocation(username, name, newName, osm);
         }
 
         private async Task<string> ListSavedAddressess(string username)
         {
             List<string> names = db.getUserLocations(username);
             string result = string.Empty;
-            foreach(var name in names)
+            if (names == null) return null;
+            foreach (var name in names)
             {
-                result += name + ",";
+                result += name + " ";
             }
             return result;
         }
@@ -150,7 +212,7 @@ namespace GPSTCPServer
             RouterCalculator calculator = new RouterCalculator(origin, destination);
             if (!calculator.OK)
             {
-                response = "Nie można znaleźć połączenia między podanymi punktami";
+                return null;
             }
             string[] instructions = calculator.getInstructions();
             foreach (var instruction in instructions)

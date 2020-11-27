@@ -151,7 +151,7 @@ namespace GPSTCPServer
             return id;
         }
 
-        public bool AddLocation(string user, string osmType, long osmId, string name)
+        public bool AddLocation(string user, string name, string osmType, string osmId)
         {
             int result=-1;
             //int userID = getUserID(user);
@@ -256,14 +256,14 @@ namespace GPSTCPServer
             return false;
         }
 
-        public bool EditLocation(string user, bool type, string name, string newValue)
+        public bool EditLocation(string user, string name, string newName, string address = null)
         {
             int result = -1;
             string query;
-            if(type) 
-                query = $"update locations set name=\"{newValue}\" where userID=(select id from user where username=\"{user}\") and name=\"{name}\"";
+            if(address==null) 
+                query = $"update locations set name=\"{newName}\" where userID=(select id from user where username=\"{user}\") and name=\"{name}\"";
             else
-                query = $"update locations set osmID=\"{newValue}\" where userID=(select id from user where username=\"{user}\") and name=\"{name}\"";
+                query = $"update locations set osmID=\"{address}\", name=\"{newName}\" where userID=(select id from user where username=\"{user}\") and name=\"{name}\"";
             using (var con = new SQLiteConnection(connectionString))
             {
                 con.Open();
