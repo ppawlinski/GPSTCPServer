@@ -43,7 +43,7 @@ namespace GPSTCPServer
 
         public bool UserLogin(string username, string password)
         {
-            string query = $"select password from user where username=\"{username}\"";
+            string query = $"select password from user where username='{username}'";
             using (var con = new SQLiteConnection(connectionString))
             {
                 con.Open();
@@ -200,6 +200,7 @@ namespace GPSTCPServer
         public List<string> getUserLocations(string user)
         {
             string query = $"select name from locations where userID=(select id from user where username=\"{user}\")";
+            List<string> names = new List<string>();
             using (var con = new SQLiteConnection(connectionString))
             {
                 con.Open();
@@ -208,26 +209,16 @@ namespace GPSTCPServer
                     SQLiteDataReader result = command.ExecuteReader();
                     if (result.HasRows)
                     {
-                        List<string> names = new List<string>();
+
                         while (result.Read())
                         {
                             names.Add((string)result["name"]);
-                        }
-
-                        try
-                        {
-                            return names;
-                        }
-                        finally
-                        {
-                            command.Dispose();
-                            con.Dispose();
                         }
                     }
                 }
 
             }
-            return null;
+            return names;
         }
 
         public bool DeleteLocation(string user, string location)

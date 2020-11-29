@@ -86,8 +86,7 @@ namespace GPSTCPServer
                 Address[] address = await getAddresses(arguments[1]);
                 if (address != null)
                 {
-                    string result = JsonSerializer.Serialize<Address[]>(address);
-                    return "ADDRESSES " + result;
+                    return JsonSerializer.Serialize<Address[]>(address);
                 }
                 else
                 {
@@ -97,24 +96,21 @@ namespace GPSTCPServer
             else if (command == "GETROUTE")
             {
                 if (!user.LoggedIn) return "FAIL";
-                Address addr1 = await getAddress(arguments[1]);
-                Address addr2 = await getAddress(arguments[2]);
-                string instructions = await getRoute(addr1, addr2);
-                if (instructions != null) return "INSTRUCTIONS " + instructions;
+                string instructions = await getRoute(arguments[1], arguments[2], arguments[3], arguments[4]);
+                if (instructions != null) return instructions;
                 else return "FAIL";
             }
             else if (command == "LISTSAVEDADDRESSES")
             {
                 if (!user.LoggedIn) return "FAIL";
                 string result = await ListSavedAddressess(user.Username);
-                if (result != null) return "SAVEDLIST " + result;
+                if (result != null) return  result;
                 else return "FAIL";
             }
             else if (command == "GETSAVEDADDRESS")
             {
                 if (!user.LoggedIn) return "FAIL";
-                string result = await getSavedAddress(user, arguments[1]);
-                return "SAVEDADDRESS " + result;
+                return await getSavedAddress(user, arguments[1]);
             }
             else if (command == "EDITADDRESS")
             {
@@ -137,7 +133,7 @@ namespace GPSTCPServer
             }
             else if (command == "ADDADDRESS")
             {
-                if (!user.LoggedIn || arguments.Length != 3) return "FAIL";
+                if (!user.LoggedIn || arguments.Length != 4) return "FAIL";
                 if (db.AddLocation(user.Username, arguments[1], arguments[2], arguments[3])) return "SUCCESS";
                 else return "FAIL";
             }
@@ -177,7 +173,7 @@ namespace GPSTCPServer
         {
             List<string> names = db.getUserLocations(username);
             string result = string.Empty;
-            if (names == null) return null;
+            if (names.Count == 0) return null;
             foreach (var name in names)
             {
                 result += name + " ";
@@ -188,7 +184,7 @@ namespace GPSTCPServer
         private async Task<string> getSavedAddress(GPSUser user, string name)
         {
             var names = db.getUserLocations(user.Username);
-            if (names != null)
+            if (names.Count > 0)
             {
                 int i = 0;
                 foreach (var n in names)
@@ -206,10 +202,10 @@ namespace GPSTCPServer
                 return null;
         }
 
-        private async Task<string> getRoute(Address origin, Address destination)
+        private async Task<string> getRoute(string originLon, string originLat, string destinationLon, string destinationLat)
         {
             string response = string.Empty;
-            RouterCalculator calculator = new RouterCalculator(origin, destination);
+            RouterCalculator calculator = new RouterCalculator(originLon, originLat, destinationLon, destinationLat);
             if (!calculator.OK)
             {
                 return null;
@@ -275,7 +271,7 @@ namespace GPSTCPServer
         {
             Array.Clear(buffer, 0, buffer.Length);
             await client.GetStream().ReadAsync(buffer, 0, buffer.Length);
-            await client.GetStream().ReadAsync(new byte[10]);
+            //await client.GetStream().ReadAsync(new byte[10]);
             return Encoding.UTF8.GetString(buffer).Trim().Replace("\0", String.Empty);
         }
 

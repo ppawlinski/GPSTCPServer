@@ -12,8 +12,8 @@ namespace GPSTCPServer
     {
         private OSRMRoute router;
         public bool OK { get;  }
-        public RouterCalculator(Address origin, Address destination) {
-            string url = String.Format("http://router.project-osrm.org/route/v1/driving/{0},{1};{2},{3}?steps=true&annotations=false", origin.Lon, origin.Lat, destination.Lon, destination.Lat);
+        public RouterCalculator(string originLon, string originLat, string destinationLon, string destinationLat) {
+            string url = String.Format("http://router.project-osrm.org/route/v1/driving/{0},{1};{2},{3}?steps=true&annotations=false", originLon, originLat, destinationLon, destinationLat);
             Task.Run(async () => router = JsonSerializer.Deserialize<OSRMRoute>(await GetRequest.GetFromURLAsync(url))).Wait();
             if (router.Code == "NoRoute")
             {
