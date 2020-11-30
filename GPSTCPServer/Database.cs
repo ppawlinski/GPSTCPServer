@@ -19,8 +19,6 @@ namespace GPSTCPServer
                 SQLiteConnection.CreateFile("database.sqlite3");
                 initDatabase();
             }
-
-
         }
 
         private void initDatabase()

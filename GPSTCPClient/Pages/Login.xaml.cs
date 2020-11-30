@@ -58,7 +58,7 @@ namespace GPSTCPClient.Pages
                     {
                         Dispatcher.Invoke(() =>
                         {
-                            navService.Navigate(new Map(navService, this));
+                            navService.Navigate(new Navigation(navService, this));
                         });
                     }
                     else

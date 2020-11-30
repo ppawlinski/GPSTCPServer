@@ -20,7 +20,7 @@ namespace GPSTCPClient.Pages
     /// <summary>
     /// Interaction logic for Map.xaml
     /// </summary>
-    public partial class Map : Page
+    public partial class Navigation : Page
     {
         private NavigationService navService;
         private Page prevPage;
@@ -30,7 +30,7 @@ namespace GPSTCPClient.Pages
             get { 
                 return locations; }  }
 
-        public Map(NavigationService nav, Page prevP)
+        public Navigation(NavigationService nav, Page prevP)
         {
             InitializeComponent();
             navService = nav;

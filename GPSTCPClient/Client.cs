@@ -97,11 +97,6 @@ namespace GPSTCPClient
             return Encoding.UTF8.GetString(buffer).Trim().Replace("\0", String.Empty);
         }
 
-        public static async Task<Address[]> GetMyAddresses(string searchstring)
-        {
-            await Send($"GETADDRESS {searchstring.Replace(' ', '+')}");
-            return JsonSerializer.Deserialize<Address[]>(await getUserInput(new byte[2048]));
-        }
 
         public static async Task<List<UserLocation>> GetMyAddresses()
         {
@@ -126,8 +121,6 @@ namespace GPSTCPClient
                 }
                 catch (Exception) { return locations; }
             }
-
-
             return locations;
         }
 
