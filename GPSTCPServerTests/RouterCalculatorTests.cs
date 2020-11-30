@@ -15,7 +15,7 @@ namespace GPSTCPServer.Tests
         public void getInstructionsTest()
         {
             RouterCalculator rc = new RouterCalculator("16.9335199", "52.4082663", "16.9335199", "52.4082663");
-            Assert.IsNotNull(rc.getInstructions());
+            Assert.IsNotNull(rc.GetInstructions());
             Assert.IsTrue(rc.OK);
         }
     }

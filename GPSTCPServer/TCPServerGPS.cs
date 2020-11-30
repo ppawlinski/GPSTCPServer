@@ -30,7 +30,7 @@ namespace GPSTCPServer
                     {
                         await getUserInput(user.client, buffer);
                         //Console.WriteLine($"CLIENT: {Encoding.UTF8.GetString(buffer)}");
-                        string response = await ProcessCommand(user, buffer);
+                        string response = await processCommand(user, buffer);
                         //Console.WriteLine($"SERVER: {response}");
                         await Send(user.client, response);
                     }
@@ -39,7 +39,7 @@ namespace GPSTCPServer
             }
         }
 
-        private async Task<string> ProcessCommand(GPSUser user, byte[] buffer)
+        private async Task<string> processCommand(GPSUser user, byte[] buffer)
         {
             string fullMessage = Encoding.UTF8.GetString(buffer).Replace("\0", String.Empty);
             string[] arguments = fullMessage.Split(" ");
@@ -49,7 +49,7 @@ namespace GPSTCPServer
                 if (user.LoggedIn || arguments.Length != 3) return "FAIL";
                 string arg1 = arguments[1].Trim();
                 string arg2 = arguments[2].Trim();
-                string username = await Login(arg1, arg2);
+                string username = await login(arg1, arg2);
                 if (username != null)
                 {
                     //login succesful
@@ -105,7 +105,7 @@ namespace GPSTCPServer
             else if (command == "LISTSAVEDADDRESSES")
             {
                 if (!user.LoggedIn) return "FAIL";
-                string result = await ListSavedAddressess(user.Username);
+                string result = await listSavedAddressess(user.Username);
                 if (result != null) return  result;
                 else return "FAIL";
             }
@@ -119,14 +119,14 @@ namespace GPSTCPServer
                 if (!user.LoggedIn) return "FAIL";
                 if (arguments.Length == 3)
                 {
-                    if (await EditAddress(user.Username, arguments[1], arguments[2]))
+                    if (await editAddress(user.Username, arguments[1], arguments[2]))
                     {
                         return "SUCCESS";
                     }
                 }
                 else if (arguments.Length == 5)
                 {
-                    if (await EditAddress(user.Username, arguments[1], arguments[2], arguments[3], arguments[4]))
+                    if (await editAddress(user.Username, arguments[1], arguments[2], arguments[3], arguments[4]))
                     {
                         return "SUCCESS";
                     }
@@ -148,7 +148,7 @@ namespace GPSTCPServer
             return "UNKNOWNCOMMAND";
         }
 
-        private Task<bool> EditAddress(String username, string name, string newName, string osmType = null, string osmId = null)
+        private Task<bool> editAddress(String username, string name, string newName, string osmType = null, string osmId = null)
         {
             if (osmId == null || osmType == null)
             {
@@ -171,7 +171,7 @@ namespace GPSTCPServer
             return Task.FromResult(db.EditLocation(username, name, newName, osm));
         }
 
-        private Task<string> ListSavedAddressess(string username)
+        private Task<string> listSavedAddressess(string username)
         {
             List<string> names = db.GetUserLocations(username);
             if (names == null) return Task.FromResult<string>(null);
@@ -213,7 +213,7 @@ namespace GPSTCPServer
             {
                 return Task.FromResult<string>(null);
             }
-            string[] instructions = calculator.getInstructions();
+            string[] instructions = calculator.GetInstructions();
             foreach (var instruction in instructions)
             {
                 if (instruction != string.Empty) response += instruction + "\n";
@@ -252,7 +252,7 @@ namespace GPSTCPServer
             else throw new Exception();
         }
 
-        private Task<string> Login(string username, string password)
+        private Task<string> login(string username, string password)
         {
 
             if (db.UserLogin(username, password))

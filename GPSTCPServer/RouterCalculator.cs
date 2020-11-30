@@ -22,7 +22,7 @@ namespace GPSTCPServer
             else OK = true;
         }
 
-        public string[] getInstructions()
+        public string[] GetInstructions()
         {
             var steps = router.Routes[0].Legs[0].Steps;
             string[] instructions = new string[steps.Count];
@@ -33,7 +33,7 @@ namespace GPSTCPServer
             return instructions;
         }
 
-        private string formatName(Maneuver maneuver, string ulica, string dystans)
+        private string formatName(Maneuver maneuver, string street, string distance)
         {
             string type = maneuver.Type;
             string modifier = maneuver.Modifier;
@@ -41,18 +41,18 @@ namespace GPSTCPServer
             switch (type)
             {
                 case "depart":
-                    instruction = "Zacznij na " + ulica;
+                    instruction = "Zacznij na " + street;
                     return instruction;
                 case "turn":
                     instruction = "Skręć ";
                     break;
                 case "new name":
-                    if (ulica.Trim() != "") instruction = "Kontynuuj na " + ulica + "\t" + dystans + "m";
-                    else instruction = "Kontynuuj " + "\t" + dystans + "m";
+                    if (street.Trim() != "") instruction = "Kontynuuj na " + street + "\t" + distance + "m";
+                    else instruction = "Kontynuuj " + "\t" + distance + "m";
                     return instruction;
                 case "continue":
-                    if (ulica.Trim() != "") instruction = "Kontynuuj na " + ulica + "\t" + dystans + "m";
-                    else instruction = "Kontynuuj " + "\t" + dystans + "m";
+                    if (street.Trim() != "") instruction = "Kontynuuj na " + street + "\t" + distance + "m";
+                    else instruction = "Kontynuuj " + "\t" + distance + "m";
                     break;
                 case "arrive":
                     instruction = "Osiągnięto cel";
@@ -83,38 +83,38 @@ namespace GPSTCPServer
                     instruction = "Skręć ";
                     break;
                 case "roundabout turn":
-                    if (ulica.Trim() != "") instruction = "Na rondzie zjedź " + numberToPL(maneuver.Exit) + " zjazdem na " + ulica + "\t" + dystans + "m";
-                    instruction = "Na rondzie zjedź " + numberToPL(maneuver.Exit) + " zjazdem " + "\t" + dystans + "m";
+                    if (street.Trim() != "") instruction = "Na rondzie zjedź " + numberToPL(maneuver.Exit) + " zjazdem na " + street + "\t" + distance + "m";
+                    instruction = "Na rondzie zjedź " + numberToPL(maneuver.Exit) + " zjazdem " + "\t" + distance + "m";
                     return instruction;
                 case "notification":
                     break;
                 case "exit roundabout":
-                    if (ulica.Trim() != "") instruction = "Na rondzie zjedź " + numberToPL(maneuver.Exit) + " zjazdem na " + ulica + "\t" + dystans + "m";
-                    instruction = "Na rondzie zjedź " + numberToPL(maneuver.Exit) + " zjazdem " + "\t" + dystans + "m";
+                    if (street.Trim() != "") instruction = "Na rondzie zjedź " + numberToPL(maneuver.Exit) + " zjazdem na " + street + "\t" + distance + "m";
+                    instruction = "Na rondzie zjedź " + numberToPL(maneuver.Exit) + " zjazdem " + "\t" + distance + "m";
                     return instruction;
                 case "exit rotary":
-                    if (ulica.Trim() != "") instruction = "Na rondzie zjedź " + numberToPL(maneuver.Exit) + " zjazdem na " + ulica + "\t" + dystans + "m";
-                    else instruction = "Na rondzie zjedź " + numberToPL(maneuver.Exit) + " zjazdem  " + "\t" + dystans + "m";
+                    if (street.Trim() != "") instruction = "Na rondzie zjedź " + numberToPL(maneuver.Exit) + " zjazdem na " + street + "\t" + distance + "m";
+                    else instruction = "Na rondzie zjedź " + numberToPL(maneuver.Exit) + " zjazdem  " + "\t" + distance + "m";
                     break;
             }
 
             switch (modifier)
             {
                 case "right":
-                    if (ulica.Trim() != "") instruction += "w prawo w " + ulica + "\t" + dystans + "m";
-                    else instruction += "w prawo " + ulica + "\t" + dystans + "m";
+                    if (street.Trim() != "") instruction += "w prawo w " + street + "\t" + distance + "m";
+                    else instruction += "w prawo " + street + "\t" + distance + "m";
                     break;
                 case "left":
-                    if (ulica.Trim() != "") instruction += "w lewo w " + ulica + "\t" + dystans + "m";
-                    else instruction += "w lewo " + "\t" + dystans + "m";
+                    if (street.Trim() != "") instruction += "w lewo w " + street + "\t" + distance + "m";
+                    else instruction += "w lewo " + "\t" + distance + "m";
                     break;
                 case "slight right":
-                    if (ulica.Trim() != "") instruction += (type == "continue" ? "Lekko w prawo w " : "lekko w prawo w ") + ulica + "\t" + dystans + "m";
-                    else instruction += (type == "continue" ? "Lekko w prawo " : "lekko w prawo ") + "\t" + dystans + "m";
+                    if (street.Trim() != "") instruction += (type == "continue" ? "Lekko w prawo w " : "lekko w prawo w ") + street + "\t" + distance + "m";
+                    else instruction += (type == "continue" ? "Lekko w prawo " : "lekko w prawo ") + "\t" + distance + "m";
                     break;
                 case "slight left":
-                    if (ulica.Trim() != "") instruction += (type == "continue" ? "Lekko w lewo w " : "lekko w lewo w ") + ulica + "\t" + dystans + "m";
-                    else instruction += (type == "continue" ? "Lekko w lewo " : "lekko w lewo ") + "\t" + dystans + "m";
+                    if (street.Trim() != "") instruction += (type == "continue" ? "Lekko w lewo w " : "lekko w lewo w ") + street + "\t" + distance + "m";
+                    else instruction += (type == "continue" ? "Lekko w lewo " : "lekko w lewo ") + "\t" + distance + "m";
                     break;
                 case "uturn":
 
@@ -126,8 +126,8 @@ namespace GPSTCPServer
 
                     break;
                 case "straight":
-                    if (type != "turn") instruction += " prosto w " + ulica + "\t" + dystans + "m";
-                    else instruction = "Jedź prosto w " + ulica + "\t" + dystans + "m";
+                    if (type != "turn") instruction += " prosto w " + street + "\t" + distance + "m";
+                    else instruction = "Jedź prosto w " + street + "\t" + distance + "m";
                     break;
             }
             return instruction;

@@ -14,7 +14,7 @@ namespace GPSTCPClient
     public static class Client
     {
         public static TcpClient TCP { get; set; }
-        private static TcpListener Listener { get; set; }
+        private static TcpListener listener { get; set; }
         private static string login;
         public async static Task Send(string message)
         {
@@ -30,7 +30,7 @@ namespace GPSTCPClient
             try
             {
                 await TCP.ConnectAsync(IPAddress.Parse(ipAddress), port);
-                Listener = new TcpListener(IPAddress.Parse(ipAddress), port);
+                listener = new TcpListener(IPAddress.Parse(ipAddress), port);
             }
             catch (FormatException)
             {
@@ -88,7 +88,7 @@ namespace GPSTCPClient
             TCP.Close();
             TCP.Dispose();
             TCP = null;
-            Listener = null;
+            listener = null;
         }
         private async static Task<string> getUserInput(byte[] buffer)
         {
