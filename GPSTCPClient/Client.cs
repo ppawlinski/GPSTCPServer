@@ -23,7 +23,7 @@ namespace GPSTCPClient
         public async static Task Connect(string ipAddress, int port)
         {
             TCP = new TcpClient();
-            if(TCP.Connected)
+            if (TCP.Connected)
             {
                 return;
             }
@@ -31,17 +31,19 @@ namespace GPSTCPClient
             {
                 await TCP.ConnectAsync(IPAddress.Parse(ipAddress), port);
                 Listener = new TcpListener(IPAddress.Parse(ipAddress), port);
-            } catch(FormatException)
+            }
+            catch (FormatException)
             {
                 throw new Exception("Błędny format adresu ip");
-            } catch(Exception)
+            }
+            catch (Exception)
             {
                 throw new Exception("Błąd przy próbie połączenia");
             }
         }
         public async static Task<bool> Login(string login_, string password)
         {
-            
+
             byte[] buffer = new byte[1024];
             string result = "";
             string md5 = Md5Hasher.CreateMD5(password);
@@ -51,7 +53,7 @@ namespace GPSTCPClient
             {
                 
             });*/
-            if(result == "SUCCESS")
+            if (result == "SUCCESS")
             {
                 login = login_;
                 return true;
@@ -105,30 +107,33 @@ namespace GPSTCPClient
         {
             await Send($"LISTSAVEDADDRESSES");
             List<UserLocation> locations = new List<UserLocation>();
-            string[] names = (await getUserInput(new byte[1024])).Split(' ').Where(p => !String.IsNullOrEmpty(p)).ToArray();
-            if (names.Length < 1 || names[0] == "FAIL") return locations;
-            try
+            string[] names = (await getUserInput(new byte[1024])).Split(' ');
+            if (names[0] != "FAIL")
             {
-                foreach (var name in names)
+                try
                 {
-                    if (name == "") continue;
-                    await Send($"GETSAVEDADDRESS {name}");
-                    locations.Add(new UserLocation()
+                    foreach (var name in names)
                     {
-                        Name = name,
-                        Address = JsonSerializer.Deserialize<Address[]>(await getUserInput(new byte[2048])).FirstOrDefault()
+                        if (name == "") continue;
+                        await Send($"GETSAVEDADDRESS {name}");
+                        locations.Add(new UserLocation()
+                        {
+                            Name = name,
+                            Address = JsonSerializer.Deserialize<Address[]>(await getUserInput(new byte[2048])).FirstOrDefault()
+                        }
+                        );
                     }
-                    );
                 }
+                catch (Exception) { return locations; }
             }
-            catch(Exception) { return locations; }
+
 
             return locations;
         }
 
         public static async Task<Address[]> GetAddress(string location)
         {
-            await Send($"GETADDRESS {location.Replace(' ','+')}");
+            await Send($"GETADDRESS {location.Replace(' ', '+')}");
             return JsonSerializer.Deserialize<Address[]>(await getUserInput(new byte[100000]));
         }
 
