@@ -173,7 +173,7 @@ namespace GPSTCPServer
 
         private async Task<string> ListSavedAddressess(string username)
         {
-            List<string> names = db.getUserLocations(username);
+            List<string> names = db.GetUserLocations(username);
             string result = string.Empty;
             if (names.Count == 0) return null;
             foreach (var name in names)
@@ -185,8 +185,8 @@ namespace GPSTCPServer
 
         private async Task<string> getSavedAddress(GPSUser user, string name)
         {
-            var names = db.getUserLocations(user.Username);
-            if (names.Count > 0)
+            var names = db.GetUserLocations(user.Username);
+            if (names!=null)
             {
                 int i = 0;
                 foreach (var n in names)

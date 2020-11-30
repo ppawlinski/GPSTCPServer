@@ -40,6 +40,25 @@ namespace GPSTCPServer
             }
         }
 
+        public void FillWithTestData()
+        {
+            string password = Encoding.UTF8.GetString(Encoding.Default.GetBytes("test"));
+            SQLiteConnection.CreateFile("database.sqlite3");
+            initDatabase();
+            using (var con = new SQLiteConnection(connectionString))
+            {
+                con.Open();
+                using (SQLiteCommand command = new SQLiteCommand($"insert into \"user\" values (1,\"{password}\", \"test\")", con))
+                {
+                    command.ExecuteNonQuery();
+                }
+
+                using (SQLiteCommand command = new SQLiteCommand("insert into \"locations\" values (1,\"Poznan\",\"1\",\"R2989158\")", con))
+                {
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
 
         public bool UserLogin(string username, string password)
         {
@@ -153,7 +172,7 @@ namespace GPSTCPServer
 
         public bool AddLocation(string user, string name, string osmType, string osmId)
         {
-            int result=-1;
+            int result = -1;
             //int userID = getUserID(user);
             string osm = "";
             switch (osmType)
@@ -197,7 +216,7 @@ namespace GPSTCPServer
             return false;
         }
 
-        public List<string> getUserLocations(string user)
+        public List<string> GetUserLocations(string user)
         {
             string query = $"select name from locations where userID=(select id from user where username=\"{user}\")";
             List<string> names = new List<string>();
@@ -207,23 +226,33 @@ namespace GPSTCPServer
                 using (var command = new SQLiteCommand(query, con))
                 {
                     SQLiteDataReader result = command.ExecuteReader();
-                    if (result.HasRows)
+                    try
                     {
-
-                        while (result.Read())
+                        if (result.HasRows)
                         {
-                            names.Add((string)result["name"]);
+
+                            while (result.Read())
+                            {
+                                names.Add((string)result["name"]);
+                            }
+                            return names;
                         }
                     }
+                    finally
+                    {
+                        command.Dispose();
+                        con.Dispose();
+                    }
+
                 }
 
             }
-            return names;
+            return null;
         }
 
         public bool DeleteLocation(string user, string location)
         {
-            int result=-1;
+            int result = -1;
             string query = $"delete from locations where userID=(select id from user where username=\"{user}\") and name=\"{location}\"";
             using (var con = new SQLiteConnection(connectionString))
             {
@@ -243,7 +272,7 @@ namespace GPSTCPServer
                 }
 
             }
-            if (result == 1)    return true;
+            if (result == 1) return true;
             return false;
         }
 
@@ -251,7 +280,7 @@ namespace GPSTCPServer
         {
             int result = -1;
             string query;
-            if(address==null) 
+            if (address == null)
                 query = $"update locations set name=\"{newName}\" where userID=(select id from user where username=\"{user}\") and name=\"{name}\"";
             else
                 query = $"update locations set osmID=\"{address}\", name=\"{newName}\" where userID=(select id from user where username=\"{user}\") and name=\"{name}\"";
@@ -286,19 +315,18 @@ namespace GPSTCPServer
                 using (var command = new SQLiteCommand(query, con))
                 {
                     SQLiteDataReader result = command.ExecuteReader();
-                    if (result.HasRows)
+                    try
                     {
-
-                        try
+                        if (result.HasRows)
                         {
                             result.Read();
                             return (string)result["osmID"];
                         }
-                        finally
-                        {
-                            command.Dispose();
-                            con.Dispose();
-                        }
+                    }
+                    finally
+                    {
+                        command.Dispose();
+                        con.Dispose();
                     }
                 }
 
