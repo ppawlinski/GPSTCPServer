@@ -105,7 +105,8 @@ namespace GPSTCPClient
         {
             await Send($"LISTSAVEDADDRESSES");
             List<UserLocation> locations = new List<UserLocation>();
-            string[] names =  (await getUserInput(new byte[1024])).Split(' ');
+            string[] names = (await getUserInput(new byte[1024])).Split(' ').Where(p => !String.IsNullOrEmpty(p)).ToArray();
+            if (names.Length < 1 || names[0] == "FAIL") return locations;
             try
             {
                 foreach (var name in names)
