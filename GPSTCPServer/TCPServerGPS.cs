@@ -29,9 +29,9 @@ namespace GPSTCPServer
                     while (true)
                     {
                         await getUserInput(user.client, buffer);
-                        //Console.WriteLine($"CLIENT: {Encoding.UTF8.GetString(buffer)}");
+                        Console.WriteLine($"CLIENT: {Encoding.UTF8.GetString(buffer)}");
                         string response = await ProcessCommand(user, buffer);
-                        //Console.WriteLine($"SERVER: {response}");
+                        Console.WriteLine($"SERVER: {response}");
                         await Send(user.client, response);
                     }
 
@@ -174,6 +174,7 @@ namespace GPSTCPServer
         private async Task<string> ListSavedAddressess(string username)
         {
             List<string> names = db.GetUserLocations(username);
+            if (names == null) return null;
             string result = string.Empty;
             if (names.Count == 0) return null;
             foreach (var name in names)
