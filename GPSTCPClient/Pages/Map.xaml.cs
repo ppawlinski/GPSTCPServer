@@ -39,12 +39,18 @@ namespace GPSTCPClient.Pages
             Task.Run(async () =>
             {
                 userLocations = await Client.GetMyAddresses();
-            }).Wait();
-            FromAddressCB.ItemsSource = userLocations;
-            ToAddressCB.ItemsSource = userLocations;
+                Dispatcher.Invoke(() =>
+                {
+                    FromAddressCB.ItemsSource = userLocations;
+                    ToAddressCB.ItemsSource = userLocations;
+                    MyAddressesDG.ItemsSource = UserLocations;
+                });
+                
+            });
+            
             locations = userLocations.ToArray();
             history = new List<UserLocation>();
-            MyAddressesDG.ItemsSource = UserLocations;
+            
         }
 
 
