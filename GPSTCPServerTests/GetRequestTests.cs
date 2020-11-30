@@ -17,7 +17,6 @@ namespace GPSTCPServer.Tests
             Task.Run(async () =>
             {
                 string s = await GetRequest.GetFromURLAsync("https://nominatim.openstreetmap.org/search?q=test&format=json");
-                Console.WriteLine(s);
                 Assert.AreNotEqual(s, "");
             }).GetAwaiter().GetResult();
         }
