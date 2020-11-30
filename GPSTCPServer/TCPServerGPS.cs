@@ -174,9 +174,9 @@ namespace GPSTCPServer
         private Task<string> ListSavedAddressess(string username)
         {
             List<string> names = db.GetUserLocations(username);
-            if (names == null) return null;
+            if (names == null) return Task.FromResult<string>(null);
             string result = string.Empty;
-            if (names.Count == 0) return null;
+            if (names.Count == 0) return Task.FromResult<string>(null);
             foreach (var name in names)
             {
                 result += name + " ";
@@ -211,7 +211,7 @@ namespace GPSTCPServer
             RouterCalculator calculator = new RouterCalculator(originLon, originLat, destinationLon, destinationLat);
             if (!calculator.OK)
             {
-                return null;
+                return Task.FromResult<string>(null);
             }
             string[] instructions = calculator.getInstructions();
             foreach (var instruction in instructions)
@@ -260,7 +260,7 @@ namespace GPSTCPServer
                 return Task.FromResult(username);
             }
 
-            return null;
+            return Task.FromResult<string>(null);
         }
         private async Task<bool> createAccount(string username, string password)
         {
