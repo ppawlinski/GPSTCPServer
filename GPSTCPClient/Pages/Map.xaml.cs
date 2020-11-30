@@ -35,20 +35,21 @@ namespace GPSTCPClient.Pages
             InitializeComponent();
             navService = nav;
             prevPage = prevP;
-            List<UserLocation> userLocations = new List<UserLocation>();
             Task.Run(async () =>
             {
-                userLocations = await Client.GetMyAddresses();
-                Dispatcher.Invoke(() =>
+                await Client.GetMyAddresses().ContinueWith((t) =>
                 {
-                    FromAddressCB.ItemsSource = userLocations;
-                    ToAddressCB.ItemsSource = userLocations;
-                    MyAddressesDG.ItemsSource = UserLocations;
+                    locations = (t.Result as List<UserLocation>).ToArray();
+                    Dispatcher.Invoke(() =>
+                    {
+                        
+                        FromAddressCB.ItemsSource =  t.Result as List<UserLocation>;
+                        ToAddressCB.ItemsSource = t.Result as List<UserLocation>;
+                        MyAddressesDG.ItemsSource = t.Result as List<UserLocation>;
+                    });
                 });
                 
             });
-            
-            locations = userLocations.ToArray();
             history = new List<UserLocation>();
             
         }
