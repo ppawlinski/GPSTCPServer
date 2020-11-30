@@ -8,7 +8,7 @@ using GPSTCPServer.Models;
 
 namespace GPSTCPServer
 {
-    class RouterCalculator
+    public class RouterCalculator
     {
         private OSRMRoute router;
         public bool OK { get;  }
