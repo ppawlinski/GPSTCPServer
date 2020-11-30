@@ -148,11 +148,11 @@ namespace GPSTCPServer
             return "UNKNOWNCOMMAND";
         }
 
-        private async Task<bool> EditAddress(String username, string name, string newName, string osmType = null, string osmId = null)
+        private Task<bool> EditAddress(String username, string name, string newName, string osmType = null, string osmId = null)
         {
             if (osmId == null || osmType == null)
             {
-                return db.EditLocation(username, name, newName);
+                return Task.FromResult(db.EditLocation(username, name, newName));
             }
             string osm = string.Empty;
             //should be done on clients side
@@ -168,10 +168,10 @@ namespace GPSTCPServer
                     osm = "R" + osmId;
                     break;
             }
-            return db.EditLocation(username, name, newName, osm);
+            return Task.FromResult(db.EditLocation(username, name, newName, osm));
         }
 
-        private async Task<string> ListSavedAddressess(string username)
+        private Task<string> ListSavedAddressess(string username)
         {
             List<string> names = db.GetUserLocations(username);
             if (names == null) return null;
@@ -181,7 +181,7 @@ namespace GPSTCPServer
             {
                 result += name + " ";
             }
-            return result;
+            return Task.FromResult(result);
         }
 
         private async Task<string> getSavedAddress(GPSUser user, string name)
@@ -205,7 +205,7 @@ namespace GPSTCPServer
                 return null;
         }
 
-        private async Task<string> getRoute(string originLon, string originLat, string destinationLon, string destinationLat)
+        private Task<string> getRoute(string originLon, string originLat, string destinationLon, string destinationLat)
         {
             string response = string.Empty;
             RouterCalculator calculator = new RouterCalculator(originLon, originLat, destinationLon, destinationLat);
@@ -218,7 +218,7 @@ namespace GPSTCPServer
             {
                 if (instruction != string.Empty) response += instruction + "\n";
             }
-            return response;
+            return Task.FromResult(response);
         }
 
         private async Task<Address> getAddress(string message)
@@ -252,12 +252,12 @@ namespace GPSTCPServer
             else throw new Exception();
         }
 
-        private async Task<string> Login(string username, string password)
+        private Task<string> Login(string username, string password)
         {
 
             if (db.UserLogin(username, password))
             {
-                return username;
+                return Task.FromResult(username);
             }
 
             return null;
@@ -266,9 +266,9 @@ namespace GPSTCPServer
         {
             if (db.CreateUser(username, password))
             {
-                return true;
+                return await Task.FromResult(true);
             }
-            return false;
+            return await Task.FromResult(false);
         }
         private async Task<string> getUserInput(TcpClient client, byte[] buffer)
         {
