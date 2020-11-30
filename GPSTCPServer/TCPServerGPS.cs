@@ -29,9 +29,9 @@ namespace GPSTCPServer
                     while (true)
                     {
                         await getUserInput(user.client, buffer);
-                        Console.WriteLine($"CLIENT: {Encoding.UTF8.GetString(buffer)}");
+                        //Console.WriteLine($"CLIENT: {Encoding.UTF8.GetString(buffer)}");
                         string response = await ProcessCommand(user, buffer);
-                        Console.WriteLine($"SERVER: {response}");
+                        //Console.WriteLine($"SERVER: {response}");
                         await Send(user.client, response);
                     }
 
