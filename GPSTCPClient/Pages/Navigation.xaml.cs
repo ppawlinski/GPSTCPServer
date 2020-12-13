@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -13,7 +15,16 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using BruTile.Predefined;
 using GPSTCPClient.Models;
+using Mapsui;
+using Mapsui.Layers;
+using Mapsui.Projection;
+using Mapsui.Providers;
+using Mapsui.Styles;
+using Mapsui.Utilities;
+using Mapsui.Widgets.ScaleBar;
+using Newtonsoft.Json;
 
 namespace GPSTCPClient.Pages
 {
@@ -30,9 +41,33 @@ namespace GPSTCPClient.Pages
             get { 
                 return locations; }  }
 
+        private Map CreateMap()
+        {
+            var map = new Map()
+            {
+                CRS = "EPSG:3857",
+                Transformation = new MinimalTransformation()
+                
+                
+            };
+            
+            map.Layers.Add(OpenStreetMap.CreateTileLayer());
+            map.Layers.Add(CreatePointLayer());
+            map.Widgets.Add(new ScaleBarWidget(map) { TextAlignment = Mapsui.Widgets.Alignment.Center, HorizontalAlignment = Mapsui.Widgets.HorizontalAlignment.Center, VerticalAlignment = Mapsui.Widgets.VerticalAlignment.Top });
+            map.Widgets.Add(new Mapsui.Widgets.Zoom.ZoomInOutWidget { MarginX = 20, MarginY = 40 });
+            map.Widgets.Add(new Mapsui.Widgets.Hyperlink() { MarginX = 5, MarginY = 1 });
+            
+            return map;
+        }
+
         public Navigation(NavigationService nav, Page prevP)
         {
+
             InitializeComponent();
+            MapControl.Map = CreateMap();
+            //MapControl.Map.Layers.Add(new TileLayer(KnownTileSources.Create(KnownTileSource.OpenStreetMap,userAgent: "TCPServerProject v1.0")));
+            
+
             navService = nav;
             prevPage = prevP;
             Task.Run(async () =>
@@ -269,6 +304,15 @@ namespace GPSTCPClient.Pages
         private void ChangePassword_Click(object sender, EventArgs e)
         {
             navService.Navigate(new ChangePassword(navService));
+        }
+
+        private static MemoryLayer CreatePointLayer()
+        {
+            return new MemoryLayer
+            {
+                Name = "Points",
+                IsMapInfoLayer = true
+            };
         }
     }
 }

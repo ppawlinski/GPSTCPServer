@@ -4,8 +4,10 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:GPSTCPClient.Pages"
+      xmlns:xaml="clr-namespace:Mapsui.UI.Wpf;assembly=Mapsui.UI.Wpf"
       mc:Ignorable="d" 
-      d:DesignHeight="450" d:DesignWidth="800"
+      d:DesignHeight="900
+      " d:DesignWidth="800"
       Title="Navigation">
 
     <Grid>
@@ -29,6 +31,6 @@
         <TextBox Name="NewAddressNameTB" HorizontalAlignment="Left" Height="30" Margin="81,180,0,0"  TextWrapping="Wrap" VerticalAlignment="Top" Width="254"/>
         <Label Content="Nazwa:" HorizontalAlignment="Left" Height="30" Margin="10,180,0,0" VerticalAlignment="Top" Width="66"/>
         <Label Content="Adres:" HorizontalAlignment="Left" Height="30" Margin="10,225,0,0" VerticalAlignment="Top" Width="66"/>
-
+        <xaml:MapControl Name="MapControl" Width="685" Margin="81,425,0,51" HorizontalAlignment="Left"/>
     </Grid>
 </Page>
