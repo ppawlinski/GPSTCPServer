@@ -97,7 +97,6 @@ namespace GPSTCPClient
             return Encoding.UTF8.GetString(buffer).Trim().Replace("\0", String.Empty);
         }
 
-
         public static async Task<List<UserLocation>> GetMyAddresses()
         {
             await Send($"LISTSAVEDADDRESSES");
@@ -145,6 +144,14 @@ namespace GPSTCPClient
         public static async Task<bool> DeleteAddress(string name)
         {
             await Send($"DELETEADDRESS {name}");
+            return await getUserInput(new byte[1024]) == "SUCCESS";
+        }
+
+        public static async Task<bool> ChangePassword(string oldPassword, string newPassword)
+        {
+            oldPassword = Md5Hasher.CreateMD5(oldPassword);
+            newPassword = Md5Hasher.CreateMD5(newPassword);
+            await Send($"CHANGEPASSWORD {oldPassword} {newPassword}");
             return await getUserInput(new byte[1024]) == "SUCCESS";
         }
     }

@@ -265,5 +265,10 @@ namespace GPSTCPClient.Pages
                 }
             });
         }
+
+        private void ChangePassword_Click(object sender, EventArgs e)
+        {
+            navService.Navigate(new ChangePassword(navService));
+        }
     }
 }

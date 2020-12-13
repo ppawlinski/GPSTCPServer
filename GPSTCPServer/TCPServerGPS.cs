@@ -81,6 +81,18 @@ namespace GPSTCPServer
                     return "FAIL";
                 }
             }
+            else if (command == "CHANGEPASSWORD")
+            {
+                if (!user.LoggedIn || arguments.Length != 3) return "FAIL";
+                if (db.ChangePassword(user.Username, arguments[1], arguments[2]))
+                {
+                    return "SUCCESS";
+                }
+                else
+                {
+                    return "FAIL";
+                }
+            }
             else if (command == "GETADDRESS")
             {
                 if (!user.LoggedIn) return "FAIL";
@@ -106,7 +118,7 @@ namespace GPSTCPServer
             {
                 if (!user.LoggedIn) return "FAIL";
                 string result = await listSavedAddressess(user.Username);
-                if (result != null) return  result;
+                if (result != null) return result;
                 else return "FAIL";
             }
             else if (command == "GETSAVEDADDRESS")
@@ -139,7 +151,7 @@ namespace GPSTCPServer
                 if (db.AddLocation(user.Username, arguments[1], arguments[2], arguments[3])) return "SUCCESS";
                 else return "FAIL";
             }
-            else if(command == "DELETEADDRESS")
+            else if (command == "DELETEADDRESS")
             {
                 if (!user.LoggedIn || arguments.Length != 2) return "FAIL";
                 if (db.DeleteLocation(user.Username, arguments[1])) return "SUCCESS";
@@ -187,7 +199,7 @@ namespace GPSTCPServer
         private async Task<string> getSavedAddress(GPSUser user, string name)
         {
             var names = db.GetUserLocations(user.Username);
-            if (names!=null)
+            if (names != null)
             {
                 int i = 0;
                 foreach (var n in names)
@@ -236,6 +248,7 @@ namespace GPSTCPServer
             }
             else throw new Exception();
         }
+
         private async Task<Address[]> getAddresses(string message)
         {
             Address[] address = JsonSerializer.Deserialize<Address[]>(await GetRequest.GetFromURLAsync(String.Format("https://nominatim.openstreetmap.org/search?q={0}&format=json", message.Replace(" ", "+"))));
@@ -262,6 +275,7 @@ namespace GPSTCPServer
 
             return Task.FromResult<string>(null);
         }
+
         private async Task<bool> createAccount(string username, string password)
         {
             if (db.CreateUser(username, password))
@@ -270,6 +284,7 @@ namespace GPSTCPServer
             }
             return await Task.FromResult(false);
         }
+
         private async Task<string> getUserInput(TcpClient client, byte[] buffer)
         {
             Array.Clear(buffer, 0, buffer.Length);
@@ -287,112 +302,5 @@ namespace GPSTCPServer
         {
             await client.GetStream().WriteAsync(Encoding.UTF8.GetBytes(message + Environment.NewLine));
         }
-
-
-        //client side
-        /*private async Task<bool> manageSavedLocations(TcpClient client, byte[] buffer, string user)
-        {
-            //add location
-            if (choice == 0)
-            {
-                Address addr = null;
-                string message;
-                while (addr == null)
-                {
-                    await Send(client, "Podaj adres: ");
-                    message = await getUserInput(client, buffer);
-                    addr = await getAddress(client, buffer, message);
-                }
-
-                await Send(client, "Podaj nazwę pod jaką chcesz zapisać lokalizację: ");
-                string name = await getUserInput(client, buffer);
-                if (!db.AddLocation(user, addr.OsmType, addr.OsmId, name))
-                {
-                    await SendLine(client, "Nie udało się zapisać lokalizacji w bazie!");
-                    return false;
-                }
-                await SendLine(client, "Pomyślnie zapisano lokalizację.");
-                return true;
-            }
-            //managing existing locations
-            else if (choice == 1 || choice == 2)
-            {
-                var names = db.getUserLocations(user);
-                if (names != null)
-                {
-                    //listing locations
-                    await SendLine(client, "Wybierz lokalizację:");
-                    int i = 0;
-                    foreach (var n in names)
-                    {
-                        await SendLine(client, $"[{i}] {n}");
-                        i++;
-                    }
-                    await SendLine(client, $"[{names.Count}] Anuluj");
-                    int index = -1;
-                    while (index < 0 || index >= names.Count)
-                    {
-                        if (index == names.Count) return false;
-                        index = await getUserInputInt(client, buffer);
-                    }
-
-                    //editing location
-                    if (choice == 1)
-                    {
-                        await SendLine(client, "Co chesz zmienić?\r\n[0] Nazwę\r\n[1] Adres\r\n[3] Anuluj");
-                        int action = await getUserInputInt(client, buffer);
-                        //changing name
-                        if (action == 0)
-                        {
-                            await Send(client, "Podaj nową nazwę: ");
-                            string value = await getUserInput(client, buffer);
-                            if (db.EditLocation(user, true, names[index], value)) await SendLine(client, "Zmiana nazwy zakończona pomyślnie");
-                        }
-                        //changing address(osmId)
-                        if (action == 1)
-                        {
-                            Address addr = null;
-                            string message;
-                            while (addr == null)
-                            {
-                                await Send(client, "Podaj nowy adres: ");
-                                message = await getUserInput(client, buffer);
-                                addr = await getAddress(client, buffer, message);
-                            }
-                            string osm = "";
-                            switch (addr.OsmType)
-                            {
-                                case "node":
-                                    osm = "N" + addr.OsmId;
-                                    break;
-                                case "way":
-                                    osm = "W" + addr.OsmId;
-                                    break;
-                                case "relation":
-                                    osm = "R" + addr.OsmId;
-                                    break;
-                            }
-                            if (db.EditLocation(user, false, names[index], osm)) await SendLine(client, "Zmiana adresu zakończona pomyślnie");
-                            return true;
-                        }
-                        return false;
-                    }
-
-                    //deleting location
-                    else if (choice == 2)
-                    {
-                        if (db.DeleteLocation(user, names[index])) await SendLine(client, "Pomyślnie usunięto lokalizację");
-                    }
-                }
-                else
-                {
-                    await SendLine(client, $"Użytkownik {user} nie posiada zapisanych lokalizacji");
-                    return false;
-                }
-                return true;
-            }
-            else if (choice == 3) return true;
-            return false;
-        }*/
     }
 }

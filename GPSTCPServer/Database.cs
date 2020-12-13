@@ -112,11 +112,33 @@ namespace GPSTCPServer
                         }
 
                     }
-                    if (result == 1)
+                }
+
+            }
+            if (result == 1) return true;
+            return false;
+
+        }
+
+        public bool ChangePassword(string username, string password, string newpassword)
+        {
+            if (!UserLogin(username, password)) return false;
+            int result;
+            string query = $"update user set password=\"{newpassword}\" where username=\"{username}\"";
+            using (var con = new SQLiteConnection(connectionString))
+            {
+                con.Open();
+                using (SQLiteCommand command = new SQLiteCommand(query, con))
+                {
+                    try
+                    {
+                        result = command.ExecuteNonQuery();
+                    }
+                    catch (Exception)
                     {
                         try
                         {
-                            return true;
+                            return false;
                         }
                         finally
                         {
@@ -125,47 +147,11 @@ namespace GPSTCPServer
                         }
 
                     }
-
-                    try
-                    {
-                        return false;
-                    }
-                    finally
-                    {
-                        command.Dispose();
-                        con.Dispose();
-                    }
-
                 }
 
             }
-
-        }
-
-        //unused
-        private int getUserID(string user)
-        {
-            int id = -1;
-            string query = $"select id from user where username=\"{user}\"";
-            using (var con = new SQLiteConnection(connectionString))
-            {
-                con.Open();
-                using (SQLiteCommand command = new SQLiteCommand(query, con))
-                {
-                    using (SQLiteDataReader result = command.ExecuteReader())
-                    {
-                        if (result.HasRows)
-                        {
-                            result.Read();
-                            id = Convert.ToInt32(result["id"]);
-                        }
-                    }
-
-                }
-
-            }
-
-            return id;
+            if (result == 1) return true;
+            return false;
         }
 
         public bool AddLocation(string user, string name, string osmType, string osmId)
