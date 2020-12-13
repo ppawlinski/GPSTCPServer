@@ -55,7 +55,6 @@ namespace GPSTCPClient.Pages
                             PasswordChangeStatus.Text = "Nie udało się zmienić hasła";
                         });
                     }
-                    Client.Disconnect();
                 });
             }
             catch (Exception)
