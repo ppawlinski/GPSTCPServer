@@ -66,19 +66,23 @@ namespace GPSTCPServer
                 con.Open();
                 using (var command = new SQLiteCommand(query, con))
                 {
-                    SQLiteDataReader result = command.ExecuteReader();
-                    if (result.HasRows)
+                    try
                     {
-                        result.Read();
-                        if ((string)result["password"] == password)
+                        SQLiteDataReader result = command.ExecuteReader();
+                        if (result.HasRows)
                         {
-                            try { return true; }
-                            finally
+                            result.Read();
+                            if ((string)result["password"] == password)
                             {
-                                command.Dispose();
-                                con.Dispose();
+                                return true;
                             }
                         }
+                    }
+                    catch { }
+                    finally
+                    {
+                        command.Dispose();
+                        con.Dispose();
                     }
                 }
 
@@ -88,7 +92,7 @@ namespace GPSTCPServer
 
         public bool CreateUser(string username, string password)
         {
-            int result;
+            int result=-1;
             string query = $"insert into user(username, password) values (\"{username}\",\"{password}\")";
             using (var con = new SQLiteConnection(connectionString))
             {
@@ -105,6 +109,7 @@ namespace GPSTCPServer
                         {
                             return false;
                         }
+                        catch { }
                         finally
                         {
                             command.Dispose();
@@ -123,7 +128,7 @@ namespace GPSTCPServer
         public bool ChangePassword(string username, string password, string newpassword)
         {
             if (!UserLogin(username, password)) return false;
-            int result;
+            int result=-1;
             string query = $"update user set password=\"{newpassword}\" where username=\"{username}\"";
             using (var con = new SQLiteConnection(connectionString))
             {
@@ -140,12 +145,21 @@ namespace GPSTCPServer
                         {
                             return false;
                         }
+                        catch (Exception)
+                        {
+                            //Console.WriteLine(ex.Message);
+                        }
                         finally
                         {
                             command.Dispose();
                             con.Dispose();
                         }
 
+                    }
+                    finally
+                    {
+                        command.Dispose();
+                        con.Dispose();
                     }
                 }
 
@@ -187,6 +201,7 @@ namespace GPSTCPServer
                         {
                             return false;
                         }
+                        catch { }
                         finally
                         {
                             command.Dispose();
@@ -222,6 +237,7 @@ namespace GPSTCPServer
                             return names;
                         }
                     }
+                    catch { }
                     finally
                     {
                         command.Dispose();
@@ -247,6 +263,10 @@ namespace GPSTCPServer
                     try
                     {
                         result = command.ExecuteNonQuery();
+                    }
+                    catch(Exception ex)
+                    {
+                        //Console.WriteLine(ex.Message);
                     }
                     finally
                     {
@@ -278,6 +298,7 @@ namespace GPSTCPServer
                     {
                         result = command.ExecuteNonQuery();
                     }
+                    catch { }
                     finally
                     {
                         command.Dispose();
@@ -307,6 +328,7 @@ namespace GPSTCPServer
                             return (string)result["osmID"];
                         }
                     }
+                    catch { }
                     finally
                     {
                         command.Dispose();
