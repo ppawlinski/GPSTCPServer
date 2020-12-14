@@ -8,6 +8,11 @@
 
   <ItemGroup>
     <None Remove="Icons\back.png" />
+    <None Remove="Icons\pin.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Icons\pin.png" />
   </ItemGroup>
 
   <ItemGroup>

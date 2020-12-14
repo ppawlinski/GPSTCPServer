@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -47,12 +48,11 @@ namespace GPSTCPClient.Pages
             {
                 CRS = "EPSG:3857",
                 Transformation = new MinimalTransformation()
-                
-                
             };
-            
+           
             map.Layers.Add(OpenStreetMap.CreateTileLayer());
-            map.Layers.Add(CreatePointLayer());
+            map.Layers.Add(CreatePinLayer());
+            map.Home = n => n.NavigateTo(map.Layers[1].Envelope.Centroid, map.Resolutions[5]);
             map.Widgets.Add(new ScaleBarWidget(map) { TextAlignment = Mapsui.Widgets.Alignment.Center, HorizontalAlignment = Mapsui.Widgets.HorizontalAlignment.Center, VerticalAlignment = Mapsui.Widgets.VerticalAlignment.Top });
             map.Widgets.Add(new Mapsui.Widgets.Zoom.ZoomInOutWidget { MarginX = 20, MarginY = 40 });
             map.Widgets.Add(new Mapsui.Widgets.Hyperlink() { MarginX = 5, MarginY = 1 });
@@ -60,11 +60,22 @@ namespace GPSTCPClient.Pages
             return map;
         }
 
+        private MemoryLayer CreatePinLayer()
+        {
+            return new MemoryLayer
+            {
+                Name = "Points",
+                IsMapInfoLayer = true,
+                DataSource = new MemoryProvider(GetCitiesFromEmbeddedResource()),
+                Style = CreateBitmapStyle()
+            };
+        }
+
         public Navigation(NavigationService nav, Page prevP)
         {
 
             InitializeComponent();
-            MapControl.Map = CreateMap();
+            
             //MapControl.Map.Layers.Add(new TileLayer(KnownTileSources.Create(KnownTileSource.OpenStreetMap,userAgent: "TCPServerProject v1.0")));
             
 
@@ -77,14 +88,20 @@ namespace GPSTCPClient.Pages
                     locations = (t.Result as List<UserLocation>).ToArray();
                     Dispatcher.Invoke(() =>
                     {
-                        
-                        FromAddressCB.ItemsSource =  t.Result as List<UserLocation>;
+
+                        FromAddressCB.ItemsSource = t.Result as List<UserLocation>;
                         ToAddressCB.ItemsSource = t.Result as List<UserLocation>;
                         MyAddressesDG.ItemsSource = t.Result as List<UserLocation>;
+
                     });
+
                 });
-                
+
+            }).ContinueWith((t) =>
+            {
+                MapControl.Map = CreateMap();
             });
+            
             history = new List<UserLocation>();
             
         }
@@ -310,9 +327,57 @@ namespace GPSTCPClient.Pages
         {
             return new MemoryLayer
             {
-                Name = "Points",
-                IsMapInfoLayer = true
+                Name = "Pins",
+                IsMapInfoLayer = true,
+                DataSource = new MemoryProvider(),
+                Style = CreateBitmapStyle()
             };
+        }
+
+        private static SymbolStyle CreateBitmapStyle()
+        {
+            var path = "..\\..\\..\\Icons\\pin_small.png"; 
+            var bitmapId = GetBitmapIdForEmbeddedResource(path);
+            var bitmapHeight = 176;
+            return new SymbolStyle { BitmapId = bitmapId, SymbolScale = 0.20, SymbolOffset = new Offset(0, bitmapHeight * 0.5) };
+        }
+
+        private static int GetBitmapIdForEmbeddedResource(string imagePath)
+        {
+            var image = new FileStream(imagePath, FileMode.Open);
+            return BitmapRegistry.Instance.Register(image);
+        }
+
+        private IEnumerable<IFeature> GetCitiesFromEmbeddedResource()
+        {
+
+            return UserLocations.Select(c =>
+            {
+                var feature = new Feature();
+                var point = SphericalMercator.FromLonLat(double.Parse(c.Address.Lon, new CultureInfo("en-US", false).NumberFormat), double.Parse(c.Address.Lat, new CultureInfo("en-US", false).NumberFormat));
+                feature.Geometry = point;
+                feature["name"] = c.Name;
+                return feature;
+            });
+        }
+
+        private class City
+        {
+            public string Country { get; set; }
+            public string Name { get; set; }
+            public double Lat { get; set; }
+            public double Lng { get; set; }
+        }
+
+        public static IEnumerable<T> DeserializeFromStream<T>(Stream stream)
+        {
+            var serializer = new JsonSerializer();
+
+            using (var sr = new StreamReader(stream))
+            using (var jsonTextReader = new JsonTextReader(sr))
+            {
+                return serializer.Deserialize<List<T>>(jsonTextReader);
+            }
         }
     }
 }
