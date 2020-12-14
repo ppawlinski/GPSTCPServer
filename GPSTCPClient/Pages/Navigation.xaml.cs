@@ -46,7 +46,7 @@ namespace GPSTCPClient.Pages
             }
         }
 
-        private Map CreateMap()
+        private Map createMap()
         {
             var map = new Map()
             {
@@ -55,7 +55,7 @@ namespace GPSTCPClient.Pages
             };
 
             map.Layers.Add(OpenStreetMap.CreateTileLayer());
-            map.Layers.Add(CreatePinLayer());
+            map.Layers.Add(createPinLayer());
             map.Home = n => n.NavigateTo(map.Layers[1].Envelope.Centroid, map.Resolutions[5]);
             map.Widgets.Add(new ScaleBarWidget(map) { TextAlignment = Mapsui.Widgets.Alignment.Center, HorizontalAlignment = Mapsui.Widgets.HorizontalAlignment.Center, VerticalAlignment = Mapsui.Widgets.VerticalAlignment.Top });
             map.Widgets.Add(new Mapsui.Widgets.Zoom.ZoomInOutWidget { MarginX = 20, MarginY = 40 });
@@ -64,14 +64,14 @@ namespace GPSTCPClient.Pages
             return map;
         }
 
-        private MemoryLayer CreatePinLayer()
+        private MemoryLayer createPinLayer()
         {
             return new MemoryLayer
             {
                 Name = "Points",
                 IsMapInfoLayer = true,
-                DataSource = new MemoryProvider(GetLocationsForMap()),
-                Style = CreateBitmapStyle()
+                DataSource = new MemoryProvider(getLocationsForMap()),
+                Style = createBitmapStyle()
             };
         }
 
@@ -103,7 +103,7 @@ namespace GPSTCPClient.Pages
 
             }).ContinueWith((t) =>
             {
-                MapControl.Map = CreateMap();
+                MapControl.Map = createMap();
             });
 
             history = new List<UserLocation>();
@@ -327,32 +327,22 @@ namespace GPSTCPClient.Pages
             navService.Navigate(new ChangePassword(navService));
         }
 
-        private static MemoryLayer CreatePointLayer()
-        {
-            return new MemoryLayer
-            {
-                Name = "Pins",
-                IsMapInfoLayer = true,
-                DataSource = new MemoryProvider(),
-                Style = CreateBitmapStyle()
-            };
-        }
 
-        private static SymbolStyle CreateBitmapStyle()
+        private SymbolStyle createBitmapStyle()
         {
             var path = "..\\..\\..\\Icons\\pin_small.png";
-            var bitmapId = GetBitMapId(path);
+            var bitmapId = getBitMapId(path);
             var bitmapHeight = 176;
             return new SymbolStyle { BitmapId = bitmapId, SymbolScale = 0.20, SymbolOffset = new Offset(0, bitmapHeight * 0.5) };
         }
 
-        private static int GetBitMapId(string imagePath)
+        private int getBitMapId(string imagePath)
         {
             var image = new FileStream(imagePath,FileMode.Open,FileAccess.Read,FileShare.ReadWrite);
             return BitmapRegistry.Instance.Register(image);
         }
 
-        private IEnumerable<IFeature> GetLocationsForMap()
+        private IEnumerable<IFeature> getLocationsForMap()
         {
 
             return UserLocations.Select(c =>
@@ -363,25 +353,6 @@ namespace GPSTCPClient.Pages
                 feature["name"] = c.Name;
                 return feature;
             });
-        }
-
-        private class City
-        {
-            public string Country { get; set; }
-            public string Name { get; set; }
-            public double Lat { get; set; }
-            public double Lng { get; set; }
-        }
-
-        public static IEnumerable<T> DeserializeFromStream<T>(Stream stream)
-        {
-            var serializer = new JsonSerializer();
-
-            using (var sr = new StreamReader(stream))
-            using (var jsonTextReader = new JsonTextReader(sr))
-            {
-                return serializer.Deserialize<List<T>>(jsonTextReader);
-            }
         }
     }
 }
