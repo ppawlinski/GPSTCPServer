@@ -31,15 +31,8 @@ namespace GPSTCPClient.Pages
         {
             PasswordChangeStatus.Text = String.Empty;
             if (String.IsNullOrWhiteSpace(OldPasswordBox.Password) || String.IsNullOrWhiteSpace(NewPasswordBox.Password) || String.IsNullOrWhiteSpace(PasswordConfirmBox.Password))
-            {
-                PasswordChangeStatus.Foreground = Brushes.Red;
                 PasswordChangeStatus.Text += "Uzupełnij wszystkie pola. ";
-            }
-            if (NewPasswordBox.Password != PasswordConfirmBox.Password)
-            {
-                PasswordChangeStatus.Foreground = Brushes.Red;
-                PasswordChangeStatus.Text += "Hasła nie są takie same. ";
-            }            
+            if (NewPasswordBox.Password != PasswordConfirmBox.Password) PasswordChangeStatus.Text += "Hasła nie są takie same. ";
             if (!String.IsNullOrWhiteSpace((String)PasswordChangeStatus.Text)) return;
             try
             {
@@ -52,7 +45,6 @@ namespace GPSTCPClient.Pages
                     {
                         Dispatcher.Invoke(() =>
                         {
-                            PasswordChangeStatus.Foreground = Brushes.Green;
                             PasswordChangeStatus.Text = "Pomyślnie zmieniono hasło";
                         });
                     }
@@ -60,7 +52,6 @@ namespace GPSTCPClient.Pages
                     {
                         Dispatcher.Invoke(() =>
                         {
-                            PasswordChangeStatus.Foreground = Brushes.Red;
                             PasswordChangeStatus.Text = "Nie udało się zmienić hasła";
                         });
                     }
