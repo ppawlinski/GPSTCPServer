@@ -7,7 +7,6 @@ using System.Net.Sockets;
 using System.Net;
 using System.Windows;
 using GPSTCPClient.Models;
-using GPSTCPClient.View;
 using System.Text.Json;
 
 namespace GPSTCPClient
