@@ -55,8 +55,12 @@ namespace GPSTCPClient.Pages
             };
 
             map.Layers.Add(OpenStreetMap.CreateTileLayer());
-            map.Layers.Add(createPinLayer());
-            map.Home = n => n.NavigateTo(map.Layers[1].Envelope.Centroid, map.Resolutions[5]);
+            if(UserLocations.Count() > 0)
+            {
+                map.Layers.Add(createPinLayer());
+                map.Home = n => n.NavigateTo(map.Layers[1].Envelope.Centroid, map.Resolutions[5]);
+            }
+            
             map.Widgets.Add(new ScaleBarWidget(map) { TextAlignment = Mapsui.Widgets.Alignment.Center, HorizontalAlignment = Mapsui.Widgets.HorizontalAlignment.Center, VerticalAlignment = Mapsui.Widgets.VerticalAlignment.Top });
             map.Widgets.Add(new Mapsui.Widgets.Zoom.ZoomInOutWidget { MarginX = 20, MarginY = 40 });
             map.Widgets.Add(new Mapsui.Widgets.Hyperlink() { MarginX = 5, MarginY = 1 });
