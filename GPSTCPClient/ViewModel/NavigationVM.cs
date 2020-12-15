@@ -26,11 +26,6 @@ namespace GPSTCPClient.ViewModel
             }
         }
 
-
-
-
-
-
         public NavigationVM()
         {
             Locations = new UserLocationsSource(Client.GetMyAddresses());
