@@ -12,6 +12,26 @@ namespace GPSTCPClient.View
     {
         private Address address;
         private string name;
+        public UserLocation()
+        {
+            Address = new Address();
+            Name = "";
+        }
+        public UserLocation(string name_)
+        {
+            Address = new Address();
+            Name = name_;
+        }
+        public UserLocation(Address address_)
+        {
+            Address = address_;
+            Name = "";
+        }
+        public UserLocation(string name_, Address address_)
+        {
+            Name = name_;
+            Address = address_;
+        }
         public Address Address { 
             get
             {
@@ -49,7 +69,7 @@ namespace GPSTCPClient.View
 
         public override string ToString()
         {
-            if (Name != "") return $"[{Name}] {Address.DisplayName}";
+            if (Name != "") return $"[{Name}] {Address?.DisplayName ?? ""}";
             else return Address.DisplayName;
 
         }

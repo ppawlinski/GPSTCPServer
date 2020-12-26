@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Net.Sockets;
 using System.Net;
 using System.Windows;
+using GPSTCPClient.View;
 using GPSTCPClient.Models;
 using System.Text.Json;
 

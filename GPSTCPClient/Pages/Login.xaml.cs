@@ -30,7 +30,7 @@ namespace GPSTCPClient.Pages
             ServerAddressBox.Text = "127.0.0.1";
             ServerPortBox.Text = "2048";
             LoginBox.Text = "test";
-            PasswordBox.Password = "test";
+            PasswordBox.Password = "123";
             navService = nav;
         }
         private void Login_Click(object sender, RoutedEventArgs e)
@@ -58,7 +58,7 @@ namespace GPSTCPClient.Pages
                     {
                         Dispatcher.Invoke(() =>
                         {
-                            navService.Navigate(new Navigation(navService, this));
+                            navService.Navigate(new Navigation());
                         });
                     }
                     else

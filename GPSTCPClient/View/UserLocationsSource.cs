@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GPSTCPClient.Models;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -11,14 +12,39 @@ namespace GPSTCPClient.View
     public class UserLocationsSource : INotifyPropertyChanged
     {
 
-        public UserLocationsSource(Task<List<UserLocation>> loader)
+        public UserLocationsSource(Task<List<UserLocation>> loader, bool search)
         {
-            storedLocations = new ObservableCollection<UserLocation>() { new UserLocation() { Name = "WCZYTYWANIE..." } };
+            Searching = search;
+            Locations = new ObservableCollection<UserLocation>() { new UserLocation("WCZYTYWANIE...", null) };
             Task.Run(async () =>
             {
-                storedLocations = new ObservableCollection<UserLocation>(await loader);
+                Locations = new ObservableCollection<UserLocation>(await loader);
             });
-            OnPropertyChanged(null);
+        }
+        public UserLocationsSource(Task<UserLocation[]> loader, bool search)
+        {
+            Searching = search;
+            Locations = new ObservableCollection<UserLocation>() { new UserLocation("WCZYTYWANIE...", null) };
+            Task.Run(async () =>
+            {
+                Locations = new ObservableCollection<UserLocation>(await loader);
+            });
+        }
+        public UserLocationsSource(Task<Address[]> loader, bool search)
+        {
+            Searching = search;
+            Locations = new ObservableCollection<UserLocation>();
+            List<UserLocation> ulList = new List<UserLocation>();
+            Locations.Add(new UserLocation() { Address = new Address() { DisplayName = "WCZYTYWANIE..." } });
+            Task.Run(async () =>
+            {
+                var addresses = await loader;
+                foreach (var address in addresses)
+                {
+                    ulList.Add(new UserLocation("", address));
+                }
+                Locations = new ObservableCollection<UserLocation>(ulList);
+            });
         }
         private bool searching;
 
@@ -31,20 +57,19 @@ namespace GPSTCPClient.View
             set
             {
                 searching = value;
-                OnPropertyChanged(nameof(Searching));
             }
         }
 
-        public UserLocationsSource(List<UserLocation> loader)
+        public UserLocationsSource(List<UserLocation> loader, bool search)
         {
-            storedLocations = new ObservableCollection<UserLocation>(loader);
-            OnPropertyChanged(null);
+            Searching = search;
+            Locations = new ObservableCollection<UserLocation>(loader);
         }
 
-        public UserLocationsSource()
+        public UserLocationsSource(bool search)
         {
-            storedLocations = new ObservableCollection<UserLocation>();
-            OnPropertyChanged(null);
+            Searching = search;
+            Locations = new ObservableCollection<UserLocation>();
         }
 
         private ObservableCollection<UserLocation> storedLocations;
@@ -56,6 +81,12 @@ namespace GPSTCPClient.View
             {
                 if (Searching) return searchingLocations;
                 else return storedLocations;
+            }
+            set
+            {
+                if (Searching) searchingLocations = value;
+                else storedLocations = value;
+                OnPropertyChanged(nameof(Locations));
             }
         }
 
@@ -79,6 +110,11 @@ namespace GPSTCPClient.View
             {
                 PropertyChanged(this, new PropertyChangedEventArgs(propertyname));
             }
+        }
+
+        public void Add(UserLocation ul)
+        {
+            Locations.Add(ul);
         }
     }
 }
