@@ -27,6 +27,13 @@ namespace GPSTCPClient
             Navigation.NavigationService.Navigate(new Pages.Login(Navigation.NavigationService));
         }
 
-        
+        private void Minimize_Click(object sender, RoutedEventArgs e)
+        {
+            this.WindowState = WindowState.Minimized;
+        }
+        private void Close_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close();
+        }
     }
 }

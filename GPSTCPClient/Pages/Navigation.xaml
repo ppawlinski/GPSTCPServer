@@ -6,6 +6,14 @@
       xmlns:local="clr-namespace:GPSTCPClient.Pages"
       xmlns:xaml="clr-namespace:Mapsui.UI.Wpf;assembly=Mapsui.UI.Wpf"
       xmlns:ViewModel="clr-namespace:GPSTCPClient.ViewModel" xmlns:cc="clr-namespace:GPSTCPClient.Components" x:Class="GPSTCPClient.Pages.Navigation"
+      xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+      TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+      TextElement.FontWeight="Regular"
+      TextElement.FontSize="13"
+      TextOptions.TextFormattingMode="Ideal" 
+      TextOptions.TextRenderingMode="Auto"        
+      Background="{DynamicResource MaterialDesignPaper}"
+      FontFamily="{DynamicResource MaterialDesignFont}"
       mc:Ignorable="d" 
       d:DesignHeight="900" 
       d:DesignWidth="800"
@@ -16,13 +24,10 @@
         <Grid.DataContext>
             <ViewModel:NavigationVM/>
         </Grid.DataContext>
-        <TextBox Padding="5" Name="NewAddressNameTB" HorizontalAlignment="Left" Height="30" Margin="81,180,0,0"  TextWrapping="Wrap" VerticalAlignment="Top" Width="254" Text="{Binding AddingLocationName}"/>
-        <cc:SearchingBox x:Name="NewAddressCB" Padding="5" IsTextSearchEnabled="False" HorizontalAlignment="Left" Height="30" Margin="81,225,0,0" VerticalAlignment="Top" Width="254" IsEditable="True" Text="{Binding SelectedAddingLocationText}" IsDropDownOpen="{Binding AddingLocationsList.IsDropDownOpen}" IsSynchronizedWithCurrentItem="False" SelectedItem="{Binding SelectedAddingLocation}" ItemsSource="{Binding AddingLocationsList.Addresses}" />
+        <TextBox Name="NewAddressNameTB" materialDesign:HintAssist.Hint="Nazwa"  HorizontalAlignment="Left" Height="30" Margin="81,180,0,0" Padding="2,0,0,0"  TextWrapping="Wrap" VerticalAlignment="Top" Width="254" Text="{Binding AddingLocationName}"/>
+        <cc:SearchingBox Style="{DynamicResource MaterialDesignComboBox}" materialDesign:HintAssist.Hint="Adres"  x:Name="NewAddressCB" Padding="5" IsTextSearchEnabled="False" HorizontalAlignment="Left" Height="30" Margin="81,225,0,0" VerticalAlignment="Top" Width="254" IsEditable="True" Text="{Binding SelectedAddingLocationText}" IsDropDownOpen="{Binding AddingLocationsList.IsDropDownOpen}" IsSynchronizedWithCurrentItem="False" SelectedItem="{Binding SelectedAddingLocation}" ItemsSource="{Binding AddingLocationsList.Addresses}" />
         <Button Content="Dodaj" Command="{Binding AddLocationCommand}" HorizontalAlignment="Left" Height="75" Margin="360,180,0,0" VerticalAlignment="Top" Width="100" />
         <Button Content="Usuń" Command="{Binding DelLocationCommand}" HorizontalAlignment="Left" Height="30" Margin="360,272,0,0" VerticalAlignment="Top" Width="100" />
-        <Label Content="Nazwa:" HorizontalAlignment="Left" Height="30" Margin="10,180,0,0" VerticalAlignment="Top" Width="66"/>
-        <Label Content="Adres:" HorizontalAlignment="Left" Height="30" Margin="10,225,0,0" VerticalAlignment="Top" Width="66"/>
-        
         <!--<Button Content="Wyloguj się" HorizontalAlignment="Left" Height="37" VerticalAlignment="Top" Width="115" Click="Logout_Click" Margin="651,10,0,0"/>
         <Button Content="Zmień hasło" HorizontalAlignment="Left" Height="37" VerticalAlignment="Top" Width="115" Click="ChangePassword_Click" Margin="531,10,0,0"/>
         <ComboBox IsEditable="true" Name="FromAddressCB" HorizontalAlignment="Left" Height="30" Margin="81,50,0,0" VerticalAlignment="Top" Width="254"  SelectionChanged="FromAddressCB_SelectionChanged" DropDownOpened="FromAddressCB_DropDownOpened"/>
