@@ -48,11 +48,46 @@ namespace GPSTCPClient.ViewModel
                 }
             }
         }
+
+        public Address SelectedFromAddress { get; set; }
+        public string selectedFromAddressText;
+        public string SelectedFromAddressText
+        {
+            get
+            {
+                return selectedFromAddressText;
+            }
+            set
+            {
+                selectedFromAddressText = value;
+                if(selectedFromAddressText.Length >= 3 && !FromAddressesContainer.Locations.Any(p => p.Address.DisplayName == value))
+                {
+                    FindAddressFrom(value);
+                }
+                else
+                {
+                    FromAddressesSearch.IsDropDownOpen = false;
+                }
+            }
+        }
+        public AddressesSource FromAddressesSearch { get; set; }
+        public UserLocationsSource FromAddressesContainer
+        {
+            get
+            {
+                if (selectedFromAddressText?.Length == 0) return Locations;
+                else
+                {
+                    return new UserLocationsSource(FromAddressesSearch);
+                }
+            }
+        }
         public NavigationVM()
         {
-            Locations = new UserLocationsSource(Client.GetMyAddresses(), false);
+            Locations = new UserLocationsSource(Client.GetMyAddresses());
             AddingLocationsList = new AddressesSource();
             SelectedAddingLocation = new Address();
+            FromAddressesSearch = new AddressesSource();
             AddLocationCommand = new Command(sender => AddLocation());
             DelLocationCommand = new Command(sender => DelLocation());
         }
@@ -63,10 +98,23 @@ namespace GPSTCPClient.ViewModel
                     await Task.Delay(500);
                     if (SelectedAddingLocationText == val)
                     {
-                        AddingLocationsList.FillAddressess(Client.GetAddress(SelectedAddingLocationText));
+                        AddingLocationsList.FillAddressess(Client.GetAddress(val));
                         AddingLocationsList.IsDropDownOpen = true;
                     }
                 }
+            );
+        }
+        public void FindAddressFrom(string val)
+        {
+            Task.Run(async () =>
+            {
+                await Task.Delay(500);
+                if (SelectedFromAddressText == val)
+                {
+                    FromAddressesSearch.FillAddressess(Client.GetAddress(val));
+                    FromAddressesSearch.IsDropDownOpen = true;
+                }
+            }
             );
         }
         public ICommand AddLocationCommand { get; set; }
