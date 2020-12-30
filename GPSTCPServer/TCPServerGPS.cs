@@ -22,26 +22,30 @@ namespace GPSTCPServer
             Listener.Start();
             while (true)
             {
-                await Listener.AcceptTcpClientAsync().ContinueWith(async (t) =>
-                {
-                    byte[] buffer = new byte[1024];
-                    GPSUser user = new GPSUser(t.Result);
-                    while (true)
-                    {
-                        await getUserInput(user.client, buffer);
-                        //Console.WriteLine($"CLIENT: {Encoding.UTF8.GetString(buffer)}");
-                        string response = await processCommand(user, buffer);
-                        //Console.WriteLine($"SERVER: {response}");
-                        await Send(user.client, response);
-                    }
+                _ = await Listener.AcceptTcpClientAsync().ContinueWith(async (t) =>
+                  {
+                      byte[] buffer = new byte[1024];
+                      GPSUser user = new GPSUser(t.Result);
+                      while (true)
+                      {
+                          string input = await getUserInput(user.client, buffer);
+                          Array.Clear(buffer, 0, buffer.Length);
+                          //Console.WriteLine($"CLIENT: {Encoding.UTF8.GetString(buffer)}");
+                          _ = Task.Run(async () =>
+                            {
+                                string response = await processCommand(user, input);
+                              //Console.WriteLine($"SERVER: {response}");
+                              await Send(user.client, response);
+                            });
+                      }
 
-                });
+                  });
             }
         }
 
-        private async Task<string> processCommand(GPSUser user, byte[] buffer)
+        private async Task<string> processCommand(GPSUser user,string fullMessage)
         {
-            string fullMessage = Encoding.UTF8.GetString(buffer).Replace("\0", String.Empty);
+            
             string[] arguments = fullMessage.Split(" ");
             string command = arguments[0];
             if (command == "LOGIN")

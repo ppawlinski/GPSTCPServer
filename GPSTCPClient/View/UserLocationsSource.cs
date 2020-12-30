@@ -116,5 +116,10 @@ namespace GPSTCPClient.View
         {
             Locations.Add(ul);
         }
+
+        public void Remove(UserLocation ul)
+        {
+            Locations.Remove(ul);
+        }
     }
 }

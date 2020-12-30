@@ -185,6 +185,31 @@ namespace GPSTCPServer
                     osm = "R" + osmId;
                     break;
             }
+            using(var con = new SQLiteConnection(connectionString))
+            {
+                con.Open();
+                using (SQLiteCommand command = new SQLiteCommand($"select osmID from locations where name == '{name}' AND userID IN ( select userID from user where username = '{user}')",con))
+                {
+                    try
+                    {
+                        var res = command.ExecuteReader();
+                        if(res.HasRows)
+                        {
+                            return false;
+                        }
+                    }
+                    catch (Exception ex )
+                    {
+                        Console.WriteLine(ex.Message);
+                    }
+                    finally
+                    {
+                        command.Dispose();
+                        con.Dispose();
+                    }
+                }
+            }
+
             string query = $"insert into locations(name,userID,osmID) values (\"{name}\",(select id from user where username=\"{user}\"),\"{osm}\")";
             using (var con = new SQLiteConnection(connectionString))
             {
@@ -209,7 +234,6 @@ namespace GPSTCPServer
                         }
                     }
                 }
-
             }
             if (result == 1) return true;
             return false;

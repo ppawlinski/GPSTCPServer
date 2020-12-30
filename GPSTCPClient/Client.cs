@@ -9,15 +9,18 @@ using System.Windows;
 using GPSTCPClient.View;
 using GPSTCPClient.Models;
 using System.Text.Json;
+using System.IO;
 
 namespace GPSTCPClient
 {
     public static class Client
     {
+        private static readonly string logFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "log.txt");
+        private static StreamWriter file = new StreamWriter(logFilePath);
         public static TcpClient TCP { get; set; }
         private static TcpListener listener { get; set; }
         private static string login;
-        public async static Task Send(string message)
+        public async static void Send(string message)
         {
             await TCP.GetStream().WriteAsync(Encoding.UTF8.GetBytes(message));
         }
@@ -48,7 +51,7 @@ namespace GPSTCPClient
             byte[] buffer = new byte[1024];
             string result = "";
             string md5 = Md5Hasher.CreateMD5(password);
-            await Send($"LOGIN {login_} {md5}");
+            Send($"LOGIN {login_} {md5}");
             result = await getUserInput(new byte[1024]);
             /*await Listener.AcceptTcpClientAsync().ContinueWith(async (listen) =>
             {
@@ -65,7 +68,7 @@ namespace GPSTCPClient
         public async static Task<bool> Register(string login_, string password)
         {
             string md5 = Md5Hasher.CreateMD5(password);
-            await Send($"CREATEACCOUNT {login_} {md5}");
+            Send($"CREATEACCOUNT {login_} {md5}");
             string result = await getUserInput(new byte[1024]);
             if (result == "ACCOUNTCREATED")
             {
@@ -77,7 +80,7 @@ namespace GPSTCPClient
         public async static Task Logout()
         {
             login = null;
-            await Send($"LOGOUT");
+            Send($"LOGOUT");
             //string result = "";
             //await Listener.AcceptTcpClientAsync().ContinueWith(async (listen) =>
             //{
@@ -100,7 +103,7 @@ namespace GPSTCPClient
 
         public static async Task<List<UserLocation>> GetMyAddresses()
         {
-            await Send($"LISTSAVEDADDRESSES");
+            Send($"LISTSAVEDADDRESSES");
             List<UserLocation> locations = new List<UserLocation>();
             string[] names = (await getUserInput(new byte[1024])).Split(' ');
             if (names[0] != "FAIL")
@@ -110,7 +113,7 @@ namespace GPSTCPClient
                     foreach (var name in names)
                     {
                         if (name == "") continue;
-                        await Send($"GETSAVEDADDRESS {name}");
+                        Send($"GETSAVEDADDRESS {name}");
                         locations.Add(new UserLocation()
                         {
                             Name = name,
@@ -126,25 +129,33 @@ namespace GPSTCPClient
 
         public static async Task<Address[]> GetAddress(string location)
         {
-            await Send($"GETADDRESS {location.Replace(' ', '+')}");
-            return JsonSerializer.Deserialize<Address[]>(await getUserInput(new byte[100000]));
+            try
+            {
+                Send($"GETADDRESS {location.Replace(' ', '+')}");
+                return JsonSerializer.Deserialize<Address[]>(await getUserInput(new byte[100000]));
+            }
+            catch (Exception)
+            {
+                return new Address[0];
+            }
+            
         }
 
         public static async Task<string[]> GetRoute(Address origin, Address destination)
         {
-            await Send($"GETROUTE {origin.Lon} {origin.Lat} {destination.Lon} {destination.Lat}");
+            Send($"GETROUTE {origin.Lon} {origin.Lat} {destination.Lon} {destination.Lat}");
             return (await getUserInput(new byte[100000])).Split('\n');
         }
 
         public static async Task<bool> AddAddress(Address address, string name)
         {
-            await Send($"ADDADDRESS {name} {address.OsmType} {address.OsmId}");
+            Send($"ADDADDRESS {name} {address.OsmType} {address.OsmId}");
             return await getUserInput(new byte[1024]) == "SUCCESS";
         }
 
         public static async Task<bool> DeleteAddress(string name)
         {
-            await Send($"DELETEADDRESS {name}");
+            Send($"DELETEADDRESS {name}");
             return await getUserInput(new byte[1024]) == "SUCCESS";
         }
 
@@ -152,7 +163,7 @@ namespace GPSTCPClient
         {
             oldPassword = Md5Hasher.CreateMD5(oldPassword);
             newPassword = Md5Hasher.CreateMD5(newPassword);
-            await Send($"CHANGEPASSWORD {oldPassword} {newPassword}");
+            Send($"CHANGEPASSWORD {oldPassword} {newPassword}");
             return await getUserInput(new byte[1024]) == "SUCCESS";
         }
     }
