@@ -1,9 +1,12 @@
 ﻿using GPSTCPClient.Models;
 using GPSTCPClient.View;
 using GPSTCPClient.ViewModel.MVVM;
+using Microsoft.Maps.MapControl.WPF;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Data;
@@ -129,17 +132,42 @@ namespace GPSTCPClient.ViewModel
             }
         }
 
+        private MapView mainMap;
+        public MapView MainMap
+        {
+            get
+            {
+                return mainMap;
+            }
+            set
+            {
+                mainMap = value;
+                OnPropertyChanged(nameof(MainMap));
+            }
+        }
+
+        
+
+
         public NavigationVM()
         {
+
             ToAddressessSearch = new MixedSearch();
             FromAddressessSearch = new MixedSearch();
-            Locations = new ObservableCollection<UserLocation>();
-            Task.Run(async () => Locations = new ObservableCollection<UserLocation>(await Client.GetMyAddresses()));
+            MainMap = new MapView();
+            Locations = new ObservableCollection<UserLocation>(new UserLocation[] { new UserLocation("WCZYTYWANIE...")});
+            Task.Run(async () => { 
+                Locations = new ObservableCollection<UserLocation>(await Client.GetMyAddresses());
+                MainMap.SetCenter(Locations.First().Address.Lat, Locations.First().Address.Lon);
+                MainMap.MainLoc = MainMap.Center;
+                //MainMap.FillWithFavs(Locations);
+            });
             AddingLocationsList = new ObservableCollection<Address>();
             AddLocationCommand = new Command(sender => AddLocation());
             DelLocationCommand = new Command(sender => DelLocation());
             FindRouteCommand = new Command(sender => FindRoute());
             FavAddressSearch = new AddressesSearch();
+
         }
 
         public ICommand AddLocationCommand { get; set; }
@@ -168,14 +196,23 @@ namespace GPSTCPClient.ViewModel
         private async void FindRoute()
         {
             RouteInstrucions = new RouteString[] { new RouteString("WCZYTYWANIE...") };
-            var strings = await Client.GetRoute(FromAddressessSearch.SelectedLocation.Address, ToAddressessSearch.SelectedLocation.Address);
+            var rm = await Client.GetRoute(FromAddressessSearch.SelectedLocation.Address, ToAddressessSearch.SelectedLocation.Address);
             
-            RouteString[] ri = new RouteString[strings.Length];
-            for(int i=0; i<strings.Length; i++)
+            RouteString[] ri = new RouteString[rm.Length];
+            MainMap.PolylineLocations = new LocationCollection();
+            for (int i=0; i<rm.Length; i++)
             {
-                ri[i] = new RouteString(strings[i]);
+                ri[i] = new RouteString(rm[i].Description);
+                foreach(var tupl in rm[i].Intersections)
+                {
+                    MainMap.PolylineLocations.Add(new Location(tupl.Item1, tupl.Item2));
+                }
             }
+            MainMap.Center = MainMap.PolylineLocations.First();
+            MainMap.ZoomLevel = 15;
             RouteInstrucions = ri;
+            MainMap.FromPin = MainMap.PolylineLocations.First();
+            MainMap.ToPin = MainMap.PolylineLocations.Last();
         }
     }
 }

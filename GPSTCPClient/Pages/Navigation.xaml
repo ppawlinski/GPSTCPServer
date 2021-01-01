@@ -3,16 +3,18 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-      xmlns:local="clr-namespace:GPSTCPClient.Pages"
-      xmlns:ViewModel="clr-namespace:GPSTCPClient.ViewModel" xmlns:cc="clr-namespace:GPSTCPClient.Components" x:Class="GPSTCPClient.Pages.Navigation"
+      xmlns:ViewModel="clr-namespace:GPSTCPClient.ViewModel" 
+      xmlns:cc="clr-namespace:GPSTCPClient.Components" 
+      xmlns:wpf="clr-namespace:Microsoft.Maps.MapControl.WPF;assembly=Microsoft.Maps.MapControl.WPF"
+      x:Class="GPSTCPClient.Pages.Navigation"
       xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-      TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+      TextElement.Foreground="{StaticResource MaterialDesignBody}"
       TextElement.FontWeight="Regular"
       TextElement.FontSize="13"
       TextOptions.TextFormattingMode="Ideal" 
       TextOptions.TextRenderingMode="Auto"        
       Background="{DynamicResource MaterialDesignPaper}"
-      FontFamily="{DynamicResource MaterialDesignFont}"
+      FontFamily="{StaticResource MaterialDesignFont}"
       mc:Ignorable="d" 
       d:DesignHeight="900" 
       d:DesignWidth="800"
@@ -24,13 +26,13 @@
             <ViewModel:NavigationVM/>
         </Grid.DataContext>
         <TextBox Name="NewAddressNameTB" materialDesign:HintAssist.Hint="Nazwa"  HorizontalAlignment="Left" Height="30" Margin="81,180,0,0" Padding="2,0,0,0"  TextWrapping="Wrap" VerticalAlignment="Top" Width="254" Text="{Binding AddingLocationName}"/>
-        <cc:SearchingBox Style="{DynamicResource MaterialDesignComboBox}" materialDesign:HintAssist.Hint="Adres"  x:Name="NewAddressCB" Padding="5" IsTextSearchEnabled="False" HorizontalAlignment="Left" Height="30" Margin="81,225,0,0" VerticalAlignment="Top" Width="254" IsEditable="True" Text="{Binding FavAddressSearch.SelectedAddressText}" IsDropDownOpen="{Binding FavAddressSearch.IsDropDownOpen}" IsSynchronizedWithCurrentItem="False" SelectedItem="{Binding FavAddressSearch.SelectedAddress}" ItemsSource="{Binding FavAddressSearch.Addresses}" />
+        <cc:SearchingBox Style="{StaticResource MaterialDesignComboBox}" materialDesign:HintAssist.Hint="Adres"  x:Name="NewAddressCB" Padding="5" IsTextSearchEnabled="False" HorizontalAlignment="Left" Height="30" Margin="81,225,0,0" VerticalAlignment="Top" Width="254" IsEditable="True" Text="{Binding FavAddressSearch.SelectedAddressText}" IsDropDownOpen="{Binding FavAddressSearch.IsDropDownOpen}" IsSynchronizedWithCurrentItem="False" SelectedItem="{Binding FavAddressSearch.SelectedAddress}" ItemsSource="{Binding FavAddressSearch.Addresses}" />
         <Button Content="Dodaj" Command="{Binding AddLocationCommand}" HorizontalAlignment="Left" Height="75" Margin="360,180,0,0" VerticalAlignment="Top" Width="100" />
         <Button Content="Usuń" Command="{Binding DelLocationCommand}" HorizontalAlignment="Left" Height="30" Margin="360,272,0,0" VerticalAlignment="Top" Width="100" />
         <!--<Button Content="Wyloguj się" HorizontalAlignment="Left" Height="37" VerticalAlignment="Top" Width="115" Click="Logout_Click" Margin="651,10,0,0"/>
         <Button Content="Zmień hasło" HorizontalAlignment="Left" Height="37" VerticalAlignment="Top" Width="115" Click="ChangePassword_Click" Margin="531,10,0,0"/>-->
-        <cc:SearchingBox Style="{DynamicResource MaterialDesignComboBox}" IsEditable="true" materialDesign:HintAssist.Hint="Z..." Padding="5" x:Name="FromAddressCB" ItemsSource="{Binding FromAddressessSearch.Locations}" SelectedItem="{Binding FromAddressessSearch.SelectedLocation}" Text="{Binding FromAddressessSearch.SelectedLocationText}" IsDropDownOpen="{Binding FromAddressessSearch.IsDropDownOpen}" HorizontalAlignment="Left" Height="30" Margin="81,50,0,0" VerticalAlignment="Top" Width="254"/>
-        <cc:SearchingBox Style="{DynamicResource MaterialDesignComboBox}" IsEditable="true" materialDesign:HintAssist.Hint="Do..." Padding="5" ItemsSource="{Binding ToAddressessSearch.Locations}" SelectedItem="{Binding ToAddressessSearch.SelectedLocation}" Text="{Binding ToAddressessSearch.SelectedLocationText}" IsDropDownOpen="{Binding ToAddressessSearch.IsDropDownOpen}" x:Name="ToAddressCB" HorizontalAlignment="Left" Height="30" Margin="81,120,0,0" VerticalAlignment="Top" Width="254" />
+        <cc:SearchingBox Style="{StaticResource MaterialDesignComboBox}" IsEditable="true" materialDesign:HintAssist.Hint="Z..." Padding="5" IsTextSearchEnabled="False" x:Name="FromAddressCB" ItemsSource="{Binding FromAddressessSearch.Locations}" SelectedItem="{Binding FromAddressessSearch.SelectedLocation}" Text="{Binding FromAddressessSearch.SelectedLocationText}" IsDropDownOpen="{Binding FromAddressessSearch.IsDropDownOpen}" HorizontalAlignment="Left" Height="30" Margin="81,50,0,0" VerticalAlignment="Top" Width="254"/>
+        <cc:SearchingBox Style="{StaticResource MaterialDesignComboBox}" IsEditable="true" materialDesign:HintAssist.Hint="Do..." Padding="5" IsTextSearchEnabled="False" ItemsSource="{Binding ToAddressessSearch.Locations}" SelectedItem="{Binding ToAddressessSearch.SelectedLocation}" Text="{Binding ToAddressessSearch.SelectedLocationText}" IsDropDownOpen="{Binding ToAddressessSearch.IsDropDownOpen}" x:Name="ToAddressCB" HorizontalAlignment="Left" Height="30" Margin="81,120,0,0" VerticalAlignment="Top" Width="254" />
 
         <Button HorizontalAlignment="Left" Command="{Binding FindRouteCommand}" Height="100" Margin="360,50,0,0" VerticalAlignment="Top" Width="100">
             <materialDesign:PackIcon Kind="Search"/>
@@ -42,5 +44,22 @@
                 <DataGridTextColumn Header="Adres" Binding="{Binding Address}"/>
             </DataGrid.Columns>
         </DataGrid>
+        <wpf:Map  HorizontalAlignment="Left" Margin="81,400,0,0" VerticalAlignment="Top" Height="400" Width="638" x:Name="MainMap" 
+                         ZoomLevel="{Binding MainMap.ZoomLevel, Mode=TwoWay}" Center="{Binding MainMap.Center, Mode=TwoWay, UpdateSourceTrigger=Explicit}" Culture="en-EN" >
+            <wpf:MapItemsControl  ItemsSource="{Binding MainMap.MapMarkers, Mode=TwoWay, UpdateSourceTrigger=Explicit}" />
+            <wpf:Pushpin  wpf:MapLayer.Position="{Binding MainMap.MainLoc}">
+                <materialDesign:PackIcon Kind="Location">
+                </materialDesign:PackIcon>
+            </wpf:Pushpin>
+            <wpf:Pushpin  wpf:MapLayer.Position="{Binding MainMap.FromPin}">
+                <materialDesign:PackIcon Kind="Location">
+                </materialDesign:PackIcon>
+            </wpf:Pushpin>
+            <wpf:Pushpin  wpf:MapLayer.Position="{Binding MainMap.ToPin}">
+                <materialDesign:PackIcon Kind="Location">
+                </materialDesign:PackIcon>
+            </wpf:Pushpin>
+            <wpf:MapPolyline x:Name="MapPolyline" Locations="{Binding MainMap.PolylineLocations}" Stroke="Blue" StrokeThickness="5" Opacity="0.7" Grid.Row="0"/>
+        </wpf:Map>
     </Grid>
 </Page>

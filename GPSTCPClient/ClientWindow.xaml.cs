@@ -1,18 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Sockets;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.IO;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace GPSTCPClient
 {
@@ -24,6 +11,10 @@ namespace GPSTCPClient
         public ClientWindow()
         {
             InitializeComponent();
+            if (File.Exists("apikey.txt"))
+            {
+                 GPSTCPClient.Client.ApiKey = File.ReadAllText("apikey.txt");
+            }
             Navigation.NavigationService.Navigate(new Pages.Login(Navigation.NavigationService));
         }
 

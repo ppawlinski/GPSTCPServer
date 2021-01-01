@@ -20,6 +20,7 @@ namespace GPSTCPClient
         public static TcpClient TCP { get; set; }
         private static TcpListener listener { get; set; }
         private static string login;
+        public static string ApiKey;
         public async static void Send(string message)
         {
             await TCP.GetStream().WriteAsync(Encoding.UTF8.GetBytes(message));
@@ -141,10 +142,10 @@ namespace GPSTCPClient
             
         }
 
-        public static async Task<string[]> GetRoute(Address origin, Address destination)
+        public static async Task<RouteModel[]> GetRoute(Address origin, Address destination)
         {
             Send($"GETROUTE {origin.Lon} {origin.Lat} {destination.Lon} {destination.Lat}");
-            return (await getUserInput(new byte[100000])).Split('\n');
+            return JsonSerializer.Deserialize<RouteModel[]>(await getUserInput(new byte[100000]));
         }
 
         public static async Task<bool> AddAddress(Address address, string name)

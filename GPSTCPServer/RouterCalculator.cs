@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
@@ -22,13 +23,18 @@ namespace GPSTCPServer
             else OK = true;
         }
 
-        public string[] GetInstructions()
+        public RouteModel[] GetInstructions()
         {
             var steps = router.Routes[0].Legs[0].Steps;
-            string[] instructions = new string[steps.Count];
+            RouteModel[] instructions = new RouteModel[steps.Count];
             for (int i = 0; i < steps.Count; i++)
             {
-                instructions[i] = formatName(steps[i].Maneuver, steps[i].Name, steps[i].Distance.ToString());
+                instructions[i] = new RouteModel()
+                {
+                    Description = formatName(steps[i].Maneuver, steps[i].Name, steps[i].Distance.ToString()),
+                    Intersections = steps[i].Intersections.Select(p => new Tuple<double, double>(p.Location[1], p.Location[0])).ToArray(),
+                    Type = steps[i].Maneuver.Type
+                };
             }
             return instructions;
         }
@@ -154,5 +160,11 @@ namespace GPSTCPServer
             }
             return "";
         }
+    }
+    public class RouteModel
+    {
+        public Tuple<double,double>[] Intersections { get; set; }
+        public string Description { get; set; }
+        public string Type { get; set; } //można enum z tego zrobić
     }
 }

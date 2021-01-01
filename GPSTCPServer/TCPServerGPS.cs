@@ -114,8 +114,8 @@ namespace GPSTCPServer
             else if (command == "GETROUTE")
             {
                 if (!user.LoggedIn) return "FAIL";
-                string instructions = await getRoute(arguments[1], arguments[2], arguments[3], arguments[4]);
-                if (instructions != null) return instructions;
+                RouteModel[] instructions = await getRoute(arguments[1], arguments[2], arguments[3], arguments[4]);
+                if (instructions != null) return JsonSerializer.Serialize(instructions);
                 else return "FAIL";
             }
             else if (command == "LISTSAVEDADDRESSES")
@@ -221,20 +221,20 @@ namespace GPSTCPServer
                 return null;
         }
 
-        private Task<string> getRoute(string originLon, string originLat, string destinationLon, string destinationLat)
+        private Task<RouteModel[]> getRoute(string originLon, string originLat, string destinationLon, string destinationLat)
         {
             string response = string.Empty;
             RouterCalculator calculator = new RouterCalculator(originLon, originLat, destinationLon, destinationLat);
             if (!calculator.OK)
             {
-                return Task.FromResult<string>(null);
+                return Task.FromResult<RouteModel[]>(null);
             }
-            string[] instructions = calculator.GetInstructions();
-            foreach (var instruction in instructions)
-            {
-                if (instruction != string.Empty) response += instruction + "\n";
-            }
-            return Task.FromResult(response);
+            RouteModel[] instructions = calculator.GetInstructions();
+            //foreach (var instruction in instructions)
+            //{
+            //    if (instruction != string.Empty) response += instruction + "\n";
+            //}
+            return Task.FromResult(instructions);
         }
 
         private async Task<Address> getAddress(string message)
