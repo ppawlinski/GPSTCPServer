@@ -24,7 +24,7 @@ namespace GPSTCPClient.Components
 
             if (base.IsDropDownOpen && txt.SelectionLength > 0)
             {
-                caretPosition = txt.SelectionLength;
+                //caretPosition = txt.SelectionLength;
                 txt.CaretIndex = caretPosition;
             }
             if (txt.SelectionLength == 0 && txt.CaretIndex != 0)

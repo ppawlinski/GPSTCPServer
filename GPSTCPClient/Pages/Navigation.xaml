@@ -4,7 +4,6 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:GPSTCPClient.Pages"
-      xmlns:xaml="clr-namespace:Mapsui.UI.Wpf;assembly=Mapsui.UI.Wpf"
       xmlns:ViewModel="clr-namespace:GPSTCPClient.ViewModel" xmlns:cc="clr-namespace:GPSTCPClient.Components" x:Class="GPSTCPClient.Pages.Navigation"
       xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
       TextElement.Foreground="{DynamicResource MaterialDesignBody}"
@@ -25,18 +24,19 @@
             <ViewModel:NavigationVM/>
         </Grid.DataContext>
         <TextBox Name="NewAddressNameTB" materialDesign:HintAssist.Hint="Nazwa"  HorizontalAlignment="Left" Height="30" Margin="81,180,0,0" Padding="2,0,0,0"  TextWrapping="Wrap" VerticalAlignment="Top" Width="254" Text="{Binding AddingLocationName}"/>
-        <cc:SearchingBox Style="{DynamicResource MaterialDesignComboBox}" materialDesign:HintAssist.Hint="Adres"  x:Name="NewAddressCB" Padding="5" IsTextSearchEnabled="False" HorizontalAlignment="Left" Height="30" Margin="81,225,0,0" VerticalAlignment="Top" Width="254" IsEditable="True" Text="{Binding SelectedAddingLocationText}" IsDropDownOpen="{Binding AddingLocationsList.IsDropDownOpen}" IsSynchronizedWithCurrentItem="False" SelectedItem="{Binding SelectedAddingLocation}" ItemsSource="{Binding AddingLocationsList.Addresses}" />
+        <cc:SearchingBox Style="{DynamicResource MaterialDesignComboBox}" materialDesign:HintAssist.Hint="Adres"  x:Name="NewAddressCB" Padding="5" IsTextSearchEnabled="False" HorizontalAlignment="Left" Height="30" Margin="81,225,0,0" VerticalAlignment="Top" Width="254" IsEditable="True" Text="{Binding FavAddressSearch.SelectedAddressText}" IsDropDownOpen="{Binding FavAddressSearch.IsDropDownOpen}" IsSynchronizedWithCurrentItem="False" SelectedItem="{Binding FavAddressSearch.SelectedAddress}" ItemsSource="{Binding FavAddressSearch.Addresses}" />
         <Button Content="Dodaj" Command="{Binding AddLocationCommand}" HorizontalAlignment="Left" Height="75" Margin="360,180,0,0" VerticalAlignment="Top" Width="100" />
         <Button Content="Usuń" Command="{Binding DelLocationCommand}" HorizontalAlignment="Left" Height="30" Margin="360,272,0,0" VerticalAlignment="Top" Width="100" />
         <!--<Button Content="Wyloguj się" HorizontalAlignment="Left" Height="37" VerticalAlignment="Top" Width="115" Click="Logout_Click" Margin="651,10,0,0"/>
-        <Button Content="Zmień hasło" HorizontalAlignment="Left" Height="37" VerticalAlignment="Top" Width="115" Click="ChangePassword_Click" Margin="531,10,0,0"/>
-        <ComboBox IsEditable="true" Name="FromAddressCB" HorizontalAlignment="Left" Height="30" Margin="81,50,0,0" VerticalAlignment="Top" Width="254"  SelectionChanged="FromAddressCB_SelectionChanged" DropDownOpened="FromAddressCB_DropDownOpened"/>-->
-        <ComboBox IsEditable="true" ItemsSource="{Binding FromAddressesContainer}" SelectedItem="{Binding SelectedFromAddress}" Text="{Binding SelectedFromAddressText}" Name="ToAddressCB" HorizontalAlignment="Left" Height="30" Margin="81,120,0,0" VerticalAlignment="Top" Width="254" />
-        <!--<Label Content="Z:" HorizontalAlignment="Left" Height="30" Margin="10,50,0,0" VerticalAlignment="Top" Width="66"/>
-        <Label Content="Do:" HorizontalAlignment="Left" Height="30" Margin="10,120,0,0" VerticalAlignment="Top" Width="66"/>
-        <Button Content="Szukaj" HorizontalAlignment="Left" Height="100" Margin="360,50,0,0" VerticalAlignment="Top" Width="100" Click="Szukaj_Click"/>
-        <DataGrid IsReadOnly="True" Name="Routes" HorizontalAlignment="Left" Height="326" Margin="478,65,0,0" VerticalAlignment="Top" Width="288"/>-->
-        <DataGrid x:Name="MyAddressesDG" IsReadOnly="True" SelectedItem="{Binding SelectedFavLocation}" HorizontalAlignment="Left" Height="119" Margin="81,272,0,0" VerticalAlignment="Top" Width="254" AutoGenerateColumns="false" ItemsSource="{Binding Locations.Locations}">
+        <Button Content="Zmień hasło" HorizontalAlignment="Left" Height="37" VerticalAlignment="Top" Width="115" Click="ChangePassword_Click" Margin="531,10,0,0"/>-->
+        <cc:SearchingBox Style="{DynamicResource MaterialDesignComboBox}" IsEditable="true" materialDesign:HintAssist.Hint="Z..." Padding="5" x:Name="FromAddressCB" ItemsSource="{Binding FromAddressessSearch.Locations}" SelectedItem="{Binding FromAddressessSearch.SelectedLocation}" Text="{Binding FromAddressessSearch.SelectedLocationText}" IsDropDownOpen="{Binding FromAddressessSearch.IsDropDownOpen}" HorizontalAlignment="Left" Height="30" Margin="81,50,0,0" VerticalAlignment="Top" Width="254"/>
+        <cc:SearchingBox Style="{DynamicResource MaterialDesignComboBox}" IsEditable="true" materialDesign:HintAssist.Hint="Do..." Padding="5" ItemsSource="{Binding ToAddressessSearch.Locations}" SelectedItem="{Binding ToAddressessSearch.SelectedLocation}" Text="{Binding ToAddressessSearch.SelectedLocationText}" IsDropDownOpen="{Binding ToAddressessSearch.IsDropDownOpen}" x:Name="ToAddressCB" HorizontalAlignment="Left" Height="30" Margin="81,120,0,0" VerticalAlignment="Top" Width="254" />
+
+        <Button HorizontalAlignment="Left" Command="{Binding FindRouteCommand}" Height="100" Margin="360,50,0,0" VerticalAlignment="Top" Width="100">
+            <materialDesign:PackIcon Kind="Search"/>
+        </Button>
+        <DataGrid IsReadOnly="True" Name="Routes" ItemsSource="{Binding RouteInstrucions}" CanUserSortColumns="False" HorizontalAlignment="Left" Height="326" Margin="478,65,0,0" VerticalAlignment="Top" Width="288"/>
+        <DataGrid x:Name="MyAddressesDG" IsReadOnly="True" SelectedItem="{Binding SelectedFavLocation}" HorizontalAlignment="Left" Height="119" Margin="81,272,0,0" VerticalAlignment="Top" Width="254" AutoGenerateColumns="false" ItemsSource="{Binding Locations}">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Nazwa" Binding="{Binding Name}" />
                 <DataGridTextColumn Header="Adres" Binding="{Binding Address}"/>

@@ -1,137 +1,181 @@
-﻿using GPSTCPClient.Helpers;
-using GPSTCPClient.Models;
+﻿using GPSTCPClient.Models;
 using GPSTCPClient.View;
 using GPSTCPClient.ViewModel.MVVM;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Data;
 using System.Windows.Input;
-using System.Windows.Threading;
 
 namespace GPSTCPClient.ViewModel
 {
-    public class NavigationVM
+    public class NavigationVM : ViewModelBase
     {
-        public UserLocationsSource Locations { get; set; }
-
-        public string AddingLocationName { get; set; }
-
-        public Address SelectedAddingLocation { get; set; }
-        
-
-        public AddressesSource AddingLocationsList { get; set; }
-
-        public UserLocation SelectedFavLocation { get; set; }
-        private string selectedAddingLocationText;
-        public string SelectedAddingLocationText
+        private AddressesSearch favAddressSearch;
+        public AddressesSearch FavAddressSearch
         {
             get
             {
-                return selectedAddingLocationText;
+                return favAddressSearch;
             }
             set
             {
-                selectedAddingLocationText = value;
-
-                if (selectedAddingLocationText.Length >= 3 && !AddingLocationsList.Addresses.Any(p => p.DisplayName == value))
-                {
-                    FindAddressForFav(value);
-                }
-                else
-                {
-                    AddingLocationsList.IsDropDownOpen = false;
-                }
+                favAddressSearch = value;
+                OnPropertyChanged(nameof(FavAddressSearch));
             }
         }
 
-        public Address SelectedFromAddress { get; set; }
-        public string selectedFromAddressText;
-        public string SelectedFromAddressText
+        public ObservableCollection<UserLocation> Locations
+        {
+            get
+            { return locations; }
+            set
+            {
+                locations = value;
+                ToAddressessSearch.StoredLocations = value;
+                FromAddressessSearch.StoredLocations = value;
+                OnPropertyChanged(nameof(Locations));
+            }
+        }
+
+        public string AddingLocationName
         {
             get
             {
-                return selectedFromAddressText;
+                return addingLocationName;
             }
             set
             {
-                selectedFromAddressText = value;
-                if(selectedFromAddressText.Length >= 3 && !FromAddressesContainer.Locations.Any(p => p.Address.DisplayName == value))
-                {
-                    FindAddressFrom(value);
-                }
-                else
-                {
-                    FromAddressesSearch.IsDropDownOpen = false;
-                }
+                addingLocationName = value;
+                OnPropertyChanged(nameof(AddingLocationName));
             }
         }
-        public AddressesSource FromAddressesSearch { get; set; }
-        public UserLocationsSource FromAddressesContainer
+
+        public ObservableCollection<Address> AddingLocationsList
         {
             get
             {
-                if (selectedFromAddressText?.Length == 0) return Locations;
-                else
-                {
-                    return new UserLocationsSource(FromAddressesSearch);
-                }
+                return addingLocationsList;
+            }
+            set
+            {
+                addingLocationsList = value;
+                OnPropertyChanged(nameof(AddingLocationsList));
             }
         }
+
+        public UserLocation SelectedFavLocation
+        {
+            get
+            {
+                return selectedFavLocation;
+            }
+            set
+            {
+                selectedFavLocation = value;
+                OnPropertyChanged(nameof(SelectedFavLocation));
+            }
+        }
+
+        private ObservableCollection<UserLocation> locations;
+
+        private string addingLocationName;
+
+        private ObservableCollection<Address> addingLocationsList;
+
+        private UserLocation selectedFavLocation;
+
+
+        private MixedSearch toAddressessSearch;
+        public MixedSearch ToAddressessSearch {
+            get
+            {
+                return toAddressessSearch;
+            }
+            set
+            {
+                toAddressessSearch = value;
+                OnPropertyChanged(nameof(ToAddressessSearch));
+            }
+        }
+
+        private MixedSearch fromAddressessSearch;
+        public MixedSearch FromAddressessSearch
+        {
+            get
+            {
+                return fromAddressessSearch;
+            }
+            set
+            {
+                fromAddressessSearch = value;
+                OnPropertyChanged(nameof(FromAddressessSearch));
+            }
+        }
+
+        private RouteString[] routeInstructions;
+        public RouteString[] RouteInstrucions
+        {
+            get
+            {
+                return routeInstructions;
+            }
+            set
+            {
+                routeInstructions = value;
+                OnPropertyChanged(nameof(RouteInstrucions));
+            }
+        }
+
         public NavigationVM()
         {
-            Locations = new UserLocationsSource(Client.GetMyAddresses());
-            AddingLocationsList = new AddressesSource();
-            SelectedAddingLocation = new Address();
-            FromAddressesSearch = new AddressesSource();
+            ToAddressessSearch = new MixedSearch();
+            FromAddressessSearch = new MixedSearch();
+            Locations = new ObservableCollection<UserLocation>();
+            Task.Run(async () => Locations = new ObservableCollection<UserLocation>(await Client.GetMyAddresses()));
+            AddingLocationsList = new ObservableCollection<Address>();
             AddLocationCommand = new Command(sender => AddLocation());
             DelLocationCommand = new Command(sender => DelLocation());
+            FindRouteCommand = new Command(sender => FindRoute());
+            FavAddressSearch = new AddressesSearch();
         }
-        public void FindAddressForFav(string val)
-        {
-            Task.Run(async () =>
-                {
-                    await Task.Delay(500);
-                    if (SelectedAddingLocationText == val)
-                    {
-                        AddingLocationsList.FillAddressess(Client.GetAddress(val));
-                        AddingLocationsList.IsDropDownOpen = true;
-                    }
-                }
-            );
-        }
-        public void FindAddressFrom(string val)
-        {
-            Task.Run(async () =>
-            {
-                await Task.Delay(500);
-                if (SelectedFromAddressText == val)
-                {
-                    FromAddressesSearch.FillAddressess(Client.GetAddress(val));
-                    FromAddressesSearch.IsDropDownOpen = true;
-                }
-            }
-            );
-        }
+
         public ICommand AddLocationCommand { get; set; }
+
         public ICommand DelLocationCommand { get; set; }
+        public ICommand FindRouteCommand { get; set; }
 
         private async void AddLocation()
         {
-            if (await Client.AddAddress(SelectedAddingLocation, AddingLocationName))
-                Locations.Add(new UserLocation(AddingLocationName, SelectedAddingLocation));
+            if (await Client.AddAddress(FavAddressSearch.SelectedAddress, AddingLocationName))
+            {
+                Locations.Add(new UserLocation(AddingLocationName, FavAddressSearch.SelectedAddress));
+                AddingLocationName = "";
+                FavAddressSearch = new AddressesSearch();
+            }
         }
 
         private async void DelLocation()
         {
-            if(await Client.DeleteAddress(SelectedFavLocation.Name))
+            if (await Client.DeleteAddress(SelectedFavLocation.Name))
             {
                 Locations.Remove(SelectedFavLocation);
             }
+        }
+
+        private async void FindRoute()
+        {
+            RouteInstrucions = new RouteString[] { new RouteString("WCZYTYWANIE...") };
+            var strings = await Client.GetRoute(FromAddressessSearch.SelectedLocation.Address, ToAddressessSearch.SelectedLocation.Address);
+            
+            RouteString[] ri = new RouteString[strings.Length];
+            for(int i=0; i<strings.Length; i++)
+            {
+                ri[i] = new RouteString(strings[i]);
+            }
+            RouteInstrucions = ri;
         }
     }
 }
