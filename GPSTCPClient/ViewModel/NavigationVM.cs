@@ -167,6 +167,7 @@ namespace GPSTCPClient.ViewModel
             DelLocationCommand = new Command(sender => DelLocation());
             FindRouteCommand = new Command(sender => FindRoute());
             CenterOnRouteCommand = new Command(sender => CenterOnRoute(sender));
+            CenterOnUserLocationCommand = new Command(sender => CenterOnUserLocation(sender));
             SwapAddressesCommand = new Command(sender => SwapAddresses());
             FavAddressSearch = new AddressesSearch();
 
@@ -180,6 +181,7 @@ namespace GPSTCPClient.ViewModel
         public ICommand FindRouteCommand { get; set; }
         public ICommand CenterOnRouteCommand { get; set; }
         public ICommand SwapAddressesCommand { get; set; }
+        public ICommand CenterOnUserLocationCommand { get; set; }
 
         private async void AddLocation()
         {
@@ -234,6 +236,15 @@ namespace GPSTCPClient.ViewModel
             {
                  MainMap.Center = new Location(rm.Maneuver.Item1, rm.Maneuver.Item2);
                 //TODO ustawić zoom w zależności od dystansu (przedziały metodą prób i błędów)
+            }
+        }
+
+        private void CenterOnUserLocation(object sender)
+        {
+            if(sender is UserLocation ul)
+            {
+                MainMap.Center = new Location(double.Parse(ul.Address.Lat, CultureInfo.InvariantCulture), double.Parse(ul.Address.Lon, CultureInfo.InvariantCulture));
+                 //TODO W zależności od ul.Address.Type można dostosować zoom
             }
         }
 

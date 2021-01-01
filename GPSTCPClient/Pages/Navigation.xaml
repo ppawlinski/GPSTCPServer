@@ -56,6 +56,9 @@
                 <DataGridTextColumn Header="Nazwa" Binding="{Binding Name}" />
                 <DataGridTextColumn Header="Adres" Binding="{Binding Address}"/>
             </DataGrid.Columns>
+            <DataGrid.InputBindings>
+                <MouseBinding Gesture="LeftDoubleClick" Command="{Binding CenterOnUserLocationCommand}" CommandParameter="{Binding ElementName=MyAddressesDG, Path=SelectedItem}"/>
+            </DataGrid.InputBindings>
         </DataGrid>
         <wpf:Map  HorizontalAlignment="Left" Margin="81,400,0,0" VerticalAlignment="Top" Height="400" Width="638" x:Name="MainMap" 
                          ZoomLevel="{Binding MainMap.ZoomLevel, Mode=TwoWay}" Center="{Binding MainMap.Center, Mode=TwoWay, UpdateSourceTrigger=Explicit}" Culture="en-EN" >
