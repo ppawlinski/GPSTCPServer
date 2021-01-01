@@ -118,8 +118,8 @@ namespace GPSTCPClient.ViewModel
             }
         }
 
-        private RouteString[] routeInstructions;
-        public RouteString[] RouteInstrucions
+        private RouteModel[] routeInstructions;
+        public RouteModel[] RouteInstrucions
         {
             get
             {
@@ -166,14 +166,20 @@ namespace GPSTCPClient.ViewModel
             AddLocationCommand = new Command(sender => AddLocation());
             DelLocationCommand = new Command(sender => DelLocation());
             FindRouteCommand = new Command(sender => FindRoute());
+            CenterOnRouteCommand = new Command(sender => CenterOnRoute(sender));
+            SwapAddressesCommand = new Command(sender => SwapAddresses());
             FavAddressSearch = new AddressesSearch();
 
         }
+
+        
 
         public ICommand AddLocationCommand { get; set; }
 
         public ICommand DelLocationCommand { get; set; }
         public ICommand FindRouteCommand { get; set; }
+        public ICommand CenterOnRouteCommand { get; set; }
+        public ICommand SwapAddressesCommand { get; set; }
 
         private async void AddLocation()
         {
@@ -187,6 +193,7 @@ namespace GPSTCPClient.ViewModel
 
         private async void DelLocation()
         {
+            if (SelectedFavLocation == null) return;
             if (await Client.DeleteAddress(SelectedFavLocation.Name))
             {
                 Locations.Remove(SelectedFavLocation);
@@ -195,7 +202,13 @@ namespace GPSTCPClient.ViewModel
 
         private async void FindRoute()
         {
-            RouteInstrucions = new RouteString[] { new RouteString("WCZYTYWANIE...") };
+            RouteInstrucions = new RouteModel[]
+            {
+                new RouteModel()
+                {
+                    Description = "WCZYTYWANIE..."
+                }
+            };
             var rm = await Client.GetRoute(FromAddressessSearch.SelectedLocation.Address, ToAddressessSearch.SelectedLocation.Address);
             
             RouteString[] ri = new RouteString[rm.Length];
@@ -210,9 +223,25 @@ namespace GPSTCPClient.ViewModel
             }
             MainMap.Center = MainMap.PolylineLocations.First();
             MainMap.ZoomLevel = 15;
-            RouteInstrucions = ri;
+            RouteInstrucions = rm;
             MainMap.FromPin = MainMap.PolylineLocations.First();
             MainMap.ToPin = MainMap.PolylineLocations.Last();
+        }
+
+        private void CenterOnRoute(object sender)
+        {
+            if(sender is RouteModel rm)
+            {
+                 MainMap.Center = new Location(rm.Maneuver.Item1, rm.Maneuver.Item2);
+                //TODO ustawić zoom w zależności od dystansu (przedziały metodą prób i błędów)
+            }
+        }
+
+        private void SwapAddresses()
+        {
+            var from = FromAddressessSearch.SelectedLocation;
+            FromAddressessSearch.SelectedLocation = ToAddressessSearch.SelectedLocation;
+            ToAddressessSearch.SelectedLocation = from;
         }
     }
 }

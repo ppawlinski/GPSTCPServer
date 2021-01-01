@@ -24,7 +24,7 @@
             <Button Click="Minimize_Click" Background="#333333" Style="{StaticResource MaterialDesignFlatButton}" materialDesign:ButtonAssist.CornerRadius="0" Width="60" Height="40" BorderThickness="0" >
                 <md:PackIcon Kind="WindowMinimize" />
             </Button>
-            <Button Click="Close_Click" Background="#333333" BorderThickness="0" Style="{StaticResource MaterialDesignFlatButton}" materialDesign:ButtonAssist.CornerRadius="0" md:ColorZoneAssist.Background="Red" Margin="0" Width="60" Height="40">
+            <Button Click="Close_Click" Background="#333333" BorderThickness="0" Style="{StaticResource MaterialDesignFlatButton}" Foreground="Red" materialDesign:ButtonAssist.CornerRadius="0" md:ColorZoneAssist.Background="Red" Margin="0" Width="60" Height="40">
                 <md:PackIcon Kind="WindowClose" />
             </Button>
 

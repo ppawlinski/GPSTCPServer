@@ -25,19 +25,32 @@
         <Grid.DataContext>
             <ViewModel:NavigationVM/>
         </Grid.DataContext>
+        <Button Margin="25,83,0,0" Command="{Binding SwapAddressesCommand}" VerticalAlignment="Top" HorizontalAlignment="Left" Height="40" Width="40" Padding="0">
+            <materialDesign:PackIcon Kind="ArrowUpDownBold"/>
+        </Button>
         <TextBox Name="NewAddressNameTB" materialDesign:HintAssist.Hint="Nazwa"  HorizontalAlignment="Left" Height="30" Margin="81,180,0,0" Padding="2,0,0,0"  TextWrapping="Wrap" VerticalAlignment="Top" Width="254" Text="{Binding AddingLocationName}"/>
         <cc:SearchingBox Style="{StaticResource MaterialDesignComboBox}" materialDesign:HintAssist.Hint="Adres"  x:Name="NewAddressCB" Padding="5" IsTextSearchEnabled="False" HorizontalAlignment="Left" Height="30" Margin="81,225,0,0" VerticalAlignment="Top" Width="254" IsEditable="True" Text="{Binding FavAddressSearch.SelectedAddressText}" IsDropDownOpen="{Binding FavAddressSearch.IsDropDownOpen}" IsSynchronizedWithCurrentItem="False" SelectedItem="{Binding FavAddressSearch.SelectedAddress}" ItemsSource="{Binding FavAddressSearch.Addresses}" />
         <Button Content="Dodaj" Command="{Binding AddLocationCommand}" HorizontalAlignment="Left" Height="75" Margin="360,180,0,0" VerticalAlignment="Top" Width="100" />
-        <Button Content="Usuń" Command="{Binding DelLocationCommand}" HorizontalAlignment="Left" Height="30" Margin="360,272,0,0" VerticalAlignment="Top" Width="100" />
-        <!--<Button Content="Wyloguj się" HorizontalAlignment="Left" Height="37" VerticalAlignment="Top" Width="115" Click="Logout_Click" Margin="651,10,0,0"/>
-        <Button Content="Zmień hasło" HorizontalAlignment="Left" Height="37" VerticalAlignment="Top" Width="115" Click="ChangePassword_Click" Margin="531,10,0,0"/>-->
+        <Button Command="{Binding DelLocationCommand}" Background="Red" BorderBrush="Red" HorizontalAlignment="Left" Height="30" Margin="360,272,0,0" VerticalAlignment="Top" Width="100" >
+            <materialDesign:PackIcon Kind="TrashCan"/>
+        </Button>
+        <Button Content="Wyloguj się" HorizontalAlignment="Left" Height="37" VerticalAlignment="Top" Width="115" Margin="651,10,0,0"/>
+        <Button Content="Zmień hasło" HorizontalAlignment="Left" Height="37" VerticalAlignment="Top" Width="115" Margin="531,10,0,0"/>
         <cc:SearchingBox Style="{StaticResource MaterialDesignComboBox}" IsEditable="true" materialDesign:HintAssist.Hint="Z..." Padding="5" IsTextSearchEnabled="False" x:Name="FromAddressCB" ItemsSource="{Binding FromAddressessSearch.Locations}" SelectedItem="{Binding FromAddressessSearch.SelectedLocation}" Text="{Binding FromAddressessSearch.SelectedLocationText}" IsDropDownOpen="{Binding FromAddressessSearch.IsDropDownOpen}" HorizontalAlignment="Left" Height="30" Margin="81,50,0,0" VerticalAlignment="Top" Width="254"/>
         <cc:SearchingBox Style="{StaticResource MaterialDesignComboBox}" IsEditable="true" materialDesign:HintAssist.Hint="Do..." Padding="5" IsTextSearchEnabled="False" ItemsSource="{Binding ToAddressessSearch.Locations}" SelectedItem="{Binding ToAddressessSearch.SelectedLocation}" Text="{Binding ToAddressessSearch.SelectedLocationText}" IsDropDownOpen="{Binding ToAddressessSearch.IsDropDownOpen}" x:Name="ToAddressCB" HorizontalAlignment="Left" Height="30" Margin="81,120,0,0" VerticalAlignment="Top" Width="254" />
 
         <Button HorizontalAlignment="Left" Command="{Binding FindRouteCommand}" Height="100" Margin="360,50,0,0" VerticalAlignment="Top" Width="100">
             <materialDesign:PackIcon Kind="Search"/>
         </Button>
-        <DataGrid IsReadOnly="True" Name="Routes" ItemsSource="{Binding RouteInstrucions}" CanUserSortColumns="False" HorizontalAlignment="Left" Height="326" Margin="478,65,0,0" VerticalAlignment="Top" Width="288"/>
+        <DataGrid IsReadOnly="True" Name="Routes" ItemsSource="{Binding RouteInstrucions}" AutoGenerateColumns="False" CanUserSortColumns="False" HorizontalAlignment="Left" Height="326" Margin="478,65,0,0" VerticalAlignment="Top" Width="288">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Trasa" Binding="{Binding Description}"/>
+                <DataGridTextColumn Header="Dystans" Binding="{Binding Distance}"/>
+            </DataGrid.Columns>
+            <DataGrid.InputBindings>
+                <MouseBinding Gesture="LeftDoubleClick" Command="{Binding CenterOnRouteCommand}" CommandParameter="{Binding ElementName=Routes, Path=SelectedItem}"/>
+            </DataGrid.InputBindings>
+        </DataGrid>
         <DataGrid x:Name="MyAddressesDG" IsReadOnly="True" SelectedItem="{Binding SelectedFavLocation}" HorizontalAlignment="Left" Height="119" Margin="81,272,0,0" VerticalAlignment="Top" Width="254" AutoGenerateColumns="false" ItemsSource="{Binding Locations}">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Nazwa" Binding="{Binding Name}" />

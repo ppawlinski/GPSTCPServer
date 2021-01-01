@@ -89,7 +89,7 @@ namespace GPSTCPClient.View
             {
                 selectedLocationText = value;
                 OnPropertyChanged(nameof(Locations));
-                if (selectedLocationText.Length >= 3 && !Locations.Any(p => p.Address.DisplayName == value))
+                if (selectedLocationText.Length >= 3 && !Locations.Any(p => p.ToString() == value))
                 {
                     FindAddress(value);
                     IsDropDownOpen = true;

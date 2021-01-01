@@ -33,7 +33,16 @@ namespace GPSTCPServer
                           //Console.WriteLine($"CLIENT: {Encoding.UTF8.GetString(buffer)}");
                           _ = Task.Run(async () =>
                             {
-                                string response = await processCommand(user, input);
+                                string response = "";
+                                try
+                                {
+                                    response = await processCommand(user, input);
+                                }
+                                catch(Exception ex)
+                                {
+                                    throw new Exception(ex.Message);
+                                }
+                                
                               //Console.WriteLine($"SERVER: {response}");
                               await Send(user.client, response);
                             });
@@ -50,7 +59,13 @@ namespace GPSTCPServer
             string command = arguments[0];
             if (command == "LOGIN")
             {
-                if (user.LoggedIn || arguments.Length != 3) return "FAIL";
+                if (user.LoggedIn || arguments.Length != 3)
+                {
+#if DEBUG
+                    throw new Exception("PAKIET: " + fullMessage);
+#endif
+                    return "FAIL";
+                }
                 string arg1 = arguments[1].Trim();
                 string arg2 = arguments[2].Trim();
                 string username = await login(arg1, arg2);
@@ -63,25 +78,43 @@ namespace GPSTCPServer
                 }
                 else
                 {
+#if DEBUG
+                    throw new Exception("PAKIET: " + fullMessage);
+#endif
                     return "FAIL";
                 }
             }
             else if (command == "LOGOUT")
             {
-                if (!user.LoggedIn) return "FAIL";
+                if (!user.LoggedIn)
+                {
+#if DEBUG
+                    throw new Exception("PAKIET: " + fullMessage);
+#endif
+                    return "FAIL";
+                }
                 user.LoggedIn = false;
                 user.Username = null;
                 return "SUCCESS";
             }
             else if (command == "CREATEACCOUNT")
             {
-                if (user.LoggedIn || arguments.Length != 3) return "FAIL";
+                if (user.LoggedIn || arguments.Length != 3)
+                {
+#if DEBUG
+                    throw new Exception("PAKIET: " + fullMessage);
+#endif
+                    return "FAIL";
+                }
                 if (await createAccount(arguments[1], arguments[2]))
                 {
                     return "ACCOUNTCREATED";
                 }
                 else
                 {
+#if DEBUG
+                    throw new Exception("PAKIET: " + fullMessage);
+#endif
                     return "FAIL";
                 }
             }
@@ -94,6 +127,9 @@ namespace GPSTCPServer
                 }
                 else
                 {
+#if DEBUG
+                    throw new Exception("PAKIET: " + fullMessage);
+#endif
                     return "FAIL";
                 }
             }
@@ -108,6 +144,9 @@ namespace GPSTCPServer
                 }
                 else
                 {
+#if DEBUG
+                    throw new Exception("PAKIET: " + fullMessage);
+#endif
                     return "FAIL";
                 }
             }
@@ -116,14 +155,26 @@ namespace GPSTCPServer
                 if (!user.LoggedIn) return "FAIL";
                 RouteModel[] instructions = await getRoute(arguments[1], arguments[2], arguments[3], arguments[4]);
                 if (instructions != null) return JsonSerializer.Serialize(instructions);
-                else return "FAIL";
+                else
+                {
+#if DEBUG
+                    throw new Exception("PAKIET: " + fullMessage);
+#endif
+                    return "FAIL";
+                }
             }
             else if (command == "LISTSAVEDADDRESSES")
             {
                 if (!user.LoggedIn) return "FAIL";
                 string result = await listSavedAddressess(user.Username);
                 if (result != null) return result;
-                else return "FAIL";
+                else
+                {
+#if DEBUG
+                    throw new Exception("PAKIET: " + fullMessage);
+#endif
+                    return "FAIL";
+                }
             }
             else if (command == "GETSAVEDADDRESS")
             {
@@ -132,7 +183,12 @@ namespace GPSTCPServer
             }
             else if (command == "EDITADDRESS")
             {
-                if (!user.LoggedIn) return "FAIL";
+                if (!user.LoggedIn) {
+#if DEBUG
+                    throw new Exception("PAKIET: " + fullMessage);
+#endif
+                    return "FAIL"; 
+                }
                 if (arguments.Length == 3)
                 {
                     if (await editAddress(user.Username, arguments[1], arguments[2]))
@@ -147,19 +203,46 @@ namespace GPSTCPServer
                         return "SUCCESS";
                     }
                 }
-                else return "FAIL";
+                else
+                {
+#if DEBUG
+                    throw new Exception("PAKIET: " + fullMessage);
+#endif
+                    return "FAIL";
+                }
             }
             else if (command == "ADDADDRESS")
             {
-                if (!user.LoggedIn || arguments.Length != 4) return "FAIL";
+                if (!user.LoggedIn || arguments.Length != 4)
+                {
+#if DEBUG
+                    throw new Exception("PAKIET: " + fullMessage);
+#endif
+                    return "FAIL";
+                }
                 if (db.AddLocation(user.Username, arguments[1], arguments[2], arguments[3])) return "SUCCESS";
-                else return "FAIL";
+                else {
+#if DEBUG
+                    throw new Exception("PAKIET: " + fullMessage);
+#endif
+                    return "FAIL"; 
+                }
             }
             else if (command == "DELETEADDRESS")
             {
-                if (!user.LoggedIn || arguments.Length != 2) return "FAIL";
+                if (!user.LoggedIn || arguments.Length != 2) {
+#if DEBUG
+                    throw new Exception("PAKIET: " + fullMessage);
+#endif
+                    return "FAIL"; 
+                }
                 if (db.DeleteLocation(user.Username, arguments[1])) return "SUCCESS";
-                else return "FAIL";
+                else {
+#if DEBUG
+                    throw new Exception("PAKIET: " + fullMessage);
+#endif
+                    return "FAIL"; 
+                }
             }
             return "UNKNOWNCOMMAND";
         }
