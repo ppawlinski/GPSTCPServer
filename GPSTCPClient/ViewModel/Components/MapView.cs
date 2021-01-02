@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 
-namespace GPSTCPClient.View
+namespace GPSTCPClient.ViewModel.Components
 {
     public class MapView : ViewModelBase
     {
@@ -17,9 +17,6 @@ namespace GPSTCPClient.View
         {
             Center = new Location();
             MapMarkers = new List<Pushpin>();
-            MainLoc = new Location();
-            FromPin = new Location();
-            ToPin = new Location();
             ZoomLevel = 10;
         }
         private Location center;
@@ -42,9 +39,8 @@ namespace GPSTCPClient.View
             double lon_ = double.Parse(lon, CultureInfo.InvariantCulture);
             Center = new Location(lat_, lon_);
         }
-        private Location mainLoc;
-        public Location MainLoc
-        {
+        private Pin mainLoc;
+        public Pin MainLoc {
             get
             {
                 return mainLoc;
@@ -55,8 +51,7 @@ namespace GPSTCPClient.View
                 OnPropertyChanged(nameof(MainLoc));
             }
         }
-        private Location fromPin;
-        public Location FromPin
+        public Pin FromPin
         {
             get
             {
@@ -68,8 +63,7 @@ namespace GPSTCPClient.View
                 OnPropertyChanged(nameof(FromPin));
             }
         }
-        private Location toPin;
-        public Location ToPin
+        public Pin ToPin
         {
             get
             {
@@ -81,7 +75,6 @@ namespace GPSTCPClient.View
                 OnPropertyChanged(nameof(ToPin));
             }
         }
-
         private List<Pushpin> mapMarkers;
         public List<Pushpin> MapMarkers
         {
@@ -111,6 +104,9 @@ namespace GPSTCPClient.View
         }
 
         private int zoomLevel;
+        private Pin fromPin;
+        private Pin toPin;
+
         public int ZoomLevel
         {
             get
@@ -129,10 +125,15 @@ namespace GPSTCPClient.View
             foreach(var ul in userLocations)
             {
                 Pushpin pin = new Pushpin();
-                pin.Location = new Location(double.Parse(ul.Address.Lat, CultureInfo.InvariantCulture), double.Parse(ul.Address.Lon, CultureInfo.InvariantCulture));
+                pin.Location = GetLocation(ul.Address);
                 pin.Name = ul.Name;
                 MapMarkers.Add(pin);
             }
+        }
+
+        public static Location GetLocation(Address address)
+        {
+            return new Location(double.Parse(address.Lat, CultureInfo.InvariantCulture), double.Parse(address.Lon, CultureInfo.InvariantCulture));
         }
 
     }

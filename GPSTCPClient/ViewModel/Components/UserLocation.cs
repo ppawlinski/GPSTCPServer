@@ -1,4 +1,5 @@
 ﻿using GPSTCPClient.Models;
+using GPSTCPClient.ViewModel.MVVM;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -6,9 +7,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GPSTCPClient.View
+namespace GPSTCPClient.ViewModel.Components
 {
-    public class UserLocation : INotifyPropertyChanged
+    public class UserLocation : ViewModelBase
     {
         private Address address;
         private string name;

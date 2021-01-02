@@ -21,6 +21,15 @@
     </WindowChrome.WindowChrome>
     <StackPanel >
         <StackPanel WindowChrome.IsHitTestVisibleInChrome="True" Height="40" HorizontalAlignment="Right" Orientation="Horizontal">
+            <md:DrawerHost HorizontalAlignment="Left">
+                <md:DrawerHost.LeftDrawerContent>
+                    <TextBlock Width="250" TextWrapping="Wrap" Text="Some left drawer content here. Perhaps navigation options?" 
+                           VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10"/>
+                </md:DrawerHost.LeftDrawerContent>
+                <Grid>
+                    <TextBlock Text="Normal Window Content Goes Here" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                </Grid>
+            </md:DrawerHost>
             <Button Click="Minimize_Click" Background="#333333" Style="{StaticResource MaterialDesignFlatButton}" materialDesign:ButtonAssist.CornerRadius="0" Width="60" Height="40" BorderThickness="0" >
                 <md:PackIcon Kind="WindowMinimize" />
             </Button>

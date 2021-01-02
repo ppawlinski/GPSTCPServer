@@ -26,4 +26,8 @@
     <Resource Include="Icons\back.png" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Views\" />
+  </ItemGroup>
+
 </Project>

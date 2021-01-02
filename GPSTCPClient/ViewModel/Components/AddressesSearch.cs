@@ -10,7 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GPSTCPClient.View
+namespace GPSTCPClient.ViewModel.Components
 {
     public class AddressesSearch : ViewModelBase
     {

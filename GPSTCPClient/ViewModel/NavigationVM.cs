@@ -1,15 +1,11 @@
 ﻿using GPSTCPClient.Models;
-using GPSTCPClient.View;
+using GPSTCPClient.ViewModel.Components;
 using GPSTCPClient.ViewModel.MVVM;
 using Microsoft.Maps.MapControl.WPF;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows.Data;
 using System.Windows.Input;
 
 namespace GPSTCPClient.ViewModel
@@ -30,6 +26,7 @@ namespace GPSTCPClient.ViewModel
             }
         }
 
+        private ObservableCollection<UserLocation> locations;
         public ObservableCollection<UserLocation> Locations
         {
             get
@@ -43,6 +40,7 @@ namespace GPSTCPClient.ViewModel
             }
         }
 
+        private string addingLocationName;
         public string AddingLocationName
         {
             get
@@ -56,6 +54,7 @@ namespace GPSTCPClient.ViewModel
             }
         }
 
+        private ObservableCollection<Address> addingLocationsList;
         public ObservableCollection<Address> AddingLocationsList
         {
             get
@@ -69,6 +68,7 @@ namespace GPSTCPClient.ViewModel
             }
         }
 
+        private UserLocation selectedFavLocation;
         public UserLocation SelectedFavLocation
         {
             get
@@ -82,17 +82,9 @@ namespace GPSTCPClient.ViewModel
             }
         }
 
-        private ObservableCollection<UserLocation> locations;
-
-        private string addingLocationName;
-
-        private ObservableCollection<Address> addingLocationsList;
-
-        private UserLocation selectedFavLocation;
-
-
         private MixedSearch toAddressessSearch;
-        public MixedSearch ToAddressessSearch {
+        public MixedSearch ToAddressessSearch
+        {
             get
             {
                 return toAddressessSearch;
@@ -100,7 +92,6 @@ namespace GPSTCPClient.ViewModel
             set
             {
                 toAddressessSearch = value;
-                OnPropertyChanged(nameof(ToAddressessSearch));
             }
         }
 
@@ -114,7 +105,6 @@ namespace GPSTCPClient.ViewModel
             set
             {
                 fromAddressessSearch = value;
-                OnPropertyChanged(nameof(FromAddressessSearch));
             }
         }
 
@@ -142,24 +132,29 @@ namespace GPSTCPClient.ViewModel
             set
             {
                 mainMap = value;
-                OnPropertyChanged(nameof(MainMap));
             }
         }
-
-        
-
 
         public NavigationVM()
         {
 
             ToAddressessSearch = new MixedSearch();
+            ToAddressessSearch.OnSelectedAction += ToAddressessSearch_OnSelectedAction;
             FromAddressessSearch = new MixedSearch();
+            FromAddressessSearch.OnSelectedAction += FromAddressessSearch_OnSelectedAction;
             MainMap = new MapView();
-            Locations = new ObservableCollection<UserLocation>(new UserLocation[] { new UserLocation("WCZYTYWANIE...")});
-            Task.Run(async () => { 
+            Locations = new ObservableCollection<UserLocation>(new UserLocation[] { new UserLocation("WCZYTYWANIE...") });
+            Task.Run(async () =>
+            {
                 Locations = new ObservableCollection<UserLocation>(await Client.GetMyAddresses());
-                MainMap.SetCenter(Locations.First().Address.Lat, Locations.First().Address.Lon);
-                MainMap.MainLoc = MainMap.Center;
+
+                if (Locations.Count > 0)
+                {
+                    MainMap.Center = MapView.GetLocation(Locations.First().Address);
+                    MainMap.MainLoc = new Pin(Locations.First());
+                }
+                else MainMap.MainLoc = new Pin();
+                
                 //MainMap.FillWithFavs(Locations);
             });
             AddingLocationsList = new ObservableCollection<Address>();
@@ -170,13 +165,35 @@ namespace GPSTCPClient.ViewModel
             CenterOnUserLocationCommand = new Command(sender => CenterOnUserLocation(sender));
             SwapAddressesCommand = new Command(sender => SwapAddresses());
             FavAddressSearch = new AddressesSearch();
-
+            MainMap.FromPin = new Pin();
+            MainMap.ToPin = new Pin();
         }
 
-        
+        private void FromAddressessSearch_OnSelectedAction(object sender, System.EventArgs e)
+        {
+            if (sender is MixedSearch ms)
+            {
+                if (!String.IsNullOrEmpty(ms.SelectedLocation.Address.Lat))
+                {
+                    MainMap.Center = MapView.GetLocation(ms.SelectedLocation.Address);
+                    MainMap.FromPin = new Pin(ms.SelectedLocation.Address);
+                }
+            }
+        }
+
+        private void ToAddressessSearch_OnSelectedAction(object sender, System.EventArgs e)
+        {
+            if(sender is MixedSearch ms)
+            {
+                if (!String.IsNullOrEmpty(ms.SelectedLocation.Address.Lat))
+                {
+                    MainMap.Center = MapView.GetLocation(ms.SelectedLocation.Address);
+                    MainMap.ToPin = new Pin(ms.SelectedLocation.Address);
+                }
+            }
+        }
 
         public ICommand AddLocationCommand { get; set; }
-
         public ICommand DelLocationCommand { get; set; }
         public ICommand FindRouteCommand { get; set; }
         public ICommand CenterOnRouteCommand { get; set; }
@@ -190,6 +207,10 @@ namespace GPSTCPClient.ViewModel
                 Locations.Add(new UserLocation(AddingLocationName, FavAddressSearch.SelectedAddress));
                 AddingLocationName = "";
                 FavAddressSearch = new AddressesSearch();
+                if(Locations.Count == 1)
+                {
+                    MainMap.MainLoc = new Pin(Locations.First());
+                }
             }
         }
 
@@ -199,6 +220,10 @@ namespace GPSTCPClient.ViewModel
             if (await Client.DeleteAddress(SelectedFavLocation.Name))
             {
                 Locations.Remove(SelectedFavLocation);
+                if(Locations.Count == 0)
+                {
+                    MainMap.MainLoc = new Pin();
+                }
             }
         }
 
@@ -212,13 +237,13 @@ namespace GPSTCPClient.ViewModel
                 }
             };
             var rm = await Client.GetRoute(FromAddressessSearch.SelectedLocation.Address, ToAddressessSearch.SelectedLocation.Address);
-            
+
             RouteString[] ri = new RouteString[rm.Length];
             MainMap.PolylineLocations = new LocationCollection();
-            for (int i=0; i<rm.Length; i++)
+            for (int i = 0; i < rm.Length; i++)
             {
                 ri[i] = new RouteString(rm[i].Description);
-                foreach(var tupl in rm[i].Intersections)
+                foreach (var tupl in rm[i].Intersections)
                 {
                     MainMap.PolylineLocations.Add(new Location(tupl.Item1, tupl.Item2));
                 }
@@ -226,25 +251,25 @@ namespace GPSTCPClient.ViewModel
             MainMap.Center = MainMap.PolylineLocations.First();
             MainMap.ZoomLevel = 15;
             RouteInstrucions = rm;
-            MainMap.FromPin = MainMap.PolylineLocations.First();
-            MainMap.ToPin = MainMap.PolylineLocations.Last();
+            MainMap.FromPin = new Pin("Początek", MainMap.PolylineLocations.First());
+            MainMap.ToPin = new Pin("Koniec", MainMap.PolylineLocations.Last());
         }
 
         private void CenterOnRoute(object sender)
         {
-            if(sender is RouteModel rm)
+            if (sender is RouteModel rm)
             {
-                 MainMap.Center = new Location(rm.Maneuver.Item1, rm.Maneuver.Item2);
+                MainMap.Center = new Location(rm.Maneuver.Item1, rm.Maneuver.Item2);
                 //TODO ustawić zoom w zależności od dystansu (przedziały metodą prób i błędów)
             }
         }
 
         private void CenterOnUserLocation(object sender)
         {
-            if(sender is UserLocation ul)
+            if (sender is UserLocation ul)
             {
-                MainMap.Center = new Location(double.Parse(ul.Address.Lat, CultureInfo.InvariantCulture), double.Parse(ul.Address.Lon, CultureInfo.InvariantCulture));
-                 //TODO W zależności od ul.Address.Type można dostosować zoom
+                MainMap.Center = MapView.GetLocation(ul.Address);
+                //TODO W zależności od ul.Address.Type można dostosować zoom
             }
         }
 

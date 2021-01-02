@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
 
-namespace GPSTCPClient.View
+namespace GPSTCPClient.ViewModel.Components
 {
     public class MixedSearch : ViewModelBase
     {
@@ -33,6 +33,7 @@ namespace GPSTCPClient.View
             set
             {
                 selectedLocation = value;
+                OnSelected(new PropertyChangedEventArgs(nameof(value)));
                 OnPropertyChanged(nameof(SelectedLocation));
             }
         }
@@ -70,7 +71,7 @@ namespace GPSTCPClient.View
         {
             get
             {
-                if (String.IsNullOrEmpty(selectedLocationText) || StoredLocations.Contains(SelectedLocation))
+                if (String.IsNullOrEmpty(selectedLocationText) || storedLocations.Contains(selectedLocation))
                 {
                     return StoredLocations;
                 }
@@ -87,8 +88,13 @@ namespace GPSTCPClient.View
             }
             set
             {
+                if (value != SelectedLocation?.ToString())
+                {
+                    SelectedLocation = new UserLocation();
+                }
+
                 selectedLocationText = value;
-                OnPropertyChanged(nameof(Locations));
+                
                 if (selectedLocationText.Length >= 3 && !Locations.Any(p => p.ToString() == value))
                 {
                     FindAddress(value);
@@ -98,6 +104,7 @@ namespace GPSTCPClient.View
                 {
                     IsDropDownOpen = false;
                 }
+                OnPropertyChanged(nameof(Locations));
                 OnPropertyChanged(nameof(SelectedLocationText));
             }
         }
@@ -137,6 +144,13 @@ namespace GPSTCPClient.View
                 userLocations[i] = new UserLocation("", addresses[i]);
             }
             return userLocations;
+        }
+
+        public event EventHandler OnSelectedAction;
+        protected virtual void OnSelected(EventArgs e)
+        {
+            EventHandler handler = OnSelectedAction;
+            handler?.Invoke(this, e);
         }
     }
 }
