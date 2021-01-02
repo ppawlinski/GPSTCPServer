@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using GPSTCPClient.ViewModel;
+using System.IO;
 using System.Windows;
 
 namespace GPSTCPClient
@@ -15,9 +16,11 @@ namespace GPSTCPClient
             {
                  GPSTCPClient.Client.ApiKey = File.ReadAllText("apikey.txt");
             }
-            Navigation.NavigationService.Navigate(new Pages.Login(Navigation.NavigationService));
+            var mainViewModel = new MainVM();
+            mainViewModel.SelectedVM = new LoginVM(mainViewModel);
+            this.DataContext = mainViewModel;
+            //Navigation.NavigationService.Navigate(new Pages.Login(Navigation.NavigationService));
         }
-
         private void Minimize_Click(object sender, RoutedEventArgs e)
         {
             this.WindowState = WindowState.Minimized;
@@ -25,6 +28,11 @@ namespace GPSTCPClient
         private void Close_Click(object sender, RoutedEventArgs e)
         {
             this.Close();
+        }
+
+        private void MenuToggleButton_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

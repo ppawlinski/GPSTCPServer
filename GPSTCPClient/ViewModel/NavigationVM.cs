@@ -7,6 +7,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using PolylineEncoder.Net.Utility.Decoders;
 
 namespace GPSTCPClient.ViewModel
 {
@@ -108,8 +109,8 @@ namespace GPSTCPClient.ViewModel
             }
         }
 
-        private RouteModel[] routeInstructions;
-        public RouteModel[] RouteInstrucions
+        private StepModel[] routeInstructions;
+        public StepModel[] RouteInstrucions
         {
             get
             {
@@ -122,8 +123,8 @@ namespace GPSTCPClient.ViewModel
             }
         }
 
-        private MapView mainMap;
-        public MapView MainMap
+        private MapVM mainMap;
+        public MapVM MainMap
         {
             get
             {
@@ -142,7 +143,7 @@ namespace GPSTCPClient.ViewModel
             ToAddressessSearch.OnSelectedAction += ToAddressessSearch_OnSelectedAction;
             FromAddressessSearch = new MixedSearch();
             FromAddressessSearch.OnSelectedAction += FromAddressessSearch_OnSelectedAction;
-            MainMap = new MapView();
+            MainMap = new MapVM();
             Locations = new ObservableCollection<UserLocation>(new UserLocation[] { new UserLocation("WCZYTYWANIE...") });
             Task.Run(async () =>
             {
@@ -150,7 +151,7 @@ namespace GPSTCPClient.ViewModel
 
                 if (Locations.Count > 0)
                 {
-                    MainMap.Center = MapView.GetLocation(Locations.First().Address);
+                    MainMap.Center = MapVM.GetLocation(Locations.First().Address);
                     MainMap.MainLoc = new Pin(Locations.First());
                 }
                 else MainMap.MainLoc = new Pin();
@@ -177,7 +178,7 @@ namespace GPSTCPClient.ViewModel
             {
                 if (!String.IsNullOrEmpty(ms.SelectedLocation?.Address.Lat))
                 {
-                    MainMap.Center = MapView.GetLocation(ms.SelectedLocation.Address);
+                    MainMap.Center = MapVM.GetLocation(ms.SelectedLocation.Address);
                     MainMap.FromPin = new Pin(ms.SelectedLocation.Address);
                 }
             }
@@ -187,9 +188,9 @@ namespace GPSTCPClient.ViewModel
         {
             if(sender is MixedSearch ms)
             {
-                if (!String.IsNullOrEmpty(ms.SelectedLocation.Address.Lat))
+                if (!String.IsNullOrEmpty(ms.SelectedLocation?.Address.Lat))
                 {
-                    MainMap.Center = MapView.GetLocation(ms.SelectedLocation.Address);
+                    MainMap.Center = MapVM.GetLocation(ms.SelectedLocation.Address);
                     MainMap.ToPin = new Pin(ms.SelectedLocation.Address);
                 }
             }
@@ -233,35 +234,36 @@ namespace GPSTCPClient.ViewModel
 
         private async void FindRoute()
         {
-            RouteInstrucions = new RouteModel[]
+            RouteInstrucions = new StepModel[]
             {
-                new RouteModel()
+                new StepModel()
                 {
                     Description = "WCZYTYWANIE..."
-                }
+                }            
             };
             var rm = await Client.GetRoute(FromAddressessSearch.SelectedLocation.Address, ToAddressessSearch.SelectedLocation.Address);
 
-            RouteString[] ri = new RouteString[rm.Length];
+            RouteString[] ri = new RouteString[rm.Steps.Length];
             MainMap.PolylineLocations = new LocationCollection();
-            for (int i = 0; i < rm.Length; i++)
+            for (int i = 0; i < rm.Steps.Length; i++)
             {
-                ri[i] = new RouteString(rm[i].Description);
-                foreach (var tupl in rm[i].Intersections)
+                ri[i] = new RouteString(rm.Steps[i].Description);
+                var polyLineLocations = new Decoder().Decode(rm.Steps[i].Polyline);
+                foreach (var geoCoordinate in polyLineLocations)
                 {
-                    MainMap.PolylineLocations.Add(new Location(tupl.Item1, tupl.Item2));
+                    MainMap.PolylineLocations.Add(new Location(geoCoordinate.Latitude,geoCoordinate.Longitude));
                 }
             }
             MainMap.Center = MainMap.PolylineLocations.First();
             MainMap.ZoomLevel = 15;
-            RouteInstrucions = rm;
+            RouteInstrucions = rm.Steps;
             MainMap.FromPin = new Pin("Początek", MainMap.PolylineLocations.First());
             MainMap.ToPin = new Pin("Koniec", MainMap.PolylineLocations.Last());
         }
 
         private void CenterOnRoute(object sender)
         {
-            if (sender is RouteModel rm)
+            if (sender is StepModel rm)
             {
                 MainMap.Center = new Location(rm.Maneuver.Item1, rm.Maneuver.Item2);
                 //TODO ustawić zoom w zależności od dystansu (przedziały metodą prób i błędów)
@@ -272,7 +274,7 @@ namespace GPSTCPClient.ViewModel
         {
             if (sender is UserLocation ul)
             {
-                MainMap.Center = MapView.GetLocation(ul.Address);
+                MainMap.Center = MapVM.GetLocation(ul.Address);
                 //TODO W zależności od ul.Address.Type można dostosować zoom
             }
         }

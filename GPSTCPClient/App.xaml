@@ -3,13 +3,21 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:GPSTCPClient"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:vm="clr-namespace:GPSTCPClient.ViewModel"
+             xmlns:views="clr-namespace:GPSTCPClient.Views"
              StartupUri="ClientWindow.xaml">
     <Application.Resources>
-        <ResourceDictionary>
+        <ResourceDictionary x:Key="ResourceDict">
             <ResourceDictionary.MergedDictionaries>
                 <materialDesign:BundledTheme BaseTheme="Dark" PrimaryColor="Blue" SecondaryColor="Lime" />
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Defaults.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <DataTemplate  DataType="{x:Type vm:LoginVM}">
+                <views:LoginView/>
+            </DataTemplate>
+            <DataTemplate  DataType="{x:Type vm:NavigationVM}">
+                <views:NavigationView/>
+            </DataTemplate>
         </ResourceDictionary>
         <!--<Style x:Key="TransparentRedButton"  TargetType="{x:Type Button}">
             <Setter Property="Background" Value="Green"/>

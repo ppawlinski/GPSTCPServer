@@ -11,9 +11,9 @@ using System.Windows.Controls;
 
 namespace GPSTCPClient.ViewModel.Components
 {
-    public class MapView : ViewModelBase
+    public class MapVM : ViewModelBase
     {
-        public MapView()
+        public MapVM()
         {
             Center = new Location();
             MapMarkers = new List<Pushpin>();

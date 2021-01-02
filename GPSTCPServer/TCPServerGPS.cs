@@ -62,7 +62,7 @@ namespace GPSTCPServer
                 if (user.LoggedIn || arguments.Length != 3)
                 {
 #if DEBUG
-                    throw new Exception("PAKIET: " + fullMessage);
+                    Console.WriteLine("PAKIET: " + fullMessage);
 #endif
                     return "FAIL";
                 }
@@ -79,7 +79,7 @@ namespace GPSTCPServer
                 else
                 {
 #if DEBUG
-                    throw new Exception("PAKIET: " + fullMessage);
+                    Console.WriteLine("PAKIET: " + fullMessage);
 #endif
                     return "FAIL";
                 }
@@ -89,7 +89,7 @@ namespace GPSTCPServer
                 if (!user.LoggedIn)
                 {
 #if DEBUG
-                    throw new Exception("PAKIET: " + fullMessage);
+                    Console.WriteLine("PAKIET: " + fullMessage);
 #endif
                     return "FAIL";
                 }
@@ -102,7 +102,7 @@ namespace GPSTCPServer
                 if (user.LoggedIn || arguments.Length != 3)
                 {
 #if DEBUG
-                    throw new Exception("PAKIET: " + fullMessage);
+                    Console.WriteLine("PAKIET: " + fullMessage);
 #endif
                     return "FAIL";
                 }
@@ -113,7 +113,7 @@ namespace GPSTCPServer
                 else
                 {
 #if DEBUG
-                    throw new Exception("PAKIET: " + fullMessage);
+                    Console.WriteLine("PAKIET: " + fullMessage);
 #endif
                     return "FAIL";
                 }
@@ -128,7 +128,7 @@ namespace GPSTCPServer
                 else
                 {
 #if DEBUG
-                    throw new Exception("PAKIET: " + fullMessage);
+                    Console.WriteLine("PAKIET: " + fullMessage);
 #endif
                     return "FAIL";
                 }
@@ -145,7 +145,7 @@ namespace GPSTCPServer
                 else
                 {
 #if DEBUG
-                    throw new Exception("PAKIET: " + fullMessage);
+                    Console.WriteLine("PAKIET: " + fullMessage);
 #endif
                     return "FAIL";
                 }
@@ -153,12 +153,12 @@ namespace GPSTCPServer
             else if (command == "GETROUTE")
             {
                 if (!user.LoggedIn) return "FAIL";
-                RouteModel[] instructions = await getRoute(arguments[1], arguments[2], arguments[3], arguments[4]);
+                RouteModel instructions = await getRoute(arguments[1], arguments[2], arguments[3], arguments[4]);
                 if (instructions != null) return JsonSerializer.Serialize(instructions);
                 else
                 {
 #if DEBUG
-                    throw new Exception("PAKIET: " + fullMessage);
+                    Console.WriteLine("PAKIET: " + fullMessage);
 #endif
                     return "FAIL";
                 }
@@ -171,7 +171,7 @@ namespace GPSTCPServer
                 else
                 {
 #if DEBUG
-                    throw new Exception("PAKIET: " + fullMessage);
+                    Console.WriteLine("PAKIET: " + fullMessage);
 #endif
                     return "FAIL";
                 }
@@ -185,7 +185,7 @@ namespace GPSTCPServer
             {
                 if (!user.LoggedIn) {
 #if DEBUG
-                    throw new Exception("PAKIET: " + fullMessage);
+                    Console.WriteLine("PAKIET: " + fullMessage);
 #endif
                     return "FAIL"; 
                 }
@@ -206,7 +206,7 @@ namespace GPSTCPServer
                 else
                 {
 #if DEBUG
-                    throw new Exception("PAKIET: " + fullMessage);
+                    Console.WriteLine("PAKIET: " + fullMessage);
 #endif
                     return "FAIL";
                 }
@@ -216,14 +216,14 @@ namespace GPSTCPServer
                 if (!user.LoggedIn || arguments.Length != 4)
                 {
 #if DEBUG
-                    throw new Exception("PAKIET: " + fullMessage);
+                    Console.WriteLine("PAKIET: " + fullMessage);
 #endif
                     return "FAIL";
                 }
                 if (db.AddLocation(user.Username, arguments[1], arguments[2], arguments[3])) return "SUCCESS";
                 else {
 #if DEBUG
-                    throw new Exception("PAKIET: " + fullMessage);
+                    Console.WriteLine("PAKIET: " + fullMessage);
 #endif
                     return "FAIL"; 
                 }
@@ -232,14 +232,14 @@ namespace GPSTCPServer
             {
                 if (!user.LoggedIn || arguments.Length != 2) {
 #if DEBUG
-                    throw new Exception("PAKIET: " + fullMessage);
+                    Console.WriteLine("PAKIET: " + fullMessage);
 #endif
                     return "FAIL"; 
                 }
                 if (db.DeleteLocation(user.Username, arguments[1])) return "SUCCESS";
                 else {
 #if DEBUG
-                    throw new Exception("PAKIET: " + fullMessage);
+                    Console.WriteLine("PAKIET: " + fullMessage);
 #endif
                     return "FAIL"; 
                 }
@@ -304,15 +304,15 @@ namespace GPSTCPServer
                 return null;
         }
 
-        private Task<RouteModel[]> getRoute(string originLon, string originLat, string destinationLon, string destinationLat)
+        private Task<RouteModel> getRoute(string originLon, string originLat, string destinationLon, string destinationLat)
         {
             string response = string.Empty;
             RouterCalculator calculator = new RouterCalculator(originLon, originLat, destinationLon, destinationLat);
             if (!calculator.OK)
             {
-                return Task.FromResult<RouteModel[]>(null);
+                return Task.FromResult<RouteModel>(null);
             }
-            RouteModel[] instructions = calculator.GetInstructions();
+            RouteModel instructions = calculator.GetInstructions();
             //foreach (var instruction in instructions)
             //{
             //    if (instruction != string.Empty) response += instruction + "\n";

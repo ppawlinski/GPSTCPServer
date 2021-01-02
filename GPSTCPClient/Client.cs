@@ -77,10 +77,10 @@ namespace GPSTCPClient
             }
             else return false;
         }
-        public async static Task Logout()
+        public static Task Logout()
         {
             login = null;
-            Send($"LOGOUT");
+            return Task.Run(() => Send($"LOGOUT"));
             //string result = "";
             //await Listener.AcceptTcpClientAsync().ContinueWith(async (listen) =>
             //{
@@ -141,10 +141,10 @@ namespace GPSTCPClient
             
         }
 
-        public static async Task<RouteModel[]> GetRoute(Address origin, Address destination)
+        public static async Task<RouteModel> GetRoute(Address origin, Address destination)
         {
             Send($"GETROUTE {origin.Lon} {origin.Lat} {destination.Lon} {destination.Lat}");
-            return JsonSerializer.Deserialize<RouteModel[]>(await getUserInput(new byte[100000]));
+            return JsonSerializer.Deserialize<RouteModel>(await getUserInput(new byte[100000]));
         }
 
         public static async Task<bool> AddAddress(Address address, string name)

@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Text;
+﻿using GPSTCPServer.Models;
+using System;
 using System.Text.Json;
 using System.Threading.Tasks;
-using GPSTCPServer.Models;
 
 namespace GPSTCPServer
 {
@@ -14,7 +10,7 @@ namespace GPSTCPServer
         private OSRMRoute router;
         public bool OK { get;  }
         public RouterCalculator(string originLon, string originLat, string destinationLon, string destinationLat) {
-            string url = String.Format("http://router.project-osrm.org/route/v1/driving/{0},{1};{2},{3}?steps=true&annotations=false", originLon, originLat, destinationLon, destinationLat);
+            string url = String.Format("http://router.project-osrm.org/route/v1/driving/{0},{1};{2},{3}?steps=true&annotations=false&geometries=polyline", originLon, originLat, destinationLon, destinationLat);
             Task.Run(async () => router = JsonSerializer.Deserialize<OSRMRoute>(await GetRequest.GetFromURLAsync(url))).Wait();
             if (router.Code == "NoRoute")
             {
@@ -23,22 +19,27 @@ namespace GPSTCPServer
             else OK = true;
         }
 
-        public RouteModel[] GetInstructions()
+        public RouteModel GetInstructions()
         {
             var steps = router.Routes[0].Legs[0].Steps;
-            RouteModel[] instructions = new RouteModel[steps.Count];
+            StepModel[] instructions = new StepModel[steps.Count];
             for (int i = 0; i < steps.Count; i++)
             {
-                instructions[i] = new RouteModel()
+                instructions[i] = new StepModel()
                 {
                     Description = formatName(steps[i].Maneuver, steps[i].Name),
-                    Intersections = steps[i].Intersections.Select(p => new Tuple<double, double>(p.Location[1], p.Location[0])).ToArray(),
+                    Polyline = steps[i].Geometry,
                     Type = steps[i].Maneuver.Type,
                     Maneuver = new Tuple<double, double>(steps[i].Maneuver.Location[1], steps[i].Maneuver.Location[0]),
                     Distance = steps[i].Distance
                 };
             }
-            return instructions;
+            return new RouteModel()
+            {
+                Steps = instructions,
+                Distance = router.Routes[0].Distance,
+                Duration = router.Routes[0].Duration
+            };
         }
 
         private string formatName(Maneuver maneuver, string street)
@@ -165,7 +166,13 @@ namespace GPSTCPServer
     }
     public class RouteModel
     {
-        public Tuple<double,double>[] Intersections { get; set; }
+        public double Duration { get; set; }
+        public double Distance { get; set; }
+        public StepModel[] Steps { get; set; }
+    }
+    public class StepModel
+    {
+        public string Polyline { get; set; }
         public string Description { get; set; }
         public string Type { get; set; } //można enum z tego zrobić
         public Tuple<double,double> Maneuver { get; set; }
