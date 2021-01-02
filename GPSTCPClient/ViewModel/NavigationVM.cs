@@ -164,6 +164,8 @@ namespace GPSTCPClient.ViewModel
             CenterOnRouteCommand = new Command(sender => CenterOnRoute(sender));
             CenterOnUserLocationCommand = new Command(sender => CenterOnUserLocation(sender));
             SwapAddressesCommand = new Command(sender => SwapAddresses());
+            SearchLocationEnterClick = new Command(sender => FindRoute());
+            AddLocationEnterClick = new Command(sender => AddLocation());
             FavAddressSearch = new AddressesSearch();
             MainMap.FromPin = new Pin();
             MainMap.ToPin = new Pin();
@@ -173,7 +175,7 @@ namespace GPSTCPClient.ViewModel
         {
             if (sender is MixedSearch ms)
             {
-                if (!String.IsNullOrEmpty(ms.SelectedLocation.Address.Lat))
+                if (!String.IsNullOrEmpty(ms.SelectedLocation?.Address.Lat))
                 {
                     MainMap.Center = MapView.GetLocation(ms.SelectedLocation.Address);
                     MainMap.FromPin = new Pin(ms.SelectedLocation.Address);
@@ -199,6 +201,8 @@ namespace GPSTCPClient.ViewModel
         public ICommand CenterOnRouteCommand { get; set; }
         public ICommand SwapAddressesCommand { get; set; }
         public ICommand CenterOnUserLocationCommand { get; set; }
+        public ICommand SearchLocationEnterClick { get; set; }
+        public ICommand AddLocationEnterClick { get; set; }
 
         private async void AddLocation()
         {
