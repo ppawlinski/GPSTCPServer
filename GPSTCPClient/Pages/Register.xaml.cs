@@ -28,12 +28,13 @@ namespace GPSTCPClient.Pages
         {
             InitializeComponent();
             navService = nav;
-            if(prevP is Login login)
-            {
-                ServerAddressBox.Text = login.ServerAddressBox.Text;
-                ServerPortBox.Text = login.ServerPortBox.Text;
-                LoginBox.Text = login.LoginBox.Text;
-            }
+            //USUNIETO LOGIN PAGE
+            //if(prevP is Login login)
+            //{
+            //    ServerAddressBox.Text = login.ServerAddressBox.Text;
+            //    ServerPortBox.Text = login.ServerPortBox.Text;
+            //    LoginBox.Text = login.LoginBox.Text;
+            //}
             
             prevPage = prevP;
         }
@@ -75,12 +76,13 @@ namespace GPSTCPClient.Pages
                     {
                         Dispatcher.Invoke(() =>
                         {
-                            if(prevPage is Login l)
-                            {
-                                l.LoginBox.Text = login;
-                                l.LoginErrors.Foreground = Brushes.Green;
-                                l.LoginErrors.Text = "Poprawnie utworzono konto";
-                            }
+                            //USUNIETO LOGIN PAGE
+                            //if(prevPage is Login l)
+                            //{
+                            //    l.LoginBox.Text = login;
+                            //    l.LoginErrors.Foreground = Brushes.Green;
+                            //    l.LoginErrors.Text = "Poprawnie utworzono konto";
+                            //}
                             navService.GoBack();
                         });
                     }
@@ -102,12 +104,13 @@ namespace GPSTCPClient.Pages
 
         private void Back_Click(object sender, RoutedEventArgs e)
         {
-            if(prevPage is Login login)
-            {
-                login.ServerAddressBox.Text = ServerAddressBox.Text;
-                login.ServerPortBox.Text = ServerPortBox.Text;
-                login.LoginBox.Text = LoginBox.Text;
-            }
+            //USUNIETO LOGIN PAGE
+            //if(prevPage is Login login)
+            //{
+            //    login.ServerAddressBox.Text = ServerAddressBox.Text;
+            //    login.ServerPortBox.Text = ServerPortBox.Text;
+            //    login.LoginBox.Text = LoginBox.Text;
+            //}
             navService.GoBack();
             
         }

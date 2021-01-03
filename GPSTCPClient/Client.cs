@@ -24,17 +24,18 @@ namespace GPSTCPClient
         {
             await TCP.GetStream().WriteAsync(Encoding.UTF8.GetBytes(message));
         }
-        public async static Task Connect(string ipAddress, int port)
+        public async static Task<bool> Connect(string ipAddress, int port)
         {
             TCP = new TcpClient();
             if (TCP.Connected)
             {
-                return;
+                return true;
             }
             try
             {
                 await TCP.ConnectAsync(IPAddress.Parse(ipAddress), port);
                 listener = new TcpListener(IPAddress.Parse(ipAddress), port);
+                return true;
             }
             catch (FormatException)
             {
@@ -42,7 +43,7 @@ namespace GPSTCPClient
             }
             catch (Exception)
             {
-                throw new Exception("Błąd przy próbie połączenia");
+                return false;
             }
         }
         public async static Task<bool> Login(string login_, string password)
@@ -144,7 +145,7 @@ namespace GPSTCPClient
         public static async Task<RouteModel> GetRoute(Address origin, Address destination)
         {
             Send($"GETROUTE {origin.Lon} {origin.Lat} {destination.Lon} {destination.Lat}");
-            return JsonSerializer.Deserialize<RouteModel>(await getUserInput(new byte[100000]));
+            return JsonSerializer.Deserialize<RouteModel>(await getUserInput(new byte[1000000]));
         }
 
         public static async Task<bool> AddAddress(Address address, string name)

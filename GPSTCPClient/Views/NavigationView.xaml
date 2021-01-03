@@ -13,7 +13,7 @@
         <Button Margin="25,83,0,0" Command="{Binding SwapAddressesCommand}" VerticalAlignment="Top" HorizontalAlignment="Left" Height="40" Width="40" Padding="0">
             <md:PackIcon Kind="ArrowUpDownBold"/>
         </Button>
-        <TextBox Style="{StaticResource MaterialDesignFloatingHintTextBox}" Name="NewAddressNameTB" md:HintAssist.Hint="Nazwa"  HorizontalAlignment="Left" Height="45" Margin="81,180,0,0" Padding="2,0,0,0"  TextWrapping="Wrap" VerticalAlignment="Top" Width="254" Text="{Binding AddingLocationName}">
+        <TextBox Style="{StaticResource MaterialDesignFloatingHintTextBox}" Name="NewAddressNameTB" md:HintAssist.Hint="Nazwa"  HorizontalAlignment="Left" Height="45" Margin="81,180,0,0" Padding="2,0,0,0"  TextWrapping="Wrap" VerticalAlignment="Top" Width="254" Text="{Binding AddingLocationName, UpdateSourceTrigger=PropertyChanged}">
             <TextBox.InputBindings>
                 <KeyBinding
                     Key="Enter"

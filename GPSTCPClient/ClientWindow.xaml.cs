@@ -17,7 +17,8 @@ namespace GPSTCPClient
                  GPSTCPClient.Client.ApiKey = File.ReadAllText("apikey.txt");
             }
             var mainViewModel = new MainVM();
-            mainViewModel.SelectedVM = new LoginVM(mainViewModel);
+            mainViewModel.NavigateTo("Login");
+            //mainViewModel.SelectedVM = new LoginVM(mainViewModel);
             this.DataContext = mainViewModel;
             //Navigation.NavigationService.Navigate(new Pages.Login(Navigation.NavigationService));
         }

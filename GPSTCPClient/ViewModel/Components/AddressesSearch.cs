@@ -1,13 +1,7 @@
-﻿using GPSTCPClient.Helpers;
-using GPSTCPClient.Models;
+﻿using GPSTCPClient.Models;
 using GPSTCPClient.ViewModel.MVVM;
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace GPSTCPClient.ViewModel.Components
@@ -19,7 +13,6 @@ namespace GPSTCPClient.ViewModel.Components
             Addresses = new ObservableCollection<Address>();
             SelectedAddress = new Address();
             SelectedAddressText = "";
-            IsDropDownOpen = false;
         }
         private ObservableCollection<Address> addresses;
         public ObservableCollection<Address> Addresses { 
@@ -37,7 +30,11 @@ namespace GPSTCPClient.ViewModel.Components
         public async void FillAddressess(Task<Address[]> loader)
         {
             var loaded = await loader;
-            if (loaded != null && loaded.Length > 0) Addresses = new ObservableCollection<Address>(loaded);
+            if (loaded != null && loaded.Length > 0)
+            {
+                Addresses.Clear();
+                loaded.ToList().ForEach(p => Addresses.Add(p));
+            }
         }
 
         
@@ -71,10 +68,6 @@ namespace GPSTCPClient.ViewModel.Components
                 {
                     FindAddressForFav(value);
                 }
-                else
-                {
-                    IsDropDownOpen = false;
-                }
                 OnPropertyChanged(nameof(SelectedAddressText));
             }
         }
@@ -95,15 +88,23 @@ namespace GPSTCPClient.ViewModel.Components
         private void FindAddressForFav(string val)
         {
             Task.Run(async () =>
+              {
+                  await Task.Delay(500);
+                  if (SelectedAddressText == val)
+                  {
+                      return await Client.GetAddress(val);
+                  }
+                  return null;
+              }
+            ).ContinueWith(task =>
             {
-                await Task.Delay(500);
-                if (SelectedAddressText == val)
+                if (task.Result != null)
                 {
-                    Addresses = new ObservableCollection<Address>(await Client.GetAddress(val));
+                    Addresses.Clear();
+                    Addresses.AddRange(task.Result);
                     IsDropDownOpen = true;
                 }
-            }
-            );
+            }, TaskScheduler.FromCurrentSynchronizationContext());
         }
 
 

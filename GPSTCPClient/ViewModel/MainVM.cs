@@ -1,5 +1,8 @@
 ﻿using GPSTCPClient.ViewModel.MVVM;
+using System;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace GPSTCPClient.ViewModel
 {
@@ -7,9 +10,54 @@ namespace GPSTCPClient.ViewModel
     {
         public MainVM()
         {
-            MenuButtonVisible = Visibility.Visible;
+            Loading = false;
+            NavigateToCommand = new Command(arg => NavigateTo(arg));
         }
 
+        public void NavigateTo(object arg)
+        {
+            if (arg is string dest)
+            {
+                switch(dest)
+                {
+                    case "Login":
+                        SelectedVM = new LoginVM(this);
+                        break;
+                    case "LogoutButton":
+                        Logout();
+                        SelectedVM = new LoginVM(this);
+                        MenuToggle = false;
+                        break;
+                    case "NavigationButton":
+                        SelectedVM = new NavigationVM(this);
+                        MenuToggle = false;
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        private async void Logout()
+        {
+            await Client.Logout();
+        }
+
+        public ICommand NavigateToCommand { get; set; }
+
+        private bool menuToggle;
+        public bool MenuToggle
+        {
+            get
+            {
+                return menuToggle;
+            }
+            set
+            {
+                menuToggle = value;
+                OnPropertyChanged(nameof(MenuToggle));
+            }
+        }
         private ViewModelBase selectedVM;
         public ViewModelBase SelectedVM
         {
@@ -23,19 +71,32 @@ namespace GPSTCPClient.ViewModel
                 OnPropertyChanged(nameof(SelectedVM));
             }
         }
-        private Visibility menuButtonVisible;
-
-        public Visibility MenuButtonVisible
+        private Visibility loadingCv;
+        public Visibility LoadingCv
         {
             get
             {
-                return menuButtonVisible;
+                return loadingCv;
             }
             set
             {
-                menuButtonVisible = value;
-                OnPropertyChanged(nameof(MenuButtonVisible));
+                loadingCv = value;
+                OnPropertyChanged(nameof(LoadingCv));
             }
+        }
+
+        public bool Loading
+        {
+            set
+            {
+                if (value == true) LoadingCv = Visibility.Visible;
+                else LoadingCv = Visibility.Hidden;
+            }
+        }
+
+        public void SetLoading()
+        {
+            LoadingCv = Visibility.Visible;
         }
     }
 }

@@ -98,7 +98,6 @@ namespace GPSTCPClient.ViewModel.Components
                 if (selectedLocationText.Length >= 3 && !Locations.Any(p => p.ToString() == value))
                 {
                     FindAddress(value);
-                    IsDropDownOpen = true;
                 }
                 OnPropertyChanged(nameof(SelectedLocationText));
             }
@@ -125,10 +124,20 @@ namespace GPSTCPClient.ViewModel.Components
                 await Task.Delay(500);
                 if (selectedLocationText == val)
                 {
-                    SearchingLocations = new ObservableCollection<UserLocation>(convertAddressesToUl(await Client.GetAddress(val)));
+                    return convertAddressesToUl(await Client.GetAddress(val));
                 }
+                return null;
             }
-            );
+            ).ContinueWith(task =>
+            {
+                if(task.Result != null && task.Result.Length > 0)
+                {
+                    SearchingLocations.Clear();
+                    SearchingLocations.AddRange(task.Result);
+                    OnPropertyChanged(nameof(Locations));
+                    if(SearchingLocations.Count > 0) IsDropDownOpen = true;
+                }
+            }, TaskScheduler.FromCurrentSynchronizationContext());
         }
 
         private UserLocation[] convertAddressesToUl(Address[] addresses)

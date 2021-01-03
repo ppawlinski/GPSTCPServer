@@ -8,11 +8,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using PolylineEncoder.Net.Utility.Decoders;
+using System.Windows.Threading;
 
 namespace GPSTCPClient.ViewModel
 {
     public class NavigationVM : ViewModelBase
     {
+        
+
         private AddressesSearch favAddressSearch;
         public AddressesSearch FavAddressSearch
         {
@@ -84,6 +87,8 @@ namespace GPSTCPClient.ViewModel
         }
 
         private MixedSearch toAddressessSearch;
+        
+
         public MixedSearch ToAddressessSearch
         {
             get
@@ -135,19 +140,25 @@ namespace GPSTCPClient.ViewModel
                 mainMap = value;
             }
         }
-
-        public NavigationVM()
+        private MainVM mainVM;
+        public NavigationVM(MainVM mainVM_)
         {
-
+            mainVM = mainVM_;
+            
             ToAddressessSearch = new MixedSearch();
             ToAddressessSearch.OnSelectedAction += ToAddressessSearch_OnSelectedAction;
             FromAddressessSearch = new MixedSearch();
             FromAddressessSearch.OnSelectedAction += FromAddressessSearch_OnSelectedAction;
             MainMap = new MapVM();
             Locations = new ObservableCollection<UserLocation>(new UserLocation[] { new UserLocation("WCZYTYWANIE...") });
+            mainVM.Loading = true;
             Task.Run(async () =>
             {
-                Locations = new ObservableCollection<UserLocation>(await Client.GetMyAddresses());
+                return await Client.GetMyAddresses();
+            }).ContinueWith(task =>
+            {
+                Locations.Clear();
+                Locations.AddRange(task.Result);
 
                 if (Locations.Count > 0)
                 {
@@ -155,9 +166,8 @@ namespace GPSTCPClient.ViewModel
                     MainMap.MainLoc = new Pin(Locations.First());
                 }
                 else MainMap.MainLoc = new Pin();
-                
-                //MainMap.FillWithFavs(Locations);
-            });
+                //mainVM.Loading = false;
+            },TaskScheduler.FromCurrentSynchronizationContext());
             AddingLocationsList = new ObservableCollection<Address>();
             AddLocationCommand = new Command(sender => AddLocation());
             DelLocationCommand = new Command(sender => DelLocation());
@@ -171,6 +181,7 @@ namespace GPSTCPClient.ViewModel
             MainMap.FromPin = new Pin();
             MainMap.ToPin = new Pin();
         }
+
 
         private void FromAddressessSearch_OnSelectedAction(object sender, System.EventArgs e)
         {
@@ -234,12 +245,13 @@ namespace GPSTCPClient.ViewModel
 
         private async void FindRoute()
         {
+            mainVM.Loading = true;
             RouteInstrucions = new StepModel[]
             {
                 new StepModel()
                 {
                     Description = "WCZYTYWANIE..."
-                }            
+                }
             };
             var rm = await Client.GetRoute(FromAddressessSearch.SelectedLocation.Address, ToAddressessSearch.SelectedLocation.Address);
 
@@ -259,6 +271,7 @@ namespace GPSTCPClient.ViewModel
             RouteInstrucions = rm.Steps;
             MainMap.FromPin = new Pin("Początek", MainMap.PolylineLocations.First());
             MainMap.ToPin = new Pin("Koniec", MainMap.PolylineLocations.Last());
+            mainVM.Loading = false;
         }
 
         private void CenterOnRoute(object sender)
@@ -285,5 +298,6 @@ namespace GPSTCPClient.ViewModel
             FromAddressessSearch.SelectedLocation = ToAddressessSearch.SelectedLocation;
             ToAddressessSearch.SelectedLocation = from;
         }
+        
     }
 }
