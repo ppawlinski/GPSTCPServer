@@ -84,7 +84,7 @@
                 </md:DrawerHost>
             </md:DialogHost>
             <ContentControl Panel.ZIndex="0" Content="{Binding SelectedVM}" Width="800" Height="840"/>
-            <ProgressBar Width="800"  Background="{x:Null}" BorderBrush="{x:Null}"  Visibility="{Binding Path=LoadingCv,NotifyOnSourceUpdated=True,NotifyOnTargetUpdated=True}" IsIndeterminate="true" HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
+            <ProgressBar Width="800"  Background="{x:Null}" BorderBrush="{x:Null}"  Visibility="{Binding LoadingCv}" IsIndeterminate="true" HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
         </Grid>
         
         

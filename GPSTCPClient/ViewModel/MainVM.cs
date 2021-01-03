@@ -10,7 +10,6 @@ namespace GPSTCPClient.ViewModel
     {
         public MainVM()
         {
-            Loading = false;
             NavigateToCommand = new Command(arg => NavigateTo(arg));
         }
 

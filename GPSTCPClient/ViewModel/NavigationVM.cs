@@ -144,30 +144,13 @@ namespace GPSTCPClient.ViewModel
         public NavigationVM(MainVM mainVM_)
         {
             mainVM = mainVM_;
-            
             ToAddressessSearch = new MixedSearch();
             ToAddressessSearch.OnSelectedAction += ToAddressessSearch_OnSelectedAction;
             FromAddressessSearch = new MixedSearch();
             FromAddressessSearch.OnSelectedAction += FromAddressessSearch_OnSelectedAction;
             MainMap = new MapVM();
             Locations = new ObservableCollection<UserLocation>(new UserLocation[] { new UserLocation("WCZYTYWANIE...") });
-            mainVM.Loading = true;
-            Task.Run(async () =>
-            {
-                return await Client.GetMyAddresses();
-            }).ContinueWith(task =>
-            {
-                Locations.Clear();
-                Locations.AddRange(task.Result);
-
-                if (Locations.Count > 0)
-                {
-                    MainMap.Center = MapVM.GetLocation(Locations.First().Address);
-                    MainMap.MainLoc = new Pin(Locations.First());
-                }
-                else MainMap.MainLoc = new Pin();
-                //mainVM.Loading = false;
-            },TaskScheduler.FromCurrentSynchronizationContext());
+            LoadData();
             AddingLocationsList = new ObservableCollection<Address>();
             AddLocationCommand = new Command(sender => AddLocation());
             DelLocationCommand = new Command(sender => DelLocation());
@@ -182,6 +165,26 @@ namespace GPSTCPClient.ViewModel
             MainMap.ToPin = new Pin();
         }
 
+        private void LoadData()
+        {
+            Task.Run(async () =>
+            {
+                System.Windows.Application.Current.Dispatcher.Invoke(() => mainVM.Loading = true);
+                return await Client.GetMyAddresses();
+            }).ContinueWith(task =>
+            {
+                Locations.Clear();
+                Locations.AddRange(task.Result);
+
+                if (Locations.Count > 0)
+                {
+                    MainMap.Center = MapVM.GetLocation(Locations.First().Address);
+                    MainMap.MainLoc = new Pin(Locations.First());
+                }
+                else MainMap.MainLoc = new Pin();
+                mainVM.Loading = false;
+            }, TaskScheduler.FromCurrentSynchronizationContext());
+        }
 
         private void FromAddressessSearch_OnSelectedAction(object sender, System.EventArgs e)
         {
