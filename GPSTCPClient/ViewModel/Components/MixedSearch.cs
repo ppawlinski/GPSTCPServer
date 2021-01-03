@@ -90,7 +90,7 @@ namespace GPSTCPClient.ViewModel.Components
             {
                 if (value != SelectedLocation?.ToString())
                 {
-                    SelectedLocation = new UserLocation();
+                    selectedLocation = null;
                 }
 
                 selectedLocationText = value;
@@ -100,11 +100,6 @@ namespace GPSTCPClient.ViewModel.Components
                     FindAddress(value);
                     IsDropDownOpen = true;
                 }
-                else
-                {
-                    IsDropDownOpen = false;
-                }
-                OnPropertyChanged(nameof(Locations));
                 OnPropertyChanged(nameof(SelectedLocationText));
             }
         }
@@ -128,7 +123,7 @@ namespace GPSTCPClient.ViewModel.Components
             Task.Run(async () =>
             {
                 await Task.Delay(500);
-                if (SelectedLocationText == val)
+                if (selectedLocationText == val)
                 {
                     SearchingLocations = new ObservableCollection<UserLocation>(convertAddressesToUl(await Client.GetAddress(val)));
                 }
