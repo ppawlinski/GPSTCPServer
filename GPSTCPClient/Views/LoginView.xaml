@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:GPSTCPClient.Views"
              xmlns:vm="clr-namespace:GPSTCPClient.ViewModel"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
+             d:DesignHeight="840" d:DesignWidth="800">
     <Grid>
         <TextBox HorizontalAlignment="Center" Margin="0,99,0,0" Name="ServerAddressBox" Text="{Binding ServerAddress}" TextWrapping="Wrap" VerticalAlignment="Top"  Width="120" Height="25"/>
         <Label Content="Adres:" HorizontalAlignment="Left" Margin="250,106,0,0" VerticalAlignment="Top" Padding="0" Height="18" Width="85"/>

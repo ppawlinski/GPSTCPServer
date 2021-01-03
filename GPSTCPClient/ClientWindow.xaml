@@ -38,13 +38,14 @@
             </Button>
 
         </StackPanel>
-        <StackPanel Orientation="Horizontal">
+        <Grid>
             <md:DialogHost
             Identifier="RootDialog"
-            DialogTheme="Inherit">
+            DialogTheme="Inherit"
+            Panel.ZIndex="1">
                 <!-- SnackbarMessageQueue="{Binding ElementName=MainSnackbar, Path=MessageQueue}"-->
                 <md:DrawerHost
-            IsLeftDrawerOpen="{Binding ElementName=MenuToggleButton, Path=IsChecked}" Height="840">
+            IsLeftDrawerOpen="{Binding ElementName=MenuToggleButton, Path=IsChecked}" Height="860">
                     <md:DrawerHost.LeftDrawerContent>
                         <DockPanel MinWidth="220">
                             <StackPanel Orientation="Vertical">
@@ -66,7 +67,7 @@
                                         <TextBlock Text="Profil" VerticalAlignment="Center" Margin="20,0,0,0"/>
                                     </StackPanel>
                                 </Button>
-                                <Button Margin="10,500,10,10" Height="50" Width="200" HorizontalAlignment="Left" Padding="0">
+                                <Button Margin="10,520,10,10" Height="50" Width="200" HorizontalAlignment="Left" Padding="0">
                                     <StackPanel Orientation="Horizontal" Width="160" HorizontalAlignment="Left">
                                         <md:PackIcon Kind="SettingsOutline" Width="32" Height="32"/>
                                         <TextBlock Text="Ustawienia" VerticalAlignment="Center" Margin="20,0,0,0"/>
@@ -83,8 +84,8 @@
                     </md:DrawerHost.LeftDrawerContent>
                 </md:DrawerHost>
             </md:DialogHost>
-            <ContentControl Content="{Binding SelectedVM}" Width="800"/>
-        </StackPanel>
+            <ContentControl Panel.ZIndex="0" Content="{Binding SelectedVM}" Width="800" Height="840"/>
+        </Grid>
         
         
         <!--<Frame Name="Navigation" Content="Frame" NavigationUIVisibility="Hidden"  Height="860"/>-->
