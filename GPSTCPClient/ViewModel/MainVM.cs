@@ -22,13 +22,21 @@ namespace GPSTCPClient.ViewModel
                     case "Login":
                         SelectedVM = new LoginVM(this);
                         break;
-                    case "LogoutButton":
+                    case "Logout":
                         Logout();
                         SelectedVM = new LoginVM(this);
+                        navigation = null;
+                        favourites = null;
                         MenuToggle = false;
                         break;
-                    case "NavigationButton":
-                        SelectedVM = new NavigationVM(this);
+                    case "Navigation":
+                        if(navigation == null) navigation = new NavigationVM(this);
+                        if(favourites == null) favourites = new FavouritesVM(navigation);
+                        SelectedVM = navigation;
+                        MenuToggle = false;
+                        break;
+                    case "Favourites":
+                        SelectedVM = favourites;
                         MenuToggle = false;
                         break;
                     default:
@@ -36,6 +44,9 @@ namespace GPSTCPClient.ViewModel
                 }
             }
         }
+
+        private ViewModelBase navigation;
+        private ViewModelBase favourites;
 
         private async void Logout()
         {

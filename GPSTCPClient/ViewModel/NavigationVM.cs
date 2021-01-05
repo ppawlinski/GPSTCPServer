@@ -190,7 +190,7 @@ namespace GPSTCPClient.ViewModel
         {
             if (sender is MixedSearch ms)
             {
-                if (!String.IsNullOrEmpty(ms.SelectedLocation?.Address.Lat))
+                if (!double.IsNaN(ms.SelectedLocation.Address.Lat))
                 {
                     MainMap.Center = MapVM.GetLocation(ms.SelectedLocation.Address);
                     MainMap.FromPin = new Pin(ms.SelectedLocation.Address);
@@ -202,7 +202,7 @@ namespace GPSTCPClient.ViewModel
         {
             if(sender is MixedSearch ms)
             {
-                if (!String.IsNullOrEmpty(ms.SelectedLocation?.Address.Lat))
+                if (!double.IsNaN(ms.SelectedLocation.Address.Lat))
                 {
                     MainMap.Center = MapVM.GetLocation(ms.SelectedLocation.Address);
                     MainMap.ToPin = new Pin(ms.SelectedLocation.Address);

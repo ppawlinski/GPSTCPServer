@@ -93,7 +93,7 @@ namespace GPSTCPClient.ViewModel
                 else if (await Client.Login(login, passwordBox.Password)) 
                 { 
                     //mainVM.SelectedVM = new NavigationVM(mainVM);
-                    mainVM.NavigateTo("NavigationButton");
+                    mainVM.NavigateTo("Navigation");
                 }
                 else
                 {

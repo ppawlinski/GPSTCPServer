@@ -115,15 +115,20 @@ namespace GPSTCPClient
                     {
                         if (name == "") continue;
                         Send($"GETSAVEDADDRESS {name}");
+                        var resp = await getUserInput(new byte[2048]);
+                        var parsed = JsonSerializer.Deserialize<Address[]>(resp);
                         locations.Add(new UserLocation()
                         {
                             Name = name,
-                            Address = JsonSerializer.Deserialize<Address[]>(await getUserInput(new byte[2048])).FirstOrDefault()
+                            Address = parsed.FirstOrDefault()
                         }
                         );
                     }
                 }
-                catch (Exception) { return locations; }
+                catch (Exception ex) {
+                    var c = ex.Message;
+                    return locations; 
+                }
             }
             return locations;
         }

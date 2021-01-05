@@ -133,7 +133,8 @@ namespace GPSTCPClient.ViewModel.Components
 
         public static Location GetLocation(Address address)
         {
-            return new Location(double.Parse(address.Lat, CultureInfo.InvariantCulture), double.Parse(address.Lon, CultureInfo.InvariantCulture));
+            // return new Location(double.Parse(address.Lat, CultureInfo.InvariantCulture), double.Parse(address.Lon, CultureInfo.InvariantCulture));
+            return new Location(address.Lat, address.Lon);
         }
 
     }

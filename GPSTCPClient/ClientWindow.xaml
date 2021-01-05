@@ -4,7 +4,6 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
-        xmlns:shell="http://schemas.microsoft.com/winfx/2006/xaml/presentation/shell"
         mc:Ignorable="d"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         TextElement.FontWeight="Regular"
@@ -29,10 +28,10 @@
                             Click="MenuToggleButton_Click"
                             AutomationProperties.Name="HamburgerToggleButton"/>
 
-            <Button Click="Minimize_Click" Background="#333333" Style="{StaticResource MaterialDesignFlatButton}" md:ButtonAssist.CornerRadius="0" Width="60" Height="40" BorderThickness="0" >
+            <Button Click="Minimize_Click" Background="{x:Null}" Style="{StaticResource MaterialDesignFlatButton}" md:ButtonAssist.CornerRadius="0" Width="60" Height="40" BorderThickness="0" >
                 <md:PackIcon Kind="WindowMinimize" />
             </Button>
-            <Button Click="Close_Click" Background="#333333" BorderThickness="0" Style="{StaticResource MaterialDesignFlatButton}" Foreground="Red" md:ButtonAssist.CornerRadius="0" md:ColorZoneAssist.Background="Red" Margin="0" Width="60" Height="40">
+            <Button Click="Close_Click" Background="{x:Null}" BorderThickness="0" Style="{StaticResource MaterialDesignFlatButton}" Foreground="Red" md:ButtonAssist.CornerRadius="0" md:ColorZoneAssist.Background="Red" Margin="0" Width="60" Height="40">
                 <md:PackIcon Kind="WindowClose" />
             </Button>
 
@@ -48,13 +47,13 @@
                     <md:DrawerHost.LeftDrawerContent>
                         <DockPanel MinWidth="220">
                             <StackPanel Orientation="Vertical">
-                                <Button Margin="10" Height="50" Width="200" HorizontalAlignment="Left" Padding="0">
+                                <Button Margin="10" Height="50" Width="200" HorizontalAlignment="Left" Padding="0" Name="Navigation" Command="{Binding NavigateToCommand}" CommandParameter="{Binding ElementName=Navigation, Path=Name}">
                                     <StackPanel Orientation="Horizontal" Width="160" HorizontalAlignment="Left">
                                         <md:PackIcon Kind="MapMarkerOutline" Width="32" Height="32"/>
                                         <TextBlock Text="Nawigacja" VerticalAlignment="Center" Margin="20,0,0,0"/>
                                     </StackPanel>
                                 </Button>
-                                <Button Margin="10" Height="50" Width="200" HorizontalAlignment="Left" Padding="0">
+                                <Button Margin="10" Height="50" Width="200" HorizontalAlignment="Left" Padding="0" Name="Favourites" Command="{Binding NavigateToCommand}" CommandParameter="{Binding ElementName=Favourites, Path=Name}">
                                     <StackPanel Orientation="Horizontal" Width="160" HorizontalAlignment="Left">
                                         <md:PackIcon Kind="StarOutline" Width="32" Height="32"/>
                                         <TextBlock Text="Zapisane adresy" VerticalAlignment="Center" Margin="20,0,0,0"/>
@@ -72,7 +71,7 @@
                                         <TextBlock Text="Ustawienia" VerticalAlignment="Center" Margin="20,0,0,0"/>
                                     </StackPanel>
                                 </Button>
-                                <Button Margin="10,10,10,10" Height="50" Width="200" Background="Red" BorderBrush="Red" Name="LogoutButton" HorizontalAlignment="Left" Padding="0" Command="{Binding NavigateToCommand}" CommandParameter="{Binding ElementName=LogoutButton, Path=Name}">
+                                <Button Margin="10,10,10,10" Height="50" Width="200" Background="Red" BorderBrush="Red" Name="Logout" HorizontalAlignment="Left" Padding="0" Command="{Binding NavigateToCommand}" CommandParameter="{Binding ElementName=Logout, Path=Name}">
                                     <StackPanel Orientation="Horizontal" Width="160" HorizontalAlignment="Left">
                                         <md:PackIcon Kind="Logout" Width="32" Height="32"/>
                                         <TextBlock Text="Wyloguj się" VerticalAlignment="Center" Margin="20,0,0,0"/>

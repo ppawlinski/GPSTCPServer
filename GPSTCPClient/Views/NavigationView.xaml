@@ -83,7 +83,7 @@
                 <md:PackIcon Kind="Location">
                 </md:PackIcon>
             </wpf:Pushpin>
-            <wpf:Pushpin  wpf:MapLayer.Position="{Binding MainMap.ToPin.Location}" Visibility="{Binding MainMap.ToPin.Visibility}">
+            <wpf:Pushpin wpf:MapLayer.Position="{Binding MainMap.ToPin.Location}" Visibility="{Binding MainMap.ToPin.Visibility}">
                 <md:PackIcon Kind="Location">
                 </md:PackIcon>
             </wpf:Pushpin>

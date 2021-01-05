@@ -3,6 +3,7 @@ using GPSTCPClient.ViewModel.MVVM;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -58,6 +59,12 @@ namespace GPSTCPClient.ViewModel.Components
             }
         }
 
+        public string Cords {
+            get
+            {
+                return Address?.Lat.ToString("0.###",CultureInfo.InvariantCulture) + " : " + Address?.Lon.ToString("0.###", CultureInfo.InvariantCulture);
+            }
+        }
 
         public override string ToString()
         {
