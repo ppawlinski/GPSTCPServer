@@ -179,5 +179,11 @@ namespace GPSTCPClient
             Send($"DESCRIBEADDRESS {lat.ToString(CultureInfo.InvariantCulture)} {lon.ToString(CultureInfo.InvariantCulture)}");
             return JsonSerializer.Deserialize<Address>(await getUserInput(new byte[10000]));
         }
+
+        public static async Task<bool> EditAddress(string name,string newName, Address address)
+        {
+            Send($"EDITADDRESS {name.Replace(' ','+')} {newName.Replace(' ','+')} {address.OsmType} {address.OsmId}");
+            return await getUserInput(new byte[1024]) == "SUCCESS";
+        }
     }
 }

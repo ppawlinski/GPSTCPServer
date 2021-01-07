@@ -6,6 +6,7 @@ using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Linq;
+using System;
 
 namespace GPSTCPClient.ViewModel
 {
@@ -21,7 +22,7 @@ namespace GPSTCPClient.ViewModel
             MapDoubleClickCommand = new Command(arg => MapDoubleClick(arg));
             CenterOnUserLocationCommand = new Command(arg => CenterOnUserLocation(arg));
             AddLocationCommand = new Command(arg => AddLocation());
-            
+            ClearAddingCommand = new Command(arg => ClearAdding());
             LoadData();
         }
         private void LoadData()
@@ -51,13 +52,14 @@ namespace GPSTCPClient.ViewModel
             }, TaskScheduler.FromCurrentSynchronizationContext());
         }
 
-
+        private UserLocation editing;
         public MainVM MainVM { get; set; }
         public ICommand DeleteCommand { get; set; }
         public ICommand EditCommand { get; set; }
         public ICommand MapDoubleClickCommand { get; set; }
         public ICommand AddLocationCommand { get; set; }
         public ICommand CenterOnUserLocationCommand { get; set; }
+        public ICommand ClearAddingCommand { get; set; }
         private MapVM favMap;
         public MapVM FavMap
         {
@@ -142,16 +144,57 @@ namespace GPSTCPClient.ViewModel
 
         private async void AddLocation()
         {
-            if (await Client.AddAddress(FavAddressSearch.SelectedAddress, AddingLocationName))
+            MainVM.Loading = true;
+            if (AddingLocationName != "" && !double.IsNaN(FavAddressSearch.SelectedAddress?.Lat ?? double.NaN))
             {
-                Locations.Add(new UserLocation(AddingLocationName, FavAddressSearch.SelectedAddress));
-                AddingLocationName = "";
-                FavAddressSearch = new AddressesSearch();
-                //if (Locations.Count == 1)
-                //{
-                //    MainMap.MainLoc = new Pin(Locations.First());
-                //}
+                if(editing == null)
+                {
+                    if (await Client.AddAddress(FavAddressSearch.SelectedAddress, AddingLocationName))
+                    {
+                        Locations.Add(new UserLocation(AddingLocationName, FavAddressSearch.SelectedAddress));
+                        AddingLocationName = "";
+                        FavAddressSearch = new AddressesSearch();
+                    }
+                }
+                else
+                {
+                    if(editing.Address == FavAddressSearch.SelectedAddress && editing.Name == AddingLocationName)
+                    {
+                        editing = null;
+                        AddingLocationName = "";
+                        FavAddressSearch.SelectedAddress = null;
+                        FavAddressSearch.SelectedAddressText = "";
+                        FavAddressSearch.Addresses.Clear();
+                    }
+                    else
+                    {
+                        if(await Client.EditAddress(editing.Name, AddingLocationName, FavAddressSearch.SelectedAddress))
+                        {
+                            editing = null;
+                            AddingLocationName = "";
+                            FavAddressSearch.SelectedAddress = null;
+                            FavAddressSearch.SelectedAddressText = "";
+                            FavAddressSearch.Addresses.Clear();
+                            await Task.Run(async () =>
+                            {
+                                return await Client.GetMyAddresses();
+                            }).ContinueWith(task =>
+                            {
+                                Locations.Clear();
+                                Locations.AddRange(task.Result);
+                                MainVM.Loading = false;
+                            }, TaskScheduler.FromCurrentSynchronizationContext());
+                        }
+                    }
+                }
             }
+            else
+            {
+                editing = null;
+                FavAddressSearch.Addresses.Clear();
+            }
+            MainVM.Loading = false;
+            
         }
 
         private async void DeleteLocation(object selected)
@@ -168,12 +211,12 @@ namespace GPSTCPClient.ViewModel
         {
             if(arg is Location point)
             {
-                
                 var described = await Client.DescribeAddress(point.Latitude, point.Longitude);
                 FavAddressSearch.Addresses.Clear();
                 FavAddressSearch.Addresses.Add(described);
                 FavAddressSearch.SelectedAddress = described;
                 FavAddressSearch.SelectedAddressText = described.DisplayName;
+                FavMap.MainLoc = new Pin(described);
             }
         }
 
@@ -181,7 +224,12 @@ namespace GPSTCPClient.ViewModel
         {
             if(selected != null && selected is UserLocation ul)
             {
-                //throw new NotImplementedException();
+                editing = ul;
+                AddingLocationName = editing.Name;
+                FavAddressSearch.Addresses.Clear();
+                FavAddressSearch.Addresses.Add(editing.Address);
+                FavAddressSearch.SelectedAddress = editing.Address;
+                FavAddressSearch.SelectedAddressText = editing.Address?.DisplayName ?? "";
             }
         }
         private void CenterOnUserLocation(object arg)
@@ -191,6 +239,15 @@ namespace GPSTCPClient.ViewModel
                 FavMap.Center = MapVM.GetLocation(ul.Address);
                 //TODO W zależności od ul.Address.Type można dostosować zoom
             }
+        }
+
+        private void ClearAdding()
+        {
+            editing = null;
+            AddingLocationName = "";
+            FavAddressSearch.Addresses.Clear();
+            FavAddressSearch.SelectedAddress = null;
+            FavAddressSearch.SelectedAddressText = "";
         }
     }
 }

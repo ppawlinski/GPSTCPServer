@@ -64,7 +64,7 @@ namespace GPSTCPClient.ViewModel.Components
             {
                 selectedAddressText = value;
 
-                if (selectedAddressText.Length >= 3 && !Addresses.Any(p => p.DisplayName == value))
+                if (selectedAddressText.Length >= 3 && !Addresses.Any(p => p?.DisplayName == value))
                 {
                     FindAddressForFav(value);
                 }
