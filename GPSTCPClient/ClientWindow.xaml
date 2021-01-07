@@ -26,6 +26,7 @@
                             Style="{StaticResource MaterialDesignHamburgerToggleButton}"
                             IsChecked="{Binding MenuToggle, Mode=TwoWay}"
                             Click="MenuToggleButton_Click"
+                            Visibility="{Binding LoggedInCv}"
                             AutomationProperties.Name="HamburgerToggleButton"/>
 
             <Button Click="Minimize_Click" Background="{x:Null}" Style="{StaticResource MaterialDesignFlatButton}" md:ButtonAssist.CornerRadius="0" Width="60" Height="40" BorderThickness="0" >

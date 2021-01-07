@@ -11,6 +11,7 @@ namespace GPSTCPClient.ViewModel
         public MainVM()
         {
             NavigateToCommand = new Command(arg => NavigateTo(arg));
+            LoggedIn = false;
         }
 
         public void NavigateTo(object arg)
@@ -28,12 +29,14 @@ namespace GPSTCPClient.ViewModel
                         navigation = null;
                         favourites = null;
                         MenuToggle = false;
+                        LoggedIn = false;
                         break;
                     case "Navigation":
                         if (favourites == null || navigation == null)
                         {
                             favourites = new FavouritesVM(this);
                             navigation = new NavigationVM(favourites);
+                            LoggedIn = true;
                         }
                         SelectedVM = navigation;
                         MenuToggle = false;
@@ -58,6 +61,30 @@ namespace GPSTCPClient.ViewModel
 
         public ICommand NavigateToCommand { get; set; }
 
+        public bool LoggedIn
+        {
+            set
+            {
+                if (value == true)
+                {
+                    LoggedInCv = Visibility.Visible;
+                }
+                else LoggedInCv = Visibility.Hidden;
+            }
+        }
+        private Visibility loggedInCv;
+        public Visibility LoggedInCv
+        {
+            get
+            {
+                return loggedInCv;
+            }
+            set
+            {
+                loggedInCv = value;
+                OnPropertyChanged(nameof(LoggedInCv));
+            }
+        }
         private bool menuToggle;
         public bool MenuToggle
         {
@@ -85,6 +112,8 @@ namespace GPSTCPClient.ViewModel
             }
         }
         private Visibility loadingCv;
+        
+
         public Visibility LoadingCv
         {
             get

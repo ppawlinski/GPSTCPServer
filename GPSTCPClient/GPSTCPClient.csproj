@@ -8,23 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Icons\back.png" />
-    <None Remove="Icons\pin.png" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="Icons\pin.png" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="MaterialDesignThemes" Version="3.2.0" />
     <PackageReference Include="Microsoft.Maps.MapControl.WPF" Version="1.0.0.3" />
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.19" />
     <PackageReference Include="PolylineEncoder.Net" Version="1.0.1" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Resource Include="Icons\back.png" />
   </ItemGroup>
 
 </Project>
