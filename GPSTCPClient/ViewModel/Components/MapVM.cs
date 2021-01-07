@@ -18,6 +18,9 @@ namespace GPSTCPClient.ViewModel.Components
             Center = new Location();
             MapMarkers = new List<Pushpin>();
             ZoomLevel = 10;
+            MainLoc = new Pin();
+            FromPin = new Pin();
+            ToPin = new Pin();
         }
         private Location center;
         public Location Center

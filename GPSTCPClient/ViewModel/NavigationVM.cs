@@ -9,82 +9,13 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using PolylineEncoder.Net.Utility.Decoders;
 using System.Windows.Threading;
+using System.Windows.Data;
+using System.Diagnostics;
 
 namespace GPSTCPClient.ViewModel
 {
     public class NavigationVM : ViewModelBase
     {
-        
-
-        private AddressesSearch favAddressSearch;
-        public AddressesSearch FavAddressSearch
-        {
-            get
-            {
-                return favAddressSearch;
-            }
-            set
-            {
-                favAddressSearch = value;
-                OnPropertyChanged(nameof(FavAddressSearch));
-            }
-        }
-
-        private ObservableCollection<UserLocation> locations;
-        public ObservableCollection<UserLocation> Locations
-        {
-            get
-            { return locations; }
-            set
-            {
-                locations = value;
-                ToAddressessSearch.StoredLocations = value;
-                FromAddressessSearch.StoredLocations = value;
-                OnPropertyChanged(nameof(Locations));
-            }
-        }
-
-        private string addingLocationName;
-        public string AddingLocationName
-        {
-            get
-            {
-                return addingLocationName;
-            }
-            set
-            {
-                addingLocationName = value;
-                OnPropertyChanged(nameof(AddingLocationName));
-            }
-        }
-
-        private ObservableCollection<Address> addingLocationsList;
-        public ObservableCollection<Address> AddingLocationsList
-        {
-            get
-            {
-                return addingLocationsList;
-            }
-            set
-            {
-                addingLocationsList = value;
-                OnPropertyChanged(nameof(AddingLocationsList));
-            }
-        }
-
-        private UserLocation selectedFavLocation;
-        public UserLocation SelectedFavLocation
-        {
-            get
-            {
-                return selectedFavLocation;
-            }
-            set
-            {
-                selectedFavLocation = value;
-                OnPropertyChanged(nameof(SelectedFavLocation));
-            }
-        }
 
         private MixedSearch toAddressessSearch;
         
@@ -140,57 +71,42 @@ namespace GPSTCPClient.ViewModel
                 mainMap = value;
             }
         }
-        private MainVM mainVM;
-        public NavigationVM(MainVM mainVM_)
+        public FavouritesVM FavVM { get; set; }
+        public NavigationVM(ViewModelBase favVM_)
         {
-            mainVM = mainVM_;
+            FavVM = favVM_ as FavouritesVM;
             ToAddressessSearch = new MixedSearch();
             ToAddressessSearch.OnSelectedAction += ToAddressessSearch_OnSelectedAction;
             FromAddressessSearch = new MixedSearch();
             FromAddressessSearch.OnSelectedAction += FromAddressessSearch_OnSelectedAction;
             MainMap = new MapVM();
-            Locations = new ObservableCollection<UserLocation>(new UserLocation[] { new UserLocation("WCZYTYWANIE...") });
-            LoadData();
-            AddingLocationsList = new ObservableCollection<Address>();
-            AddLocationCommand = new Command(sender => AddLocation());
-            DelLocationCommand = new Command(sender => DelLocation());
             FindRouteCommand = new Command(sender => FindRoute());
             CenterOnRouteCommand = new Command(sender => CenterOnRoute(sender));
             CenterOnUserLocationCommand = new Command(sender => CenterOnUserLocation(sender));
             SwapAddressesCommand = new Command(sender => SwapAddresses());
             SearchLocationEnterClick = new Command(sender => FindRoute());
-            AddLocationEnterClick = new Command(sender => AddLocation());
-            FavAddressSearch = new AddressesSearch();
-            MainMap.FromPin = new Pin();
-            MainMap.ToPin = new Pin();
-        }
-
-        private void LoadData()
-        {
-            Task.Run(async () =>
+            FromAddressessSearch.StoredLocations = FavVM.Locations;
+            ToAddressessSearch.StoredLocations = FavVM.Locations;
+            FavVM.PropertyChanged += (s, e) =>
             {
-                System.Windows.Application.Current.Dispatcher.Invoke(() => mainVM.Loading = true);
-                return await Client.GetMyAddresses();
-            }).ContinueWith(task =>
-            {
-                Locations.Clear();
-                Locations.AddRange(task.Result);
-
-                if (Locations.Count > 0)
+                if (e.PropertyName == "Locations")
                 {
-                    MainMap.Center = MapVM.GetLocation(Locations.First().Address);
-                    MainMap.MainLoc = new Pin(Locations.First());
+                    if(FavVM.Locations.Count > 0)
+                    {
+                        MainMap.MainLoc = new Pin(FavVM.Locations.First());
+                        MainMap.Center = MapVM.GetLocation(FavVM.Locations.First().Address);
+                    }
                 }
-                else MainMap.MainLoc = new Pin();
-                mainVM.Loading = false;
-            }, TaskScheduler.FromCurrentSynchronizationContext());
+            };
         }
+
+        
 
         private void FromAddressessSearch_OnSelectedAction(object sender, System.EventArgs e)
         {
             if (sender is MixedSearch ms)
             {
-                if (!double.IsNaN(ms.SelectedLocation.Address.Lat))
+                if (!double.IsNaN(ms.SelectedLocation?.Address.Lat ?? double.NaN))
                 {
                     MainMap.Center = MapVM.GetLocation(ms.SelectedLocation.Address);
                     MainMap.FromPin = new Pin(ms.SelectedLocation.Address);
@@ -202,7 +118,7 @@ namespace GPSTCPClient.ViewModel
         {
             if(sender is MixedSearch ms)
             {
-                if (!double.IsNaN(ms.SelectedLocation.Address.Lat))
+                if (!double.IsNaN(ms.SelectedLocation?.Address.Lat ?? double.NaN))
                 {
                     MainMap.Center = MapVM.GetLocation(ms.SelectedLocation.Address);
                     MainMap.ToPin = new Pin(ms.SelectedLocation.Address);
@@ -210,45 +126,16 @@ namespace GPSTCPClient.ViewModel
             }
         }
 
-        public ICommand AddLocationCommand { get; set; }
-        public ICommand DelLocationCommand { get; set; }
         public ICommand FindRouteCommand { get; set; }
         public ICommand CenterOnRouteCommand { get; set; }
         public ICommand SwapAddressesCommand { get; set; }
         public ICommand CenterOnUserLocationCommand { get; set; }
         public ICommand SearchLocationEnterClick { get; set; }
-        public ICommand AddLocationEnterClick { get; set; }
 
-        private async void AddLocation()
-        {
-            if (await Client.AddAddress(FavAddressSearch.SelectedAddress, AddingLocationName))
-            {
-                Locations.Add(new UserLocation(AddingLocationName, FavAddressSearch.SelectedAddress));
-                AddingLocationName = "";
-                FavAddressSearch = new AddressesSearch();
-                if(Locations.Count == 1)
-                {
-                    MainMap.MainLoc = new Pin(Locations.First());
-                }
-            }
-        }
-
-        private async void DelLocation()
-        {
-            if (SelectedFavLocation == null) return;
-            if (await Client.DeleteAddress(SelectedFavLocation.Name))
-            {
-                Locations.Remove(SelectedFavLocation);
-                if(Locations.Count == 0)
-                {
-                    MainMap.MainLoc = new Pin();
-                }
-            }
-        }
 
         private async void FindRoute()
         {
-            mainVM.Loading = true;
+            FavVM.MainVM.Loading = true;
             RouteInstrucions = new StepModel[]
             {
                 new StepModel()
@@ -274,7 +161,7 @@ namespace GPSTCPClient.ViewModel
             RouteInstrucions = rm.Steps;
             MainMap.FromPin = new Pin("Początek", MainMap.PolylineLocations.First());
             MainMap.ToPin = new Pin("Koniec", MainMap.PolylineLocations.Last());
-            mainVM.Loading = false;
+            FavVM.MainVM.Loading = false;
         }
 
         private void CenterOnRoute(object sender)

@@ -30,8 +30,11 @@ namespace GPSTCPClient.ViewModel
                         MenuToggle = false;
                         break;
                     case "Navigation":
-                        if(navigation == null) navigation = new NavigationVM(this);
-                        if(favourites == null) favourites = new FavouritesVM(navigation);
+                        if (favourites == null || navigation == null)
+                        {
+                            favourites = new FavouritesVM(this);
+                            navigation = new NavigationVM(favourites);
+                        }
                         SelectedVM = navigation;
                         MenuToggle = false;
                         break;

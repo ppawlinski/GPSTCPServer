@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:GPSTCPClient.Views"
              xmlns:vm="clr-namespace:GPSTCPClient.ViewModel"
              mc:Ignorable="d" 
-             d:DesignHeight="840" d:DesignWidth="800">
+             d:DesignHeight="840" d:DesignWidth="1200">
     <Grid>
         <TextBox HorizontalAlignment="Center" Margin="0,99,0,0" Name="ServerAddressBox" Text="{Binding ServerAddress, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap" VerticalAlignment="Top"  Width="120" Height="25">
             <TextBox.InputBindings>
@@ -15,7 +15,6 @@
                     Command="{Binding LoginClickCommand}" CommandParameter="{Binding ElementName=PasswordBox}"/>
             </TextBox.InputBindings>
         </TextBox>
-        <Label Content="Adres:" HorizontalAlignment="Left" Margin="250,106,0,0" VerticalAlignment="Top" Padding="0" Height="18" Width="85"/>
         <TextBox HorizontalAlignment="Center" Margin="0,139,0,0" TextWrapping="Wrap" Text="{Binding ServerPort, UpdateSourceTrigger=PropertyChanged}" Name="ServerPortBox" VerticalAlignment="Top" Width="120" Height="25">
             <TextBox.InputBindings>
                 <KeyBinding
@@ -23,7 +22,6 @@
                     Command="{Binding LoginClickCommand}" CommandParameter="{Binding ElementName=PasswordBox}"/>
             </TextBox.InputBindings>
         </TextBox>
-        <Label Content="Port:" Padding="0" HorizontalAlignment="Left" VerticalAlignment="Top"  Margin="250,146,0,0" Width="85" Height="18"/>
         <TextBox HorizontalAlignment="Center"  Margin="0,179,0,0" Name="LoginBox" Text="{Binding Login, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" Height="25">
             <TextBox.InputBindings>
                 <KeyBinding
@@ -31,7 +29,6 @@
                     Command="{Binding LoginClickCommand}" CommandParameter="{Binding ElementName=PasswordBox}"/>
             </TextBox.InputBindings>
         </TextBox>
-        <Label Content="Login:" HorizontalAlignment="Left" Height="18" Margin="250,186,0,0" Padding="0" VerticalAlignment="Top" Width="85"/>
         <PasswordBox HorizontalAlignment="Center"  Margin="0,219,0,0" Name="PasswordBox" VerticalAlignment="Top" Width="120" Height="25">
             <PasswordBox.InputBindings>
                 <KeyBinding
@@ -39,9 +36,8 @@
                     Command="{Binding LoginClickCommand}" CommandParameter="{Binding ElementName=PasswordBox}"/>
             </PasswordBox.InputBindings>
         </PasswordBox>
-        <Label Content="Hasło:" HorizontalAlignment="Left" Height="18" Padding="0" Margin="250,226,0,0" VerticalAlignment="Top" Width="85"/>
-        <Button Content="Zaloguj się" HorizontalAlignment="Left" VerticalAlignment="Top" Command="{Binding LoginClickCommand}" CommandParameter="{Binding ElementName=PasswordBox}" Margin="250,304,0,0" Width="210" Height="40"/>
-        <Button Content="Zarejestruj się" HorizontalAlignment="Left" Height="40" Margin="250,361,0,0" VerticalAlignment="Top" Width="210"/>
-        <TextBlock Name="LoginErrors" Text="{Binding Errors}" FontSize="11"  Foreground="#e53935" HorizontalAlignment="Left" Height="36" Margin="250,263,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="210"/>
+        <Button Content="Zaloguj się"  VerticalAlignment="Top" IsEnabled="{Binding LoginEnabled}" Command="{Binding LoginClickCommand}" CommandParameter="{Binding ElementName=PasswordBox}" Margin="0,304,0,0" Width="210" Height="40"/>
+        <Button Content="Zarejestruj się" Height="40" Margin="0,361,0,0" VerticalAlignment="Top" Width="210" IsEnabled="{Binding RegisterEnabled}"/>
+        <TextBlock Name="LoginErrors" Text="{Binding Errors}" FontSize="11"  Foreground="#e53935"  Height="36" Margin="0,263,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="210"/>
     </Grid>
 </UserControl>

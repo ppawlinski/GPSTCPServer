@@ -9,6 +9,7 @@ using GPSTCPClient.Models;
 using System.Text.Json;
 using System.IO;
 using GPSTCPClient.ViewModel.Components;
+using System.Globalization;
 
 namespace GPSTCPClient
 {
@@ -149,7 +150,7 @@ namespace GPSTCPClient
 
         public static async Task<RouteModel> GetRoute(Address origin, Address destination)
         {
-            Send($"GETROUTE {origin.Lon} {origin.Lat} {destination.Lon} {destination.Lat}");
+            Send($"GETROUTE {origin.Lon.ToString(CultureInfo.InvariantCulture)} {origin.Lat.ToString(CultureInfo.InvariantCulture)} {destination.Lon.ToString(CultureInfo.InvariantCulture)} {destination.Lat.ToString(CultureInfo.InvariantCulture)}");
             return JsonSerializer.Deserialize<RouteModel>(await getUserInput(new byte[1000000]));
         }
 
@@ -171,6 +172,12 @@ namespace GPSTCPClient
             newPassword = Md5Hasher.CreateMD5(newPassword);
             Send($"CHANGEPASSWORD {oldPassword} {newPassword}");
             return await getUserInput(new byte[1024]) == "SUCCESS";
+        }
+
+        public static async Task<Address> DescribeAddress(double lat, double lon)
+        {
+            Send($"DESCRIBEADDRESS {lat.ToString(CultureInfo.InvariantCulture)} {lon.ToString(CultureInfo.InvariantCulture)}");
+            return JsonSerializer.Deserialize<Address>(await getUserInput(new byte[10000]));
         }
     }
 }

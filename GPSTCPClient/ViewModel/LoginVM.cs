@@ -20,6 +20,8 @@ namespace GPSTCPClient.ViewModel
             ServerAddress = "127.0.0.1";
             ServerPort = "2048";
             Login = "test";
+            loginEnabled = true;
+            registerEnabled = true;
         }
         private MainVM mainVM;
         private string errors;
@@ -64,6 +66,7 @@ namespace GPSTCPClient.ViewModel
             }
         }
         private string login;
+        
         public string Login
         {
             get
@@ -77,11 +80,39 @@ namespace GPSTCPClient.ViewModel
             }
         }
 
+        private bool loginEnabled;
+        public bool LoginEnabled
+        {
+            get
+            {
+                return loginEnabled;
+            }
+            set
+            {
+                loginEnabled = value;
+                OnPropertyChanged(nameof(LoginEnabled));
+            }
+        }
 
+        private bool registerEnabled;
+        public bool RegisterEnabled
+        {
+            get
+            {
+                return registerEnabled;
+            }
+            set
+            {
+                registerEnabled = value;
+                OnPropertyChanged(nameof(RegisterEnabled));
+            }
+        }
         public ICommand LoginClickCommand { get; set; }
 
         public async void LoginAction(object arg)
         {
+            LoginEnabled = false;
+            RegisterEnabled = false;
             mainVM.Loading = true;
             Errors = "";
             if(arg is PasswordBox passwordBox)
@@ -100,6 +131,8 @@ namespace GPSTCPClient.ViewModel
                     Errors = "Błędne dane logowania";
                 }
             }
+            LoginEnabled = true;
+            RegisterEnabled = true;
             mainVM.Loading = false;
 
         }

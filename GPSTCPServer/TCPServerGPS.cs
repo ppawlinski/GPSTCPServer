@@ -187,7 +187,7 @@ namespace GPSTCPServer
 #if DEBUG
                     Console.WriteLine("PAKIET: " + fullMessage);
 #endif
-                    return "FAIL"; 
+                    return "FAIL";
                 }
                 if (arguments.Length == 3)
                 {
@@ -225,7 +225,7 @@ namespace GPSTCPServer
 #if DEBUG
                     Console.WriteLine("PAKIET: " + fullMessage);
 #endif
-                    return "FAIL"; 
+                    return "FAIL";
                 }
             }
             else if (command == "DELETEADDRESS")
@@ -234,15 +234,26 @@ namespace GPSTCPServer
 #if DEBUG
                     Console.WriteLine("PAKIET: " + fullMessage);
 #endif
-                    return "FAIL"; 
+                    return "FAIL";
                 }
                 if (db.DeleteLocation(user.Username, arguments[1])) return "SUCCESS";
                 else {
 #if DEBUG
                     Console.WriteLine("PAKIET: " + fullMessage);
 #endif
-                    return "FAIL"; 
+                    return "FAIL";
                 }
+            }
+            else if (command == "DESCRIBEADDRESS")
+            {
+                if (!user.LoggedIn || arguments.Length != 3)
+                {
+#if DEBUG
+                    Console.WriteLine("PAKIET: " + fullMessage);
+#endif
+                    return "FAIL";
+                }
+                return await getAddressInfo(arguments[1], arguments[2]);
             }
             return "UNKNOWNCOMMAND";
         }
@@ -350,6 +361,12 @@ namespace GPSTCPServer
                 return address;
             }
             else throw new Exception();
+        }
+
+        private async Task<string> getAddressInfo(string lat, string lon)
+        {
+            var response = await GetRequest.GetFromURLAsync(String.Format("https://nominatim.openstreetmap.org/reverse?lat={0}&lon={1}&format=json", lat, lon));
+            return response;
         }
 
         private Task<string> login(string username, string password)

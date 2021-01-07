@@ -13,7 +13,7 @@
         Background="{DynamicResource MaterialDesignPaper}"
         FontFamily="{DynamicResource MaterialDesignFont}"
         xmlns:ViewModels="clr-namespace:GPSTCPClient.ViewModel"
-        Title="Client" Height="900" Width="800" ResizeMode="CanMinimize">
+        Title="Client" Height="900" Width="1200" ResizeMode="CanMinimize">
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="40"/>
 
@@ -21,7 +21,7 @@
     <StackPanel >
         <StackPanel WindowChrome.IsHitTestVisibleInChrome="True" Height="40" HorizontalAlignment="Right" Orientation="Horizontal">
 
-            <ToggleButton Margin="0,0,635,0"
+            <ToggleButton Margin="0,0,1035,0"
                             x:Name="MenuToggleButton"
                             Style="{StaticResource MaterialDesignHamburgerToggleButton}"
                             IsChecked="{Binding MenuToggle, Mode=TwoWay}"
@@ -37,10 +37,14 @@
 
         </StackPanel>
         <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="434*"/>
+                <ColumnDefinition Width="767*"/>
+            </Grid.ColumnDefinitions>
             <md:DialogHost
             Identifier="RootDialog"
             DialogTheme="Inherit"
-            Panel.ZIndex="1">
+            Panel.ZIndex="1" Grid.ColumnSpan="2">
                 <!-- SnackbarMessageQueue="{Binding ElementName=MainSnackbar, Path=MessageQueue}"-->
                 <md:DrawerHost
             IsLeftDrawerOpen="{Binding MenuToggle}" Height="860">
@@ -82,11 +86,11 @@
                     </md:DrawerHost.LeftDrawerContent>
                 </md:DrawerHost>
             </md:DialogHost>
-            <ContentControl Panel.ZIndex="0" Content="{Binding SelectedVM}" Width="800" Height="840"/>
-            <ProgressBar Width="800"  Background="{x:Null}" BorderBrush="{x:Null}"  Visibility="{Binding LoadingCv}" IsIndeterminate="true" HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
+            <ContentControl Panel.ZIndex="0" Content="{Binding SelectedVM}" Width="1200" Height="840" Grid.ColumnSpan="2" Margin="0,10,0,10"/>
+            <ProgressBar Width="1200"  Background="{x:Null}" BorderBrush="{x:Null}"  Visibility="{Binding LoadingCv}" IsIndeterminate="true" HorizontalAlignment="Left" VerticalAlignment="Bottom" Grid.ColumnSpan="2"/>
         </Grid>
-        
-        
+
+
         <!--<Frame Name="Navigation" Content="Frame" NavigationUIVisibility="Hidden"  Height="860"/>-->
     </StackPanel>
 
