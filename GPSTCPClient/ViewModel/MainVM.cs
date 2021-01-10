@@ -48,6 +48,10 @@ namespace GPSTCPClient.ViewModel
                     case "Register":
                         SelectedVM = new RegisterVM(this);
                         break;
+                    case "Profile":
+                        SelectedVM = new ProfileVM(this);
+                        MenuToggle = false;
+                        break;
                     default:
                         break;
                 }

@@ -64,7 +64,7 @@
                                         <TextBlock Text="Zapisane adresy" VerticalAlignment="Center" Margin="20,0,0,0"/>
                                     </StackPanel>
                                 </Button>
-                                <Button Margin="10" Height="50" Width="200" HorizontalAlignment="Left" Padding="0">
+                                <Button Margin="10" Height="50" Width="200" HorizontalAlignment="Left" Padding="0" Name="Profile" Command="{Binding NavigateToCommand}" CommandParameter="{Binding ElementName=Profile, Path=Name}">
                                     <StackPanel Orientation="Horizontal" Width="160" HorizontalAlignment="Left">
                                         <md:PackIcon Kind="UserOutline" Width="32" Height="32"/>
                                         <TextBlock Text="Profil" VerticalAlignment="Center" Margin="20,0,0,0"/>

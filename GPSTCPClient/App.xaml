@@ -24,6 +24,9 @@
             <DataTemplate DataType="{x:Type vm:RegisterVM}">
                 <views:RegisterView/>
             </DataTemplate>
+            <DataTemplate DataType="{x:Type vm:ProfileVM}">
+                <views:ProfileView/>
+            </DataTemplate>
         </ResourceDictionary>
         <!--<Style x:Key="TransparentRedButton"  TargetType="{x:Type Button}">
             <Setter Property="Background" Value="Green"/>
