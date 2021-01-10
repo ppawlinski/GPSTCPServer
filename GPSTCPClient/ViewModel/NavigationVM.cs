@@ -144,23 +144,36 @@ namespace GPSTCPClient.ViewModel
                 }
             };
             var rm = await Client.GetRoute(FromAddressessSearch.SelectedLocation.Address, ToAddressessSearch.SelectedLocation.Address);
-
-            RouteString[] ri = new RouteString[rm.Steps.Length];
-            MainMap.PolylineLocations = new LocationCollection();
-            for (int i = 0; i < rm.Steps.Length; i++)
+            if(rm != null)
             {
-                ri[i] = new RouteString(rm.Steps[i].Description);
-                var polyLineLocations = new Decoder().Decode(rm.Steps[i].Polyline);
-                foreach (var geoCoordinate in polyLineLocations)
+                RouteString[] ri = new RouteString[rm.Steps.Length];
+                MainMap.PolylineLocations = new LocationCollection();
+                for (int i = 0; i < rm.Steps.Length; i++)
                 {
-                    MainMap.PolylineLocations.Add(new Location(geoCoordinate.Latitude,geoCoordinate.Longitude));
+                    ri[i] = new RouteString(rm.Steps[i].Description);
+                    var polyLineLocations = new Decoder().Decode(rm.Steps[i].Polyline);
+                    foreach (var geoCoordinate in polyLineLocations)
+                    {
+                        MainMap.PolylineLocations.Add(new Location(geoCoordinate.Latitude, geoCoordinate.Longitude));
+                    }
                 }
+                MainMap.Center = MainMap.PolylineLocations.First();
+                MainMap.ZoomLevel = 15;
+                RouteInstrucions = rm.Steps;
+                MainMap.FromPin = new Pin("Początek", MainMap.PolylineLocations.First());
+                MainMap.ToPin = new Pin("Koniec", MainMap.PolylineLocations.Last());
             }
-            MainMap.Center = MainMap.PolylineLocations.First();
-            MainMap.ZoomLevel = 15;
-            RouteInstrucions = rm.Steps;
-            MainMap.FromPin = new Pin("Początek", MainMap.PolylineLocations.First());
-            MainMap.ToPin = new Pin("Koniec", MainMap.PolylineLocations.Last());
+            else
+            {
+
+                RouteInstrucions = new StepModel[]
+                {
+                new StepModel()
+                {
+                    Description = "Nie znaleziono trasy dla podanych adresów."
+                }
+                };
+            }
             FavVM.MainVM.Loading = false;
         }
 

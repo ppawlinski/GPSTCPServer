@@ -17,6 +17,7 @@ namespace GPSTCPClient.ViewModel
         {
             mainVM = mainVM_;
             LoginClickCommand = new Command(arg => LoginAction(arg));
+            RegisterClickCommand = new Command(arg => Register());
             ServerAddress = "127.0.0.1";
             ServerPort = "2048";
             Login = "test";
@@ -108,7 +109,7 @@ namespace GPSTCPClient.ViewModel
             }
         }
         public ICommand LoginClickCommand { get; set; }
-
+       
         public async void LoginAction(object arg)
         {
             LoginEnabled = false;
@@ -135,6 +136,11 @@ namespace GPSTCPClient.ViewModel
             RegisterEnabled = true;
             mainVM.Loading = false;
 
+        }
+        public ICommand RegisterClickCommand { get; set; }
+        private void Register()
+        {
+            mainVM.NavigateTo("Register");
         }
 
     }

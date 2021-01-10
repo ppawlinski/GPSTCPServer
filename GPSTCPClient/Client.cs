@@ -151,7 +151,9 @@ namespace GPSTCPClient
         public static async Task<RouteModel> GetRoute(Address origin, Address destination)
         {
             Send($"GETROUTE {origin.Lon.ToString(CultureInfo.InvariantCulture)} {origin.Lat.ToString(CultureInfo.InvariantCulture)} {destination.Lon.ToString(CultureInfo.InvariantCulture)} {destination.Lat.ToString(CultureInfo.InvariantCulture)}");
-            return JsonSerializer.Deserialize<RouteModel>(await getUserInput(new byte[1000000]));
+            var result = await getUserInput(new byte[1000000]);
+            if (result == "FAIL") return null;
+            return JsonSerializer.Deserialize<RouteModel>(result);
         }
 
         public static async Task<bool> AddAddress(Address address, string name)

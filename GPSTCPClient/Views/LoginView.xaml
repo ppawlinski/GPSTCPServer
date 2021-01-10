@@ -37,7 +37,7 @@
             </PasswordBox.InputBindings>
         </PasswordBox>
         <Button Content="Zaloguj się"  VerticalAlignment="Top" IsEnabled="{Binding LoginEnabled}" Command="{Binding LoginClickCommand}" CommandParameter="{Binding ElementName=PasswordBox}" Margin="0,304,0,0" Width="210" Height="40"/>
-        <Button Content="Zarejestruj się" Height="40" Margin="0,361,0,0" VerticalAlignment="Top" Width="210" IsEnabled="{Binding RegisterEnabled}"/>
+        <Button Content="Zarejestruj się" VerticalAlignment="Top" Name="Register" IsEnabled="{Binding RegisterEnabled}" Command="{Binding RegisterClickCommand}" CommandParameter="{Binding ElementName=Register, Path=Name}" Width="210" Height="40" Margin="0,361,0,0" />
         <TextBlock Name="LoginErrors" Text="{Binding Errors}" FontSize="11"  Foreground="#e53935"  Height="36" Margin="0,263,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="210"/>
     </Grid>
 </UserControl>

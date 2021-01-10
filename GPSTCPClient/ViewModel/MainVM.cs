@@ -45,6 +45,9 @@ namespace GPSTCPClient.ViewModel
                         SelectedVM = favourites;
                         MenuToggle = false;
                         break;
+                    case "Register":
+                        SelectedVM = new RegisterVM(this);
+                        break;
                     default:
                         break;
                 }
@@ -112,7 +115,7 @@ namespace GPSTCPClient.ViewModel
             }
         }
         private Visibility loadingCv;
-        
+
 
         public Visibility LoadingCv
         {
