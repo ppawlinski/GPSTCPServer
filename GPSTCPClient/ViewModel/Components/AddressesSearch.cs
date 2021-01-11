@@ -62,7 +62,14 @@ namespace GPSTCPClient.ViewModel.Components
             }
             set
             {
-                selectedAddressText = value;
+                if (value != selectedAddress?.ToString())
+                {
+                    selectedAddress = null;
+                    Addresses.Clear();
+                    selectedAddressText = value;
+                    IsDropDownOpen = false;
+                }
+                else selectedAddressText = value;
 
                 if (value != null && selectedAddressText.Length >= 3 && !Addresses.Any(p => p?.DisplayName == value))
                 {

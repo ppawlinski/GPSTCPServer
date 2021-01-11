@@ -91,10 +91,12 @@ namespace GPSTCPClient.ViewModel.Components
                 if (value != SelectedLocation?.ToString())
                 {
                     selectedLocation = null;
-                }
+                    SearchingLocations.Clear();
+                    selectedLocationText = value;
+                    IsDropDownOpen = false;
+                    OnPropertyChanged(nameof(Locations));
+                } else selectedLocationText = value;
 
-                selectedLocationText = value;
-                
                 if (selectedLocationText.Length >= 3 && !Locations.Any(p => p.ToString() == value))
                 {
                     FindAddress(value);
