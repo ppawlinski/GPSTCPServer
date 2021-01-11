@@ -6,19 +6,60 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:GPSTCPClient.Views"
              xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
-             xmlns:components="clr-namespace:GPSTCPClient.ViewModel.Components"
+             xmlns:components="clr-namespace:GPSTCPClient.ViewModel.Components" xmlns:system="clr-namespace:System;assembly=netstandard"
+             xmlns:converter="clr-namespace:GPSTCPClient.Converters"
     mc:Ignorable="d" 
              d:DesignHeight="840" d:DesignWidth="1200">
+    <UserControl.Resources>
+        <converter:MultiBindingToArray x:Key="cv" />
+    </UserControl.Resources>
     <Grid>
         <TextBox HorizontalAlignment="Center" Margin="0,101,0,0" Name="ServerAddressBox" Style="{StaticResource MaterialDesignFloatingHintTextBox}" md:HintAssist.Hint="Adres" Text="{Binding ServerAddress, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap" VerticalAlignment="Top"  Width="120" Height="50"/>
         <TextBox HorizontalAlignment="Center" Margin="0,161,0,0" TextWrapping="Wrap" Text="{Binding ServerPort, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource MaterialDesignFloatingHintTextBox}" md:HintAssist.Hint="Port" Name="ServerPortBox" VerticalAlignment="Top" Width="120" Height="50"/>
         <TextBox HorizontalAlignment="Center"  Margin="0,221,0,0" Name="LoginBox" Text="{Binding Login, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource MaterialDesignFloatingHintTextBox}" md:HintAssist.Hint="Login" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" Height="50"/>
-        <components:BindablePasswordBox Password="{Binding Password, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" HorizontalAlignment="Center" md:HintAssist.Hint="Hasło" Margin="0,281,0,0" VerticalAlignment="Top" Width="120" Height="50"/>
-        <components:BindablePasswordBox Password="{Binding ConfirmPassword, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"  HorizontalAlignment="Center"  md:HintAssist.Hint="Powtórz hasło" Margin="0,345,0,0" VerticalAlignment="Top" Width="120" Height="50"/>
-        <Button Content="Zarejestruj się" Name="Register" IsEnabled="{Binding RegisterEnabled}" Command="{Binding RegisterClickCommand}" CommandParameter="{Binding ElementName=Register, Path=Name}" HorizontalAlignment="Center" Height="40" Margin="0,462,0,0" VerticalAlignment="Top" Width="210"/>
+        <PasswordBox Style="{StaticResource MaterialDesignFloatingHintPasswordBox}" Name="Password" HorizontalAlignment="Center" md:HintAssist.Hint="Hasło" Margin="0,281,0,0" VerticalAlignment="Top" Width="120" Height="50"/>
+        <PasswordBox Style="{StaticResource MaterialDesignFloatingHintPasswordBox}" Name="ConfirmPassword" HorizontalAlignment="Center"  md:HintAssist.Hint="Powtórz hasło" Margin="0,345,0,0" VerticalAlignment="Top" Width="120" Height="50"/>
+        <Button Content="Zarejestruj się" Name="Register" IsEnabled="{Binding RegisterEnabled}" Command="{Binding RegisterClickCommand}" HorizontalAlignment="Center" Height="40" Margin="0,462,0,0" VerticalAlignment="Top" Width="210">
+            <Button.CommandParameter>
+                <MultiBinding Converter="{StaticResource cv}">
+                    <Binding ElementName="Password"/>
+                    <Binding ElementName="ConfirmPassword"/>
+                </MultiBinding>
+            </Button.CommandParameter>
+        </Button>
         <Button BorderBrush="{x:Null}" Name ="Login" IsEnabled="{Binding ReturnEnabled}" Command="{Binding ReturnClickCommand}" CommandParameter="{Binding ElementName=Login, Path=Name}" HorizontalAlignment="Left" Height="100" VerticalAlignment="Top" Width="100">
             <md:PackIcon Kind="ArrowBack"/>
         </Button>
         <TextBlock FontSize="14" Name="RegisterError" Text="{Binding RegisterError, UpdateSourceTrigger=PropertyChanged}" Foreground="{Binding ErrorColor}" TextWrapping="Wrap" HorizontalAlignment="Center" Height="50" TextAlignment="Center" Margin="0,407,0,0" VerticalAlignment="Top" Width="144"/>
+        <!--<md:DialogHost CloseOnClickAway="True">
+            <StackPanel VerticalAlignment="Center">
+                the request to open the dialog will bubble up to the top-most DialogHost,
+                        but we can used the attached property based event to handle the response 
+                <Button
+                        Command="{x:Static md:DialogHost.OpenDialogCommand}"
+                        md:DialogHost.DialogClosingAttached="Sample2_DialogHost_OnDialogClosing"
+                        Width="128"
+                        Content="PASS VIEW">
+                    <Button.CommandParameter>
+                        <StackPanel Margin="16">
+                            <Button
+                                    Style="{StaticResource MaterialDesignFlatButton}"
+                                    IsCancel="True" 
+                                    Command="{x:Static md:DialogHost.CloseDialogCommand}"
+                                    CommandParameter="Cancel"
+                                    HorizontalAlignment="Center"
+                                    Content="Anuluj"/>
+                            <Button
+                                    Style="{StaticResource MaterialDesignFlatButton}"
+                                    IsCancel="True" 
+                                    Command="{x:Static md:DialogHost.CloseDialogCommand}"
+                                    CommandParameter="OK"
+                                    HorizontalAlignment="Center"
+                                    Content="OK"/>
+                        </StackPanel>
+                    </Button.CommandParameter>
+                </Button>
+            </StackPanel>
+        </md:DialogHost>-->
     </Grid>
 </UserControl>

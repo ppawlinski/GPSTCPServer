@@ -1,5 +1,6 @@
 ﻿using GPSTCPClient.ViewModel.MVVM;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,9 +13,6 @@ namespace GPSTCPClient.ViewModel
 {
     class ProfileVM : ViewModelBase
     {
-        private PasswordBox oldPassword;
-        private PasswordBox newPassword;
-        private PasswordBox confirmNewPassword;
         private string changePasswordError;
         private bool changePasswordEnabled;
         private string errorColor;
@@ -22,40 +20,41 @@ namespace GPSTCPClient.ViewModel
         public ProfileVM(MainVM mainVM)
         {
             MainVM = mainVM;
-            ChangePasswordCommand = new Command(ArgIterator => ChangePassword());
+            ChangePasswordCommand = new Command(arg => ChangePassword(arg));
             ChangePasswordEnabled = true;
         }
 
-        private async void ChangePassword()
+        private async void ChangePassword(object arg)
         {
             MainVM.Loading = true;
             ChangePasswordEnabled = false;
             ErrorColor = "Red";
-            if (OldPassword != null && NewPassword != null && ConfirmNewPassword != null)
+
+            if (((IEnumerable)arg).Cast<object>()
+                            .Select(x => (PasswordBox)x)
+                            .ToArray() is PasswordBox[] arr)
             {
-                if (NewPassword.Password == ConfirmNewPassword.Password)
+                if (arr[0].Password != string.Empty && arr[1].Password != string.Empty && arr[2].Password != string.Empty)
                 {
-                    if (await Client.ChangePassword(oldPassword.Password, NewPassword.Password))
+                    if (arr[1].Password == arr[2].Password)
                     {
-                        ChangePasswordError = "Hasło zmienione pomyślnie, za chwilę nastąpi wylogowanie...";
-                        ErrorColor = "Green";
-                        await Task.Delay(4000);
-                        MainVM.NavigateTo("Logout");
+                        if (await Client.ChangePassword(arr[0].Password, arr[1].Password))
+                        {
+                            ChangePasswordError = "Hasło zmienione pomyślnie, za chwilę nastąpi wylogowanie...";
+                            ErrorColor = "Green";
+                            await Task.Delay(4000);
+                            MainVM.NavigateTo("Logout");
+                        }
+                        else
+                            ChangePasswordError = "Nie udało się zmienić hasła!";
                     }
                     else
-                    {
-                        ChangePasswordError = "Nie udało się zmienić hasła!";
-                    }
+                        ChangePasswordError = "Hasła muszą być takie same!";
                 }
                 else
-                {
-                    ChangePasswordError = "Hasła muszą być takie same!";
-                }
+                    ChangePasswordError = "Wszystkie pola muszą być wypełnione!";
             }
-            else
-            {
-                ChangePasswordError = "Wszystkie pola muszą być wypełnione!";
-            }
+
             ChangePasswordEnabled = true;
             MainVM.Loading = false;
         }
@@ -63,41 +62,13 @@ namespace GPSTCPClient.ViewModel
         public MainVM MainVM { get; set; }
         public ICommand ChangePasswordCommand { get; set; }
 
-        public PasswordBox OldPassword
-        {
-            get { return oldPassword; }
-            set
-            {
-                oldPassword = value;
-                OnPropertyChanged(nameof(oldPassword));
-            }
-        }
-        public PasswordBox NewPassword
-        {
-            get { return newPassword; }
-            set
-            {
-                newPassword = value;
-                OnPropertyChanged(nameof(newPassword));
-            }
-        }
-        public PasswordBox ConfirmNewPassword
-        {
-            get { return confirmNewPassword; }
-            set
-            {
-                confirmNewPassword = value;
-                OnPropertyChanged(nameof(confirmNewPassword));
-            }
-        }
-
         public string ChangePasswordError
         {
             get { return changePasswordError; }
             set
             {
                 changePasswordError = value;
-                OnPropertyChanged(nameof(changePasswordError));
+                OnPropertyChanged(nameof(ChangePasswordError));
             }
         }
 
@@ -110,7 +81,7 @@ namespace GPSTCPClient.ViewModel
             set
             {
                 changePasswordEnabled = value;
-                OnPropertyChanged(nameof(changePasswordEnabled));
+                OnPropertyChanged(nameof(ChangePasswordEnabled));
             }
         }
 
@@ -123,7 +94,7 @@ namespace GPSTCPClient.ViewModel
             set
             {
                 errorColor = value;
-                OnPropertyChanged(nameof(errorColor));
+                OnPropertyChanged(nameof(ErrorColor));
             }
         }
     }

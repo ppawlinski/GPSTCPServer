@@ -5,14 +5,26 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:local="clr-namespace:GPSTCPClient.Views" xmlns:components="clr-namespace:GPSTCPClient.ViewModel.Components"
+             xmlns:converter="clr-namespace:GPSTCPClient.Converters"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <converter:MultiBindingToArray x:Key="cv" />
+    </UserControl.Resources>
     <Grid>
         <TextBlock HorizontalAlignment="Center" Margin="0,89,0,0" Text="Zmiana hasła" FontSize="20" VerticalAlignment="Top" Width="210"/>
-        <components:BindablePasswordBox Password="{Binding OldPassword, Mode=TwoWay}" md:HintAssist.Hint="Stare hasło" HorizontalAlignment="Center" Margin="0,116,0,0" VerticalAlignment="Top" Width="120" Height="50"/>
-        <components:BindablePasswordBox Password="{Binding NewPassword, Mode=TwoWay}" md:HintAssist.Hint="Nowe hasło" HorizontalAlignment="Center"  Margin="0,166,0,0" VerticalAlignment="Top" Width="120" Height="50"/>
-        <components:BindablePasswordBox Password="{Binding ConfirmNewPassword, Mode=TwoWay}" md:HintAssist.Hint="Powtórz nowe hasło" HorizontalAlignment="Center" VerticalAlignment="Top" Width="120" Height="50" Margin="0,216,0,0"/>
-        <Button Command="{Binding ChangePasswordCommand}" IsEnabled="{Binding ChangePasswordEnabled}" Content="Zmień hasło" HorizontalAlignment="Center" Height="40" Margin="0,335,0,0" VerticalAlignment="Top" Width="210"/>
+        <PasswordBox Style="{StaticResource MaterialDesignFloatingHintPasswordBox}" Name="OldPassword" md:HintAssist.Hint="Stare hasło" HorizontalAlignment="Center" Margin="0,116,0,0" VerticalAlignment="Top" Width="120" Height="50"/>
+        <PasswordBox Style="{StaticResource MaterialDesignFloatingHintPasswordBox}" Name="NewPassword" md:HintAssist.Hint="Nowe hasło" HorizontalAlignment="Center"  Margin="0,166,0,0" VerticalAlignment="Top" Width="120" Height="50"/>
+        <PasswordBox Style="{StaticResource MaterialDesignFloatingHintPasswordBox}" Name="ConfirmNewPassword" md:HintAssist.Hint="Powtórz nowe hasło" HorizontalAlignment="Center" VerticalAlignment="Top" Width="120" Height="50" Margin="0,216,0,0"/>
+        <Button Command="{Binding ChangePasswordCommand}" IsEnabled="{Binding ChangePasswordEnabled}" Content="Zmień hasło" HorizontalAlignment="Center" Height="40" Margin="0,335,0,0" VerticalAlignment="Top" Width="210">
+            <Button.CommandParameter>
+                <MultiBinding Converter="{StaticResource cv}">
+                    <Binding ElementName="OldPassword"/>
+                    <Binding ElementName="NewPassword"/>
+                    <Binding ElementName="ConfirmNewPassword"/>
+                </MultiBinding>
+            </Button.CommandParameter>
+        </Button>
         <TextBlock FontSize="14" Text="{Binding ChangePasswordError}" Foreground="{Binding ErrorColor}" TextWrapping="Wrap" FontWeight="Normal" HorizontalAlignment="Center" Height="50" Margin="0,273,0,0" VerticalAlignment="Top" Width="210"/>
     </Grid>
 </UserControl>

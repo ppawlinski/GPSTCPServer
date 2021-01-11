@@ -1,6 +1,7 @@
 ﻿using GPSTCPClient.ViewModel.Components;
 using GPSTCPClient.ViewModel.MVVM;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,15 +17,13 @@ namespace GPSTCPClient.ViewModel
         private bool registerEnabled;
         private string registerError;
         private string login;
-        private PasswordBox password;
-        private PasswordBox confirmPassword;
         private string serverAddress;
         private string serverPort;
         private string errorColor;
         public RegisterVM(MainVM mainVM_)
         {
             mainVM = mainVM_;
-            RegisterClickCommand = new Command(arg => RegisterAction());
+            RegisterClickCommand = new Command(arg => RegisterAction(arg));
             ReturnClickCommand = new Command(arg => ReturnAction());
             ServerAddress = "127.0.0.1";
             ServerPort = "2048";
@@ -38,38 +37,38 @@ namespace GPSTCPClient.ViewModel
             mainVM.NavigateTo("Login");
         }
 
-        private async void RegisterAction()
+        private async void RegisterAction(object arg)
         {
             ReturnEnabled = false;
             RegisterEnabled = false;
             mainVM.Loading = true;
             RegisterError = "";
             ErrorColor = "Red";
-            if (Password != null && ConfirmPassword != null && Login != string.Empty && Password.Password != string.Empty && ConfirmPassword.Password != string.Empty)
+            if (((IEnumerable)arg).Cast<object>()
+                            .Select(x => (PasswordBox)x)
+                            .ToArray() is PasswordBox[] arr)
             {
-                if (Password?.Password == ConfirmPassword?.Password)
+                if (arr[0].Password != string.Empty && arr[1].Password != string.Empty && Login != string.Empty)
                 {
-                    if (!await Client.Connect(serverAddress, int.Parse(serverPort)))
+                    if (arr[0].Password == arr[1].Password)
                     {
-                        RegisterError = "Błąd połączenia";
-                    }
-                    else if (await Client.Register(login, Password.Password))
-                    {
-                        RegisterError = "Pomyślnie utworzono konto.";
-                        ErrorColor = "Green";
-                        Login = string.Empty;
+                        if (!await Client.Connect(serverAddress, int.Parse(ServerPort)))
+                            RegisterError = "Błąd połączenia";
+                        else if (await Client.Register(login, arr[0].Password))
+                        {
+                            RegisterError = "Pomyślnie utworzono konto.";
+                            ErrorColor = "Green";
+                            Login = string.Empty;
+                        }
+                        else
+                            RegisterError = "Nie udało się utworzyć konta!";
                     }
                     else
-                        RegisterError = "Nie udało się utworzyć konta!";
+                        RegisterError = "Hasła muszą być takie same!";
                 }
                 else
-                    RegisterError = "Hasła powinny być takie same!";
-
-                Password.Password = string.Empty;
-                ConfirmPassword.Password = string.Empty;
+                    RegisterError = "Wszystkie pola muszą być wypełnione!";
             }
-            else
-                RegisterError = "Wszystkie pola powinny być wypełnione!";
             ReturnEnabled = true;
             RegisterEnabled = true;
             mainVM.Loading = false;
@@ -108,7 +107,7 @@ namespace GPSTCPClient.ViewModel
             set
             {
                 returnEnabled = value;
-                OnPropertyChanged(nameof(returnEnabled));
+                OnPropertyChanged(nameof(ReturnEnabled));
             }
         }
         public bool RegisterEnabled
@@ -117,7 +116,7 @@ namespace GPSTCPClient.ViewModel
             set
             {
                 registerEnabled = value;
-                OnPropertyChanged(nameof(registerEnabled));
+                OnPropertyChanged(nameof(RegisterEnabled));
             }
         }
         public string RegisterError
@@ -126,7 +125,7 @@ namespace GPSTCPClient.ViewModel
             set
             {
                 registerError = value;
-                OnPropertyChanged(nameof(registerError));
+                OnPropertyChanged(nameof(RegisterError));
             }
         }
         public string Login
@@ -135,25 +134,7 @@ namespace GPSTCPClient.ViewModel
             set
             {
                 login = value;
-                OnPropertyChanged(nameof(login));
-            }
-        }
-        public PasswordBox Password
-        {
-            get { return password; }
-            set
-            {
-                password = value;
-                OnPropertyChanged(nameof(password));
-            }
-        }
-        public PasswordBox ConfirmPassword
-        {
-            get { return confirmPassword; }
-            set
-            {
-                confirmPassword = value;
-                OnPropertyChanged(nameof(confirmPassword));
+                OnPropertyChanged(nameof(Login));
             }
         }
         public string ErrorColor
@@ -162,7 +143,7 @@ namespace GPSTCPClient.ViewModel
             set
             {
                 errorColor = value;
-                OnPropertyChanged(nameof(errorColor));
+                OnPropertyChanged(nameof(ErrorColor));
             }
         }
     }
