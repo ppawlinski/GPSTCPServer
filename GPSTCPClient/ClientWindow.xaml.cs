@@ -12,9 +12,9 @@ namespace GPSTCPClient
         public ClientWindow()
         {
             InitializeComponent();
-            if (File.Exists("apikey.txt"))
+            if (File.Exists(".\\apikey.txt"))
             {
-                 GPSTCPClient.Client.ApiKey = File.ReadAllText("apikey.txt");
+                 GPSTCPClient.Client.ApiKey = File.ReadAllText(".\\apikey.txt");
             }
             var mainViewModel = new MainVM();
             mainViewModel.Loading = false;

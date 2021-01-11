@@ -15,8 +15,6 @@ namespace GPSTCPClient
 {
     public static class Client
     {
-        private static readonly string logFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "log.txt");
-        private static StreamWriter file = new StreamWriter(logFilePath);
         public static TcpClient TCP { get; set; }
         private static TcpListener listener { get; set; }
         private static string login;
