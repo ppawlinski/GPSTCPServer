@@ -84,5 +84,9 @@
             </wpf:Pushpin>
         </wpf:Map>
 
+        <md:DialogHost Identifier = "DeleteFavDialog" Style="{StaticResource MaterialDesignEmbeddedDialogHost}" CloseOnClickAway = "True" >
+
+        </md:DialogHost >
+
     </Grid>
 </UserControl>

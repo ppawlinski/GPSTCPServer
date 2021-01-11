@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Linq;
 using System;
+using MaterialDesignThemes.Wpf;
+using GPSTCPClient.Views;
 
 namespace GPSTCPClient.ViewModel
 {
@@ -129,6 +131,7 @@ namespace GPSTCPClient.ViewModel
         }
 
         private UserLocation selectedFavLocation;
+
         public UserLocation SelectedFavLocation
         {
             get
@@ -139,6 +142,19 @@ namespace GPSTCPClient.ViewModel
             {
                 selectedFavLocation = value;
                 OnPropertyChanged(nameof(SelectedFavLocation));
+            }
+        }
+
+        private string dialogContent;
+        public string DialogContent {
+            get
+            {
+                return dialogContent;
+            }
+            set
+            {
+                dialogContent = value;
+                OnPropertyChanged(nameof(DialogContent));
             }
         }
 
@@ -201,9 +217,14 @@ namespace GPSTCPClient.ViewModel
         {
             if(selected != null && selected is UserLocation ul)
             {
-                if (await Client.DeleteAddress(ul.Name))
+                DialogContent = "Czy na pewno chcesz usunąć zapisany adres?";
+                string result = (string)await DialogHost.Show(new OkCancelDialog(), "DeleteFavDialog");
+                if(result == "Accept")
                 {
-                    Locations.Remove(ul);
+                    if (await Client.DeleteAddress(ul.Name))
+                    {
+                        Locations.Remove(ul);
+                    }
                 }
             }
         }

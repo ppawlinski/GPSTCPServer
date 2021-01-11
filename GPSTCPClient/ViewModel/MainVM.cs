@@ -1,4 +1,6 @@
 ﻿using GPSTCPClient.ViewModel.MVVM;
+using GPSTCPClient.Views;
+using MaterialDesignThemes.Wpf;
 using System;
 using System.Windows;
 using System.Windows.Controls;
@@ -11,7 +13,15 @@ namespace GPSTCPClient.ViewModel
         public MainVM()
         {
             NavigateToCommand = new Command(arg => NavigateTo(arg));
+            LogoutDialogCommand = new Command(arg => LogoutDialog());
             LoggedIn = false;
+        }
+
+        private async void LogoutDialog()
+        {
+            DialogContent = "Czy na pewno chcesz się wylogować?";
+            string result = (string)await DialogHost.Show(new OkCancelDialog(), "LogoutDialog");
+            if (result == "Accept") NavigateTo("Logout");
         }
 
         public void NavigateTo(object arg)
@@ -67,6 +77,7 @@ namespace GPSTCPClient.ViewModel
         }
 
         public ICommand NavigateToCommand { get; set; }
+        public ICommand LogoutDialogCommand { get; set; }
 
         public bool LoggedIn
         {
@@ -142,6 +153,8 @@ namespace GPSTCPClient.ViewModel
                 else LoadingCv = Visibility.Hidden;
             }
         }
+
+        public string DialogContent { get; set; }
 
         public void SetLoading()
         {

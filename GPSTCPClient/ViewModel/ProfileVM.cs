@@ -25,6 +25,7 @@ namespace GPSTCPClient.ViewModel
             MainVM = mainVM;
             ChangePasswordCommand = new Command(arg => ChangePassword(arg));
             ChangePasswordEnabled = true;
+            ErrorColor = "Red";
         }
 
         private async void ChangePassword(object arg)
@@ -33,7 +34,7 @@ namespace GPSTCPClient.ViewModel
             ChangePasswordEnabled = false;
             ErrorColor = "Red";
             DialogContent = "Czy na pewno chcesz zmienić hasło?";
-            string result = (string)await DialogHost.Show(new OkCancelDialog(), "Dialog");
+            string result = (string)await DialogHost.Show(new OkCancelDialog(), "ChangePassDialog");
             if(result == "Accept")
             {
                 if (((IEnumerable)arg).Cast<object>()
