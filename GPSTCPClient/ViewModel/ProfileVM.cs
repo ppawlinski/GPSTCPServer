@@ -18,6 +18,7 @@ namespace GPSTCPClient.ViewModel
         private string changePasswordError;
         private bool changePasswordEnabled;
         private string errorColor;
+        private string dialogContent;
 
         public ProfileVM(MainVM mainVM)
         {
@@ -31,7 +32,7 @@ namespace GPSTCPClient.ViewModel
             MainVM.Loading = true;
             ChangePasswordEnabled = false;
             ErrorColor = "Red";
-
+            DialogContent = "Czy na pewno chcesz zmienić hasło?";
             string result = (string)await DialogHost.Show(new OkCancelDialog(), "Dialog");
             if(result == "Accept")
             {
@@ -102,6 +103,18 @@ namespace GPSTCPClient.ViewModel
             {
                 errorColor = value;
                 OnPropertyChanged(nameof(ErrorColor));
+            }
+        }
+
+        public string DialogContent {
+            get
+            {
+                return dialogContent;
+            }
+            set
+            {
+                dialogContent = value;
+                OnPropertyChanged(nameof(DialogContent));
             }
         }
     }

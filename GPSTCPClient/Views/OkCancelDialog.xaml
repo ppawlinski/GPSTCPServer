@@ -8,7 +8,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <StackPanel Margin="16">
-        <TextBlock Text="Na pewno?" HorizontalAlignment="Center" FontSize="16" />
+        <TextBlock Text="{Binding DialogContent}" HorizontalAlignment="Center" FontSize="16" />
         <StackPanel Margin="16" HorizontalAlignment="Center" Orientation="Horizontal">
             <Button
                                     Style="{StaticResource MaterialDesignFlatButton}"
