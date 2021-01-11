@@ -1,18 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Sockets;
-using System.Text;
-using System.Threading.Tasks;
+﻿using GPSTCPClient.ViewModel;
+using System.IO;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace GPSTCPClient
 {
@@ -24,9 +12,30 @@ namespace GPSTCPClient
         public ClientWindow()
         {
             InitializeComponent();
-            Navigation.NavigationService.Navigate(new Pages.Login(Navigation.NavigationService));
+            if (File.Exists(".\\apikey.txt"))
+            {
+                 GPSTCPClient.Client.ApiKey = File.ReadAllText(".\\apikey.txt");
+            }
+            var mainViewModel = new MainVM();
+            mainViewModel.Loading = false;
+            mainViewModel.NavigateTo("Login");
+            
+            //mainViewModel.SelectedVM = new LoginVM(mainViewModel);
+            this.DataContext = mainViewModel;
+            //Navigation.NavigationService.Navigate(new Pages.Login(Navigation.NavigationService));
+        }
+        private void Minimize_Click(object sender, RoutedEventArgs e)
+        {
+            this.WindowState = WindowState.Minimized;
+        }
+        private void Close_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close();
         }
 
-        
+        private void MenuToggleButton_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }

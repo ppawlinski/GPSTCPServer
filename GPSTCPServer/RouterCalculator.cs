@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using GPSTCPServer.Models;
+using System;
 using System.Text.Json;
 using System.Threading.Tasks;
-using GPSTCPServer.Models;
 
 namespace GPSTCPServer
 {
@@ -13,27 +10,39 @@ namespace GPSTCPServer
         private OSRMRoute router;
         public bool OK { get;  }
         public RouterCalculator(string originLon, string originLat, string destinationLon, string destinationLat) {
-            string url = String.Format("http://router.project-osrm.org/route/v1/driving/{0},{1};{2},{3}?steps=true&annotations=false", originLon, originLat, destinationLon, destinationLat);
+            string url = String.Format("http://router.project-osrm.org/route/v1/driving/{0},{1};{2},{3}?steps=true&annotations=false&geometries=polyline", originLon, originLat, destinationLon, destinationLat);
             Task.Run(async () => router = JsonSerializer.Deserialize<OSRMRoute>(await GetRequest.GetFromURLAsync(url))).Wait();
-            if (router.Code == "NoRoute")
+            if (router.Code == "NoRoute" || router.Code == "InvalidQuery")
             {
                 OK = false;
             }
             else OK = true;
         }
 
-        public string[] GetInstructions()
+        public RouteModel GetInstructions()
         {
             var steps = router.Routes[0].Legs[0].Steps;
-            string[] instructions = new string[steps.Count];
+            StepModel[] instructions = new StepModel[steps.Count];
             for (int i = 0; i < steps.Count; i++)
             {
-                instructions[i] = formatName(steps[i].Maneuver, steps[i].Name, steps[i].Distance.ToString());
+                instructions[i] = new StepModel()
+                {
+                    Description = formatName(steps[i].Maneuver, steps[i].Name),
+                    Polyline = steps[i].Geometry,
+                    Type = steps[i].Maneuver.Type,
+                    Maneuver = new Tuple<double, double>(steps[i].Maneuver.Location[1], steps[i].Maneuver.Location[0]),
+                    Distance = steps[i].Distance
+                };
             }
-            return instructions;
+            return new RouteModel()
+            {
+                Steps = instructions,
+                Distance = router.Routes[0].Distance,
+                Duration = router.Routes[0].Duration
+            };
         }
 
-        private string formatName(Maneuver maneuver, string street, string distance)
+        private string formatName(Maneuver maneuver, string street)
         {
             string type = maneuver.Type;
             string modifier = maneuver.Modifier;
@@ -47,12 +56,12 @@ namespace GPSTCPServer
                     instruction = "Skręć ";
                     break;
                 case "new name":
-                    if (street.Trim() != "") instruction = "Kontynuuj na " + street + "\t" + distance + "m";
-                    else instruction = "Kontynuuj " + "\t" + distance + "m";
+                    if (street.Trim() != "") instruction = "Kontynuuj na " + street;
+                    else instruction = "Kontynuuj ";
                     return instruction;
                 case "continue":
-                    if (street.Trim() != "") instruction = "Kontynuuj na " + street + "\t" + distance + "m";
-                    else instruction = "Kontynuuj " + "\t" + distance + "m";
+                    if (street.Trim() != "") instruction = "Kontynuuj na " + street;
+                    else instruction = "Kontynuuj ";
                     break;
                 case "arrive":
                     instruction = "Osiągnięto cel";
@@ -83,38 +92,38 @@ namespace GPSTCPServer
                     instruction = "Skręć ";
                     break;
                 case "roundabout turn":
-                    if (street.Trim() != "") instruction = "Na rondzie zjedź " + numberToPL(maneuver.Exit) + " zjazdem na " + street + "\t" + distance + "m";
-                    instruction = "Na rondzie zjedź " + numberToPL(maneuver.Exit) + " zjazdem " + "\t" + distance + "m";
+                    if (street.Trim() != "") instruction = "Na rondzie zjedź " + numberToPL(maneuver.Exit) + " zjazdem na " + street;
+                    instruction = "Na rondzie zjedź " + numberToPL(maneuver.Exit) + " zjazdem ";
                     return instruction;
                 case "notification":
                     break;
                 case "exit roundabout":
-                    if (street.Trim() != "") instruction = "Na rondzie zjedź " + numberToPL(maneuver.Exit) + " zjazdem na " + street + "\t" + distance + "m";
-                    instruction = "Na rondzie zjedź " + numberToPL(maneuver.Exit) + " zjazdem " + "\t" + distance + "m";
+                    if (street.Trim() != "") instruction = "Na rondzie zjedź " + numberToPL(maneuver.Exit) + " zjazdem na " + street;
+                    instruction = "Na rondzie zjedź " + numberToPL(maneuver.Exit) + " zjazdem ";
                     return instruction;
                 case "exit rotary":
-                    if (street.Trim() != "") instruction = "Na rondzie zjedź " + numberToPL(maneuver.Exit) + " zjazdem na " + street + "\t" + distance + "m";
-                    else instruction = "Na rondzie zjedź " + numberToPL(maneuver.Exit) + " zjazdem  " + "\t" + distance + "m";
+                    if (street.Trim() != "") instruction = "Na rondzie zjedź " + numberToPL(maneuver.Exit) + " zjazdem na " + street;
+                    else instruction = "Na rondzie zjedź " + numberToPL(maneuver.Exit) + " zjazdem  ";
                     break;
             }
 
             switch (modifier)
             {
                 case "right":
-                    if (street.Trim() != "") instruction += "w prawo w " + street + "\t" + distance + "m";
-                    else instruction += "w prawo " + street + "\t" + distance + "m";
+                    if (street.Trim() != "") instruction += "w prawo w " + street;
+                    else instruction += "w prawo " + street;
                     break;
                 case "left":
-                    if (street.Trim() != "") instruction += "w lewo w " + street + "\t" + distance + "m";
-                    else instruction += "w lewo " + "\t" + distance + "m";
+                    if (street.Trim() != "") instruction += "w lewo w " + street;
+                    else instruction += "w lewo ";
                     break;
                 case "slight right":
-                    if (street.Trim() != "") instruction += (type == "continue" ? "Lekko w prawo w " : "lekko w prawo w ") + street + "\t" + distance + "m";
-                    else instruction += (type == "continue" ? "Lekko w prawo " : "lekko w prawo ") + "\t" + distance + "m";
+                    if (street.Trim() != "") instruction += (type == "continue" ? "Lekko w prawo w " : "lekko w prawo w ") + street;
+                    else instruction += (type == "continue" ? "Lekko w prawo " : "lekko w prawo ");
                     break;
                 case "slight left":
-                    if (street.Trim() != "") instruction += (type == "continue" ? "Lekko w lewo w " : "lekko w lewo w ") + street + "\t" + distance + "m";
-                    else instruction += (type == "continue" ? "Lekko w lewo " : "lekko w lewo ") + "\t" + distance + "m";
+                    if (street.Trim() != "") instruction += (type == "continue" ? "Lekko w lewo w " : "lekko w lewo w ") + street;
+                    else instruction += (type == "continue" ? "Lekko w lewo " : "lekko w lewo ");
                     break;
                 case "uturn":
 
@@ -126,8 +135,8 @@ namespace GPSTCPServer
 
                     break;
                 case "straight":
-                    if (type != "turn") instruction += " prosto w " + street + "\t" + distance + "m";
-                    else instruction = "Jedź prosto w " + street + "\t" + distance + "m";
+                    if (type != "turn") instruction += " prosto w " + street;
+                    else instruction = "Jedź prosto w " + street;
                     break;
             }
             return instruction;
@@ -154,5 +163,19 @@ namespace GPSTCPServer
             }
             return "";
         }
+    }
+    public class RouteModel
+    {
+        public double Duration { get; set; }
+        public double Distance { get; set; }
+        public StepModel[] Steps { get; set; }
+    }
+    public class StepModel
+    {
+        public string Polyline { get; set; }
+        public string Description { get; set; }
+        public string Type { get; set; } //można enum z tego zrobić
+        public Tuple<double,double> Maneuver { get; set; }
+        public double Distance { get; set; }
     }
 }

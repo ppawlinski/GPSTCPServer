@@ -19,11 +19,11 @@ namespace GPSTCPClient.Models
         [JsonPropertyName("boundingbox")]
         public string[] Boundingbox { get; set; }
 
-        [JsonPropertyName("lat")]
-        public string Lat { get; set; }
+        [JsonPropertyName("lat"), JsonConverter(typeof(GPSTCPClient.Converters.StringToDoubleConverter))]
+        public double Lat { get; set; }
 
-        [JsonPropertyName("lon")]
-        public string Lon { get; set; }
+        [JsonPropertyName("lon"), JsonConverter(typeof(GPSTCPClient.Converters.StringToDoubleConverter))]
+        public double Lon { get; set; }
 
         [JsonPropertyName("display_name")]
         public string DisplayName { get; set; }

@@ -1,0 +1,92 @@
+﻿<UserControl x:Class="GPSTCPClient.Views.FavouritesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:GPSTCPClient.Views"
+             xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:vm="clr-namespace:GPSTCPClient.ViewModel"
+             xmlns:wpf="clr-namespace:Microsoft.Maps.MapControl.WPF;assembly=Microsoft.Maps.MapControl.WPF"
+             xmlns:cc="clr-namespace:GPSTCPClient.Components"
+             xmlns:behaviour="http://schemas.microsoft.com/xaml/behaviors"
+             mc:Ignorable="d" 
+             d:DesignHeight="840" d:DesignWidth="1200">
+    <Grid>
+        <DataGrid  HorizontalAlignment="Left" Name="MyAddressesDG" VerticalAlignment="Top" Margin="40,40,0,0" Width="660" Height="200"  ItemsSource="{Binding Locations}" AutoGenerateColumns="False" IsReadOnly="True">
+            <DataGrid.Columns>
+                <md:DataGridTextColumn Header="Nazwa" Binding="{Binding Name}" Width="120" ElementStyle="{StaticResource MaterialDesignDataGridTextColumnStyle}" EditingElementStyle="{StaticResource MaterialDesignDataGridTextColumnEditingStyle}"/>
+                <!-- TODO TU MOŻNA ZROBIĆ ADRES JAKO COMBOBOX I WTEDY DODAJEMY I EDYTUJEMY BEZPOŚRENIO W DATAGRIDZIE
+                <DataGridTemplateColumn Header="Adres" Width="310">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <cc:SearchingBox Style="{StaticResource MaterialDesignComboBox}" x:Name="NewAddressCB" Padding="0" IsTextSearchEnabled="False" HorizontalAlignment="Left" Height="30"   Width="254" IsEditable="True" IsSynchronizedWithCurrentItem="False" 
+                                   >
+                            </cc:SearchingBox>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>-->
+                <md:DataGridTextColumn Header="Adres" Binding="{Binding Address.DisplayName}" Width="290"/>
+                <md:DataGridTextColumn Header="Koordynaty" Binding="{Binding Cords}" Width="130" IsReadOnly="True"/>
+                <DataGridTemplateColumn Width="50">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate >
+                            <Button Width="20" Height="20" Background="{x:Null}" BorderBrush="{x:Null}"  Padding="0" Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type local:FavouritesView}},Path=DataContext.EditCommand}" CommandParameter="{Binding ElementName=MyAddressesDG, Path=SelectedItem}">
+                                <md:PackIcon Kind="Edit" Foreground="#039be5" Width="20" Height="20" />
+                            </Button>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Width="50">
+                    <DataGridTemplateColumn.CellTemplate >
+                        <DataTemplate>
+                            <Button Width="20" Height="20" Background="{x:Null}" BorderBrush="{x:Null}" Padding="0" Margin="0" Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type local:FavouritesView}},Path=DataContext.DeleteCommand}" CommandParameter="{Binding ElementName=MyAddressesDG, Path=SelectedItem}">
+                                <md:PackIcon Kind="TrashOutline" Foreground="Red" Margin="0" Padding="0" Width="20" Height="20"/>
+                            </Button>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
+            </DataGrid.Columns>
+            <DataGrid.InputBindings>
+                <MouseBinding Gesture="LeftDoubleClick" Command="{Binding CenterOnUserLocationCommand}" CommandParameter="{Binding ElementName=MyAddressesDG, Path=SelectedItem}"/>
+            </DataGrid.InputBindings>
+        </DataGrid>
+        <TextBox Style="{StaticResource MaterialDesignFloatingHintTextBox}" Name="NewAddressNameTB" md:HintAssist.Hint="Nazwa"  HorizontalAlignment="Left" Height="45" Margin="170,299,0,0" Padding="2,0,0,0"  TextWrapping="Wrap" VerticalAlignment="Top" Width="200" Text="{Binding AddingLocationName, UpdateSourceTrigger=PropertyChanged}">
+            <TextBox.InputBindings>
+                <KeyBinding
+                    Key="Enter"
+                    Command="{Binding AddLocationCommand}"/>
+            </TextBox.InputBindings>
+        </TextBox>
+        <cc:SearchingBox Style="{StaticResource MaterialDesignFloatingHintComboBox}" md:HintAssist.Hint="Adres"  x:Name="NewAddressCB" Padding="5" IsTextSearchEnabled="False" HorizontalAlignment="Left" Height="40" Margin="400,304,0,0" VerticalAlignment="Top" Width="200" IsEditable="True" Text="{Binding FavAddressSearch.SelectedAddressText}" IsDropDownOpen="{Binding FavAddressSearch.IsDropDownOpen}" IsSynchronizedWithCurrentItem="False" SelectedItem="{Binding FavAddressSearch.SelectedAddress}" ItemsSource="{Binding FavAddressSearch.Addresses}" >
+            <cc:SearchingBox.InputBindings>
+                <KeyBinding
+                    Key="Enter"
+                    Command="{Binding AddLocationCommand}"/>
+            </cc:SearchingBox.InputBindings>
+        </cc:SearchingBox>
+        <Button Command="{Binding AddLocationCommand}" HorizontalAlignment="Left" Height="40" Margin="620,304,0,0" VerticalAlignment="Top" Width="80" Padding="0">
+            <md:PackIcon Kind="Add" VerticalAlignment="Center"/>
+        </Button>
+        <Button Margin="102,304,1058,496" Height="40" Width="40" Background="Red" BorderBrush="Red" Padding="0" Command="{Binding ClearAddingCommand}">
+            <md:PackIcon Kind="Clear"/>
+        </Button>
+        <wpf:Map Margin="40,420,40,40" x:Name="FavMap" MouseDoubleClick="FavMap_MouseDoubleClick"
+                         ZoomLevel="{Binding FavMap.ZoomLevel, Mode=TwoWay}" Center="{Binding FavMap.Center, Mode=TwoWay, UpdateSourceTrigger=Explicit}" Culture="en-EN">
+            <wpf:Pushpin wpf:MapLayer.Position="{Binding FavMap.MainLoc.Location}" Visibility="{Binding FavMap.MainLoc.Visibility}">
+                <ToolTipService.ToolTip>
+                    <ToolTip Background="#424242" Foreground="#2196f3">
+                        <TextBlock Text="{Binding FavMap.MainLoc.Name}" FontWeight="Bold" FontFamily="{StaticResource MaterialDesignFont}"/>
+                    </ToolTip>
+                </ToolTipService.ToolTip>
+                <md:PackIcon Kind="Home">
+                </md:PackIcon>
+            </wpf:Pushpin>
+        </wpf:Map>
+
+        <md:DialogHost Identifier = "DeleteFavDialog" Style="{StaticResource MaterialDesignEmbeddedDialogHost}" CloseOnClickAway = "True" >
+
+        </md:DialogHost >
+
+    </Grid>
+</UserControl>

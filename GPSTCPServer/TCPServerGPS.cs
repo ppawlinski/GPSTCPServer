@@ -22,31 +22,50 @@ namespace GPSTCPServer
             Listener.Start();
             while (true)
             {
-                await Listener.AcceptTcpClientAsync().ContinueWith(async (t) =>
-                {
-                    byte[] buffer = new byte[1024];
-                    GPSUser user = new GPSUser(t.Result);
-                    while (true)
-                    {
-                        await getUserInput(user.client, buffer);
-                        //Console.WriteLine($"CLIENT: {Encoding.UTF8.GetString(buffer)}");
-                        string response = await processCommand(user, buffer);
-                        //Console.WriteLine($"SERVER: {response}");
-                        await Send(user.client, response);
-                    }
+                _ = await Listener.AcceptTcpClientAsync().ContinueWith(async (t) =>
+                  {
+                      byte[] buffer = new byte[1024];
+                      GPSUser user = new GPSUser(t.Result);
+                      while (true)
+                      {
+                          string input = await getUserInput(user.client, buffer);
+                          Array.Clear(buffer, 0, buffer.Length);
+                          Console.WriteLine($"CLIENT: {input}");
+                          _ = Task.Run(async () =>
+                            {
+                                string response = "";
+                                try
+                                {
+                                    response = await processCommand(user, input);
+                                }
+                                catch(Exception ex)
+                                {
+                                    throw new Exception(ex.Message);
+                                }
+                                
+                              Console.WriteLine($"SERVER: {response}");
+                              await Send(user.client, response);
+                            });
+                      }
 
-                });
+                  });
             }
         }
 
-        private async Task<string> processCommand(GPSUser user, byte[] buffer)
+        private async Task<string> processCommand(GPSUser user,string fullMessage)
         {
-            string fullMessage = Encoding.UTF8.GetString(buffer).Replace("\0", String.Empty);
+            
             string[] arguments = fullMessage.Split(" ");
             string command = arguments[0];
             if (command == "LOGIN")
             {
-                if (user.LoggedIn || arguments.Length != 3) return "FAIL";
+                if (user.LoggedIn || arguments.Length != 3)
+                {
+#if DEBUG
+                    Console.WriteLine("PAKIET: " + fullMessage);
+#endif
+                    return "FAIL";
+                }
                 string arg1 = arguments[1].Trim();
                 string arg2 = arguments[2].Trim();
                 string username = await login(arg1, arg2);
@@ -59,25 +78,43 @@ namespace GPSTCPServer
                 }
                 else
                 {
+#if DEBUG
+                    Console.WriteLine("PAKIET: " + fullMessage);
+#endif
                     return "FAIL";
                 }
             }
             else if (command == "LOGOUT")
             {
-                if (!user.LoggedIn) return "FAIL";
+                if (!user.LoggedIn)
+                {
+#if DEBUG
+                    Console.WriteLine("PAKIET: " + fullMessage);
+#endif
+                    return "FAIL";
+                }
                 user.LoggedIn = false;
                 user.Username = null;
                 return "SUCCESS";
             }
             else if (command == "CREATEACCOUNT")
             {
-                if (user.LoggedIn || arguments.Length != 3) return "FAIL";
+                if (user.LoggedIn || arguments.Length != 3)
+                {
+#if DEBUG
+                    Console.WriteLine("PAKIET: " + fullMessage);
+#endif
+                    return "FAIL";
+                }
                 if (await createAccount(arguments[1], arguments[2]))
                 {
                     return "ACCOUNTCREATED";
                 }
                 else
                 {
+#if DEBUG
+                    Console.WriteLine("PAKIET: " + fullMessage);
+#endif
                     return "FAIL";
                 }
             }
@@ -90,6 +127,9 @@ namespace GPSTCPServer
                 }
                 else
                 {
+#if DEBUG
+                    Console.WriteLine("PAKIET: " + fullMessage);
+#endif
                     return "FAIL";
                 }
             }
@@ -104,22 +144,37 @@ namespace GPSTCPServer
                 }
                 else
                 {
+#if DEBUG
+                    Console.WriteLine("PAKIET: " + fullMessage);
+#endif
                     return "FAIL";
                 }
             }
             else if (command == "GETROUTE")
             {
                 if (!user.LoggedIn) return "FAIL";
-                string instructions = await getRoute(arguments[1], arguments[2], arguments[3], arguments[4]);
-                if (instructions != null) return instructions;
-                else return "FAIL";
+                RouteModel instructions = await getRoute(arguments[1], arguments[2], arguments[3], arguments[4]);
+                if (instructions != null) return JsonSerializer.Serialize(instructions);
+                else
+                {
+#if DEBUG
+                    Console.WriteLine("PAKIET: " + fullMessage);
+#endif
+                    return "FAIL";
+                }
             }
             else if (command == "LISTSAVEDADDRESSES")
             {
                 if (!user.LoggedIn) return "FAIL";
                 string result = await listSavedAddressess(user.Username);
                 if (result != null) return result;
-                else return "FAIL";
+                else
+                {
+#if DEBUG
+                    Console.WriteLine("PAKIET: " + fullMessage);
+#endif
+                    return "FAIL";
+                }
             }
             else if (command == "GETSAVEDADDRESS")
             {
@@ -128,7 +183,12 @@ namespace GPSTCPServer
             }
             else if (command == "EDITADDRESS")
             {
-                if (!user.LoggedIn) return "FAIL";
+                if (!user.LoggedIn) {
+#if DEBUG
+                    Console.WriteLine("PAKIET: " + fullMessage);
+#endif
+                    return "FAIL";
+                }
                 if (arguments.Length == 3)
                 {
                     if (await editAddress(user.Username, arguments[1], arguments[2]))
@@ -143,19 +203,57 @@ namespace GPSTCPServer
                         return "SUCCESS";
                     }
                 }
-                else return "FAIL";
+                else
+                {
+#if DEBUG
+                    Console.WriteLine("PAKIET: " + fullMessage);
+#endif
+                    return "FAIL";
+                }
             }
             else if (command == "ADDADDRESS")
             {
-                if (!user.LoggedIn || arguments.Length != 4) return "FAIL";
+                if (!user.LoggedIn || arguments.Length != 4)
+                {
+#if DEBUG
+                    Console.WriteLine("PAKIET: " + fullMessage);
+#endif
+                    return "FAIL";
+                }
                 if (db.AddLocation(user.Username, arguments[1], arguments[2], arguments[3])) return "SUCCESS";
-                else return "FAIL";
+                else {
+#if DEBUG
+                    Console.WriteLine("PAKIET: " + fullMessage);
+#endif
+                    return "FAIL";
+                }
             }
             else if (command == "DELETEADDRESS")
             {
-                if (!user.LoggedIn || arguments.Length != 2) return "FAIL";
+                if (!user.LoggedIn || arguments.Length != 2) {
+#if DEBUG
+                    Console.WriteLine("PAKIET: " + fullMessage);
+#endif
+                    return "FAIL";
+                }
                 if (db.DeleteLocation(user.Username, arguments[1])) return "SUCCESS";
-                else return "FAIL";
+                else {
+#if DEBUG
+                    Console.WriteLine("PAKIET: " + fullMessage);
+#endif
+                    return "FAIL";
+                }
+            }
+            else if (command == "DESCRIBEADDRESS")
+            {
+                if (!user.LoggedIn || arguments.Length != 3)
+                {
+#if DEBUG
+                    Console.WriteLine("PAKIET: " + fullMessage);
+#endif
+                    return "FAIL";
+                }
+                return await getAddressInfo(arguments[1], arguments[2]);
             }
             return "UNKNOWNCOMMAND";
         }
@@ -217,20 +315,20 @@ namespace GPSTCPServer
                 return null;
         }
 
-        private Task<string> getRoute(string originLon, string originLat, string destinationLon, string destinationLat)
+        private Task<RouteModel> getRoute(string originLon, string originLat, string destinationLon, string destinationLat)
         {
             string response = string.Empty;
             RouterCalculator calculator = new RouterCalculator(originLon, originLat, destinationLon, destinationLat);
             if (!calculator.OK)
             {
-                return Task.FromResult<string>(null);
+                return Task.FromResult<RouteModel>(null);
             }
-            string[] instructions = calculator.GetInstructions();
-            foreach (var instruction in instructions)
-            {
-                if (instruction != string.Empty) response += instruction + "\n";
-            }
-            return Task.FromResult(response);
+            RouteModel instructions = calculator.GetInstructions();
+            //foreach (var instruction in instructions)
+            //{
+            //    if (instruction != string.Empty) response += instruction + "\n";
+            //}
+            return Task.FromResult(instructions);
         }
 
         private async Task<Address> getAddress(string message)
@@ -263,6 +361,12 @@ namespace GPSTCPServer
                 return address;
             }
             else throw new Exception();
+        }
+
+        private async Task<string> getAddressInfo(string lat, string lon)
+        {
+            var response = await GetRequest.GetFromURLAsync(String.Format("https://nominatim.openstreetmap.org/reverse?lat={0}&lon={1}&format=json", lat, lon));
+            return response;
         }
 
         private Task<string> login(string username, string password)
