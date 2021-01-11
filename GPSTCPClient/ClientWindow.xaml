@@ -12,7 +12,6 @@
         TextOptions.TextRenderingMode="Auto"
         Background="{DynamicResource MaterialDesignPaper}"
         FontFamily="{DynamicResource MaterialDesignFont}"
-        xmlns:ViewModels="clr-namespace:GPSTCPClient.ViewModel"
         Title="Client" Height="900" Width="1200" ResizeMode="CanMinimize">
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="40"/>

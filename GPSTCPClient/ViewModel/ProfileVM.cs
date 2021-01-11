@@ -1,12 +1,8 @@
 ﻿using GPSTCPClient.ViewModel.MVVM;
 using GPSTCPClient.Views;
 using MaterialDesignThemes.Wpf;
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -35,7 +31,7 @@ namespace GPSTCPClient.ViewModel
             ErrorColor = "Red";
             DialogContent = "Czy na pewno chcesz zmienić hasło?";
             string result = (string)await DialogHost.Show(new OkCancelDialog(), "ChangePassDialog");
-            if(result == "Accept")
+            if (result == "Accept")
             {
                 if (((IEnumerable)arg).Cast<object>()
                             .Select(x => (PasswordBox)x)
@@ -62,7 +58,7 @@ namespace GPSTCPClient.ViewModel
                         ChangePasswordError = "Wszystkie pola muszą być wypełnione!";
                 }
             }
-            
+
 
             ChangePasswordEnabled = true;
             MainVM.Loading = false;
@@ -107,7 +103,8 @@ namespace GPSTCPClient.ViewModel
             }
         }
 
-        public string DialogContent {
+        public string DialogContent
+        {
             get
             {
                 return dialogContent;

@@ -1,13 +1,6 @@
 ﻿using GPSTCPClient.Models;
 using GPSTCPClient.ViewModel.MVVM;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GPSTCPClient.ViewModel.Components
 {
@@ -35,7 +28,8 @@ namespace GPSTCPClient.ViewModel.Components
             Name = name_;
             Address = address_;
         }
-        public Address Address { 
+        public Address Address
+        {
             get
             {
                 return address;
@@ -60,10 +54,11 @@ namespace GPSTCPClient.ViewModel.Components
             }
         }
 
-        public string Cords {
+        public string Cords
+        {
             get
             {
-                return Address?.Lat.ToString("0.###",CultureInfo.InvariantCulture) + " : " + Address?.Lon.ToString("0.###", CultureInfo.InvariantCulture);
+                return Address?.Lat.ToString("0.###", CultureInfo.InvariantCulture) + " : " + Address?.Lon.ToString("0.###", CultureInfo.InvariantCulture);
             }
         }
 

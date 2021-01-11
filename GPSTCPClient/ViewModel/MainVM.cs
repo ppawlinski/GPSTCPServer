@@ -1,9 +1,7 @@
 ﻿using GPSTCPClient.ViewModel.MVVM;
 using GPSTCPClient.Views;
 using MaterialDesignThemes.Wpf;
-using System;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
 
 namespace GPSTCPClient.ViewModel
@@ -28,7 +26,7 @@ namespace GPSTCPClient.ViewModel
         {
             if (arg is string dest)
             {
-                switch(dest)
+                switch (dest)
                 {
                     case "Login":
                         SelectedVM = new LoginVM(this);

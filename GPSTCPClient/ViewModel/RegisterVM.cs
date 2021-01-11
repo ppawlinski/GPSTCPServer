@@ -1,12 +1,6 @@
-﻿using GPSTCPClient.ViewModel.Components;
-using GPSTCPClient.ViewModel.MVVM;
-using GPSTCPClient.Views;
-using System;
+﻿using GPSTCPClient.ViewModel.MVVM;
 using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Input;
 

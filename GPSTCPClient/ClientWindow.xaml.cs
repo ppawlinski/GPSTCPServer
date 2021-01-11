@@ -14,12 +14,12 @@ namespace GPSTCPClient
             InitializeComponent();
             if (File.Exists(".\\apikey.txt"))
             {
-                 GPSTCPClient.Client.ApiKey = File.ReadAllText(".\\apikey.txt");
+                GPSTCPClient.Client.ApiKey = File.ReadAllText(".\\apikey.txt");
             }
             var mainViewModel = new MainVM();
             mainViewModel.Loading = false;
             mainViewModel.NavigateTo("Login");
-            
+
             //mainViewModel.SelectedVM = new LoginVM(mainViewModel);
             this.DataContext = mainViewModel;
             //Navigation.NavigationService.Navigate(new Pages.Login(Navigation.NavigationService));

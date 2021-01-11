@@ -1,12 +1,6 @@
 ﻿using GPSTCPClient.Models;
 using GPSTCPClient.ViewModel.MVVM;
 using Microsoft.Maps.MapControl.WPF;
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 
 namespace GPSTCPClient.ViewModel.Components
@@ -38,7 +32,7 @@ namespace GPSTCPClient.ViewModel.Components
         {
             Location = new Location();
             Name = "";
-            Visibility = Visibility.Hidden; 
+            Visibility = Visibility.Hidden;
         }
 
         private Visibility visibility;

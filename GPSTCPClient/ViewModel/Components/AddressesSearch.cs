@@ -15,7 +15,8 @@ namespace GPSTCPClient.ViewModel.Components
             SelectedAddressText = "";
         }
         private ObservableCollection<Address> addresses;
-        public ObservableCollection<Address> Addresses { 
+        public ObservableCollection<Address> Addresses
+        {
             get
             {
                 return addresses;
@@ -37,7 +38,7 @@ namespace GPSTCPClient.ViewModel.Components
             }
         }
 
-        
+
         private bool isDropDownOpen;
         public bool IsDropDownOpen
         {

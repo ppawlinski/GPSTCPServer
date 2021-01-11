@@ -1,13 +1,8 @@
 ﻿using GPSTCPClient.Models;
 using GPSTCPClient.ViewModel.MVVM;
 using Microsoft.Maps.MapControl.WPF;
-using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Controls;
 
 namespace GPSTCPClient.ViewModel.Components
 {
@@ -43,7 +38,8 @@ namespace GPSTCPClient.ViewModel.Components
             Center = new Location(lat_, lon_);
         }
         private Pin mainLoc;
-        public Pin MainLoc {
+        public Pin MainLoc
+        {
             get
             {
                 return mainLoc;
@@ -125,7 +121,7 @@ namespace GPSTCPClient.ViewModel.Components
 
         public void FillWithFavs(IEnumerable<UserLocation> userLocations)
         {
-            foreach(var ul in userLocations)
+            foreach (var ul in userLocations)
             {
                 Pushpin pin = new Pushpin();
                 pin.Location = GetLocation(ul.Address);

@@ -11,15 +11,15 @@ namespace GPSTCPClient.Converters
     {
         public override double Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            if(reader.TokenType == JsonTokenType.String)
+            if (reader.TokenType == JsonTokenType.String)
             {
                 ReadOnlySpan<byte> span = reader.HasValueSequence ? reader.ValueSequence.ToArray() : reader.ValueSpan;
-                if(Utf8Parser.TryParse(span,out double number, out int bytesConsumed) && span.Length == bytesConsumed)
+                if (Utf8Parser.TryParse(span, out double number, out int bytesConsumed) && span.Length == bytesConsumed)
                 {
                     return number;
                 }
-                
-                if(double.TryParse(reader.GetString(),out number))
+
+                if (double.TryParse(reader.GetString(), out number))
                 {
                     return number;
                 }

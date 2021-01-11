@@ -6,7 +6,6 @@ using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Linq;
-using System;
 using MaterialDesignThemes.Wpf;
 using GPSTCPClient.Views;
 
@@ -14,7 +13,8 @@ namespace GPSTCPClient.ViewModel
 {
     public class FavouritesVM : ViewModelBase
     {
-        public FavouritesVM(MainVM mainVM_)  {
+        public FavouritesVM(MainVM mainVM_)
+        {
             MainVM = mainVM_;
             FavMap = new MapVM();
             Locations = new ObservableCollection<UserLocation>();
@@ -37,19 +37,12 @@ namespace GPSTCPClient.ViewModel
             {
                 Locations.Clear();
                 Locations.AddRange(task.Result);
-                if(Locations.Count > 0)
+                if (Locations.Count > 0)
                 {
                     FavMap.MainLoc = new Pin(Locations.First());
                     FavMap.Center = MapVM.GetLocation(Locations.First().Address);
                 }
                 OnPropertyChanged(nameof(Locations));
-
-                //if (Locations.Count > 0)
-                //{
-                //    MainMap.Center = MapVM.GetLocation(Locations.First().Address);
-                //    MainMap.MainLoc = new Pin(Locations.First());
-                //}
-                //else MainMap.MainLoc = new Pin();
                 MainVM.Loading = false;
             }, TaskScheduler.FromCurrentSynchronizationContext());
         }
@@ -146,7 +139,8 @@ namespace GPSTCPClient.ViewModel
         }
 
         private string dialogContent;
-        public string DialogContent {
+        public string DialogContent
+        {
             get
             {
                 return dialogContent;
@@ -163,7 +157,7 @@ namespace GPSTCPClient.ViewModel
             MainVM.Loading = true;
             if (AddingLocationName != "" && !double.IsNaN(FavAddressSearch.SelectedAddress?.Lat ?? double.NaN))
             {
-                if(editing == null)
+                if (editing == null)
                 {
                     if (await Client.AddAddress(FavAddressSearch.SelectedAddress, AddingLocationName))
                     {
@@ -174,7 +168,7 @@ namespace GPSTCPClient.ViewModel
                 }
                 else
                 {
-                    if(editing.Address == FavAddressSearch.SelectedAddress && editing.Name == AddingLocationName)
+                    if (editing.Address == FavAddressSearch.SelectedAddress && editing.Name == AddingLocationName)
                     {
                         editing = null;
                         AddingLocationName = "";
@@ -184,7 +178,7 @@ namespace GPSTCPClient.ViewModel
                     }
                     else
                     {
-                        if(await Client.EditAddress(editing.Name, AddingLocationName, FavAddressSearch.SelectedAddress))
+                        if (await Client.EditAddress(editing.Name, AddingLocationName, FavAddressSearch.SelectedAddress))
                         {
                             editing = null;
                             AddingLocationName = "";
@@ -210,16 +204,16 @@ namespace GPSTCPClient.ViewModel
                 FavAddressSearch.Addresses.Clear();
             }
             MainVM.Loading = false;
-            
+
         }
 
         private async void DeleteLocation(object selected)
         {
-            if(selected != null && selected is UserLocation ul)
+            if (selected != null && selected is UserLocation ul)
             {
                 DialogContent = "Czy na pewno chcesz usunąć zapisany adres?";
                 string result = (string)await DialogHost.Show(new OkCancelDialog(), "DeleteFavDialog");
-                if(result == "Accept")
+                if (result == "Accept")
                 {
                     if (await Client.DeleteAddress(ul.Name))
                     {
@@ -230,7 +224,7 @@ namespace GPSTCPClient.ViewModel
         }
         private async void MapDoubleClick(object arg)
         {
-            if(arg is Location point)
+            if (arg is Location point)
             {
                 var described = await Client.DescribeAddress(point.Latitude, point.Longitude);
                 FavAddressSearch.Addresses.Clear();
@@ -243,7 +237,7 @@ namespace GPSTCPClient.ViewModel
 
         private void EditLocation(object selected)
         {
-            if(selected != null && selected is UserLocation ul)
+            if (selected != null && selected is UserLocation ul)
             {
                 editing = ul;
                 AddingLocationName = editing.Name;

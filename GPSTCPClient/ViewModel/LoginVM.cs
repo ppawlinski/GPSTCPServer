@@ -1,10 +1,4 @@
 ﻿using GPSTCPClient.ViewModel.MVVM;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
@@ -12,7 +6,7 @@ namespace GPSTCPClient.ViewModel
 {
     public class LoginVM : ViewModelBase
     {
-        
+
         public LoginVM(MainVM mainVM_)
         {
             mainVM = mainVM_;
@@ -67,7 +61,7 @@ namespace GPSTCPClient.ViewModel
             }
         }
         private string login;
-        
+
         public string Login
         {
             get
@@ -109,21 +103,21 @@ namespace GPSTCPClient.ViewModel
             }
         }
         public ICommand LoginClickCommand { get; set; }
-       
+
         public async void LoginAction(object arg)
         {
             LoginEnabled = false;
             RegisterEnabled = false;
             mainVM.Loading = true;
             Errors = "";
-            if(arg is PasswordBox passwordBox)
+            if (arg is PasswordBox passwordBox)
             {
                 if (!await Client.Connect(serverAddress, int.Parse(serverPort)))
                 {
                     Errors = "Błąd połączenia";
                 }
-                else if (await Client.Login(login, passwordBox.Password)) 
-                { 
+                else if (await Client.Login(login, passwordBox.Password))
+                {
                     //mainVM.SelectedVM = new NavigationVM(mainVM);
                     mainVM.NavigateTo("Navigation");
                 }

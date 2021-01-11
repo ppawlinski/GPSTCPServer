@@ -7,7 +7,6 @@ using System.Net.Sockets;
 using System.Net;
 using GPSTCPClient.Models;
 using System.Text.Json;
-using System.IO;
 using GPSTCPClient.ViewModel.Components;
 using System.Globalization;
 
@@ -124,9 +123,10 @@ namespace GPSTCPClient
                         );
                     }
                 }
-                catch (Exception ex) {
+                catch (Exception ex)
+                {
                     var c = ex.Message;
-                    return locations; 
+                    return locations;
                 }
             }
             return locations;
@@ -143,7 +143,7 @@ namespace GPSTCPClient
             {
                 return new Address[0];
             }
-            
+
         }
 
         public static async Task<RouteModel> GetRoute(Address origin, Address destination)
@@ -180,9 +180,9 @@ namespace GPSTCPClient
             return JsonSerializer.Deserialize<Address>(await getUserInput(new byte[10000]));
         }
 
-        public static async Task<bool> EditAddress(string name,string newName, Address address)
+        public static async Task<bool> EditAddress(string name, string newName, Address address)
         {
-            Send($"EDITADDRESS {name.Replace(' ','+')} {newName.Replace(' ','+')} {address.OsmType} {address.OsmId}");
+            Send($"EDITADDRESS {name.Replace(' ', '+')} {newName.Replace(' ', '+')} {address.OsmType} {address.OsmId}");
             return await getUserInput(new byte[1024]) == "SUCCESS";
         }
     }

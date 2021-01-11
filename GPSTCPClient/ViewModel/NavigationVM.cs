@@ -2,15 +2,9 @@
 using GPSTCPClient.ViewModel.Components;
 using GPSTCPClient.ViewModel.MVVM;
 using Microsoft.Maps.MapControl.WPF;
-using System;
-using System.Collections.ObjectModel;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Input;
 using PolylineEncoder.Net.Utility.Decoders;
-using System.Windows.Threading;
-using System.Windows.Data;
-using System.Diagnostics;
 
 namespace GPSTCPClient.ViewModel
 {
@@ -18,7 +12,7 @@ namespace GPSTCPClient.ViewModel
     {
 
         private MixedSearch toAddressessSearch;
-        
+
 
         public MixedSearch ToAddressessSearch
         {
@@ -91,7 +85,7 @@ namespace GPSTCPClient.ViewModel
             {
                 if (e.PropertyName == "Locations")
                 {
-                    if(FavVM.Locations.Count > 0)
+                    if (FavVM.Locations.Count > 0)
                     {
                         MainMap.MainLoc = new Pin(FavVM.Locations.First());
                         MainMap.Center = MapVM.GetLocation(FavVM.Locations.First().Address);
@@ -100,7 +94,7 @@ namespace GPSTCPClient.ViewModel
             };
         }
 
-        
+
 
         private void FromAddressessSearch_OnSelectedAction(object sender, System.EventArgs e)
         {
@@ -116,7 +110,7 @@ namespace GPSTCPClient.ViewModel
 
         private void ToAddressessSearch_OnSelectedAction(object sender, System.EventArgs e)
         {
-            if(sender is MixedSearch ms)
+            if (sender is MixedSearch ms)
             {
                 if (!double.IsNaN(ms.SelectedLocation?.Address.Lat ?? double.NaN))
                 {
@@ -144,7 +138,7 @@ namespace GPSTCPClient.ViewModel
                 }
             };
             var rm = await Client.GetRoute(FromAddressessSearch.SelectedLocation.Address, ToAddressessSearch.SelectedLocation.Address);
-            if(rm != null)
+            if (rm != null)
             {
                 RouteString[] ri = new RouteString[rm.Steps.Length];
                 MainMap.PolylineLocations = new LocationCollection();
@@ -201,6 +195,6 @@ namespace GPSTCPClient.ViewModel
             FromAddressessSearch.SelectedLocation = ToAddressessSearch.SelectedLocation;
             ToAddressessSearch.SelectedLocation = from;
         }
-        
+
     }
 }

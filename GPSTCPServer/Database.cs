@@ -288,7 +288,7 @@ namespace GPSTCPServer
                     {
                         result = command.ExecuteNonQuery();
                     }
-                    catch(Exception ex)
+                    catch(Exception)
                     {
                         //Console.WriteLine(ex.Message);
                     }

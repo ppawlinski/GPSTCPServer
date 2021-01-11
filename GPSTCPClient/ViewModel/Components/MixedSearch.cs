@@ -1,14 +1,10 @@
 ﻿using GPSTCPClient.Models;
 using GPSTCPClient.ViewModel.MVVM;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Data;
 
 namespace GPSTCPClient.ViewModel.Components
 {
@@ -95,7 +91,8 @@ namespace GPSTCPClient.ViewModel.Components
                     selectedLocationText = value;
                     IsDropDownOpen = false;
                     OnPropertyChanged(nameof(Locations));
-                } else selectedLocationText = value;
+                }
+                else selectedLocationText = value;
 
                 if (selectedLocationText.Length >= 3 && !Locations.Any(p => p.ToString() == value))
                 {
@@ -132,12 +129,12 @@ namespace GPSTCPClient.ViewModel.Components
             }
             ).ContinueWith(task =>
             {
-                if(task.Result != null && task.Result.Length > 0)
+                if (task.Result != null && task.Result.Length > 0)
                 {
                     SearchingLocations.Clear();
                     SearchingLocations.AddRange(task.Result);
                     OnPropertyChanged(nameof(Locations));
-                    if(SearchingLocations.Count > 0) IsDropDownOpen = true;
+                    if (SearchingLocations.Count > 0) IsDropDownOpen = true;
                 }
             }, TaskScheduler.FromCurrentSynchronizationContext());
         }
@@ -145,7 +142,7 @@ namespace GPSTCPClient.ViewModel.Components
         private UserLocation[] convertAddressesToUl(Address[] addresses)
         {
             UserLocation[] userLocations = new UserLocation[addresses.Length];
-            for(int i=0; i<addresses.Length; i++)
+            for (int i = 0; i < addresses.Length; i++)
             {
                 userLocations[i] = new UserLocation("", addresses[i]);
             }
