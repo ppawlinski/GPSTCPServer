@@ -3,18 +3,16 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:local="clr-namespace:GPSTCPClient.Views" xmlns:components="clr-namespace:GPSTCPClient.ViewModel.Components"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
-        <components:BindablePasswordBox Password="{Binding OldPassword, Mode=TwoWay}" HorizontalAlignment="Center" Margin="0,139,0,0" VerticalAlignment="Top" Width="120" Height="25"/>
-        <Label Content="Aktualne hasło:" Padding="0" HorizontalAlignment="Left" VerticalAlignment="Top"  Margin="250,146,0,0" Width="85" Height="18"/>
-        <components:BindablePasswordBox Password="{Binding NewPassword, Mode=TwoWay}" HorizontalAlignment="Center"  Margin="0,179,0,0" VerticalAlignment="Top" Width="120" Height="25"/>
-        <Label Content="Nowe hasło:" HorizontalAlignment="Left" Height="18" Margin="250,186,0,0" Padding="0" VerticalAlignment="Top" Width="85"/>
-        <components:BindablePasswordBox Password="{Binding ConfirmNewPassword, Mode=TwoWay}" HorizontalAlignment="Center"  Margin="0,219,0,0" VerticalAlignment="Top" Width="120" Height="25"/>
-        <Label Content="Powtórz hasło:" HorizontalAlignment="Left" Height="18" Padding="0" Margin="250,226,0,0" VerticalAlignment="Top" Width="85"/>
-        <Button Command="{Binding ChangePasswordCommand}" IsEnabled="{Binding ChangePasswordEnabled}" Content="Zmień hasło" HorizontalAlignment="Left" Height="40" Margin="250,326,0,0" VerticalAlignment="Top" Width="210"/>
-        <TextBlock FontSize="14" Text="{Binding ChangePasswordError}" Foreground="{Binding ErrorColor}" TextWrapping="Wrap" FontWeight="Normal" HorizontalAlignment="Left" Height="50
-                   " Margin="250,258,0,0" VerticalAlignment="Top" Width="210"/>
+        <TextBlock HorizontalAlignment="Center" Margin="0,89,0,0" Text="Zmiana hasła" FontSize="20" VerticalAlignment="Top" Width="210"/>
+        <components:BindablePasswordBox Password="{Binding OldPassword, Mode=TwoWay}" md:HintAssist.Hint="Stare hasło" HorizontalAlignment="Center" Margin="0,116,0,0" VerticalAlignment="Top" Width="120" Height="50"/>
+        <components:BindablePasswordBox Password="{Binding NewPassword, Mode=TwoWay}" md:HintAssist.Hint="Nowe hasło" HorizontalAlignment="Center"  Margin="0,166,0,0" VerticalAlignment="Top" Width="120" Height="50"/>
+        <components:BindablePasswordBox Password="{Binding ConfirmNewPassword, Mode=TwoWay}" md:HintAssist.Hint="Powtórz nowe hasło" HorizontalAlignment="Center" VerticalAlignment="Top" Width="120" Height="50" Margin="0,216,0,0"/>
+        <Button Command="{Binding ChangePasswordCommand}" IsEnabled="{Binding ChangePasswordEnabled}" Content="Zmień hasło" HorizontalAlignment="Center" Height="40" Margin="0,335,0,0" VerticalAlignment="Top" Width="210"/>
+        <TextBlock FontSize="14" Text="{Binding ChangePasswordError}" Foreground="{Binding ErrorColor}" TextWrapping="Wrap" FontWeight="Normal" HorizontalAlignment="Center" Height="50" Margin="0,273,0,0" VerticalAlignment="Top" Width="210"/>
     </Grid>
 </UserControl>

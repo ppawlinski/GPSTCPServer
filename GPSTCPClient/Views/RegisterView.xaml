@@ -8,22 +8,17 @@
              xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:components="clr-namespace:GPSTCPClient.ViewModel.Components"
     mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
+             d:DesignHeight="840" d:DesignWidth="1200">
     <Grid>
-        <TextBox Text="{Binding ServerAddress}" HorizontalAlignment="Center" Margin="0,99,0,0" Name="ServerAddressBox" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" Height="25"/>
-        <Label Content="Adres:" HorizontalAlignment="Left" Margin="250,106,0,0" VerticalAlignment="Top" Padding="0" Height="18" Width="85"/>
-        <TextBox Text="{Binding ServerPort}" HorizontalAlignment="Center" Margin="0,139,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" Height="25"/>
-        <Label Content="Port:" Padding="0" HorizontalAlignment="Left" VerticalAlignment="Top"  Margin="250,146,0,0" Width="85" Height="18"/>
-        <TextBox Text="{Binding Login, Mode=TwoWay}" HorizontalAlignment="Center"  Margin="0,179,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" Height="25"/>
-        <Label Content="Login:" HorizontalAlignment="Left" Height="18" Margin="250,186,0,0" Padding="0" VerticalAlignment="Top" Width="85"/>
-        <components:BindablePasswordBox Password="{Binding Password, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" HorizontalAlignment="Center"  Margin="0,219,0,0"  VerticalAlignment="Top" Width="120" Height="25"/>
-        <Label Content="Hasło:" HorizontalAlignment="Left" Height="18" Padding="0" Margin="250,226,0,0" VerticalAlignment="Top" Width="85"/>
-        <components:BindablePasswordBox Password="{Binding ConfirmPassword, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"  HorizontalAlignment="Center"  Margin="0,259,0,0"  VerticalAlignment="Top" Width="120" Height="25"/>
-        <Label Content="Powtórz hasło:" HorizontalAlignment="Left" Height="18" Padding="0" Margin="250,266,0,0" VerticalAlignment="Top" Width="85"/>
-        <Button Content="Zarejestruj się" Name="Register" IsEnabled="{Binding RegisterEnabled}" Command="{Binding RegisterClickCommand}" CommandParameter="{Binding ElementName=Register, Path=Name}" HorizontalAlignment="Left" Height="40" Margin="250,344,0,0" VerticalAlignment="Top" Width="210"/>
+        <TextBox HorizontalAlignment="Center" Margin="0,101,0,0" Name="ServerAddressBox" Style="{StaticResource MaterialDesignFloatingHintTextBox}" md:HintAssist.Hint="Adres" Text="{Binding ServerAddress, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap" VerticalAlignment="Top"  Width="120" Height="50"/>
+        <TextBox HorizontalAlignment="Center" Margin="0,161,0,0" TextWrapping="Wrap" Text="{Binding ServerPort, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource MaterialDesignFloatingHintTextBox}" md:HintAssist.Hint="Port" Name="ServerPortBox" VerticalAlignment="Top" Width="120" Height="50"/>
+        <TextBox HorizontalAlignment="Center"  Margin="0,221,0,0" Name="LoginBox" Text="{Binding Login, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource MaterialDesignFloatingHintTextBox}" md:HintAssist.Hint="Login" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" Height="50"/>
+        <components:BindablePasswordBox Password="{Binding Password, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" HorizontalAlignment="Center" md:HintAssist.Hint="Hasło" Margin="0,281,0,0" VerticalAlignment="Top" Width="120" Height="50"/>
+        <components:BindablePasswordBox Password="{Binding ConfirmPassword, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"  HorizontalAlignment="Center"  md:HintAssist.Hint="Powtórz hasło" Margin="0,345,0,0" VerticalAlignment="Top" Width="120" Height="50"/>
+        <Button Content="Zarejestruj się" Name="Register" IsEnabled="{Binding RegisterEnabled}" Command="{Binding RegisterClickCommand}" CommandParameter="{Binding ElementName=Register, Path=Name}" HorizontalAlignment="Center" Height="40" Margin="0,462,0,0" VerticalAlignment="Top" Width="210"/>
         <Button BorderBrush="{x:Null}" Name ="Login" IsEnabled="{Binding ReturnEnabled}" Command="{Binding ReturnClickCommand}" CommandParameter="{Binding ElementName=Login, Path=Name}" HorizontalAlignment="Left" Height="100" VerticalAlignment="Top" Width="100">
             <md:PackIcon Kind="ArrowBack"/>
         </Button>
-        <TextBlock FontSize="14" Name="RegisterError" Text="{Binding RegisterError}" Foreground="{Binding ErrorColor}" TextWrapping="Wrap" FontWeight="Thin" HorizontalAlignment="Left" Height="50" TextAlignment="Center" Margin="250,289,0,0" VerticalAlignment="Top" Width="210"/>
+        <TextBlock FontSize="14" Name="RegisterError" Text="{Binding RegisterError, UpdateSourceTrigger=PropertyChanged}" Foreground="{Binding ErrorColor}" TextWrapping="Wrap" HorizontalAlignment="Center" Height="50" TextAlignment="Center" Margin="0,407,0,0" VerticalAlignment="Top" Width="144"/>
     </Grid>
 </UserControl>

@@ -45,7 +45,7 @@ namespace GPSTCPClient.ViewModel
             mainVM.Loading = true;
             RegisterError = "";
             ErrorColor = "Red";
-            if (Password != null && ConfirmPassword != null && Login != string.Empty)
+            if (Password != null && ConfirmPassword != null && Login != string.Empty && Password.Password != string.Empty && ConfirmPassword.Password != string.Empty)
             {
                 if (Password?.Password == ConfirmPassword?.Password)
                 {
@@ -64,11 +64,12 @@ namespace GPSTCPClient.ViewModel
                 }
                 else
                     RegisterError = "Hasła powinny być takie same!";
+
+                Password.Password = string.Empty;
+                ConfirmPassword.Password = string.Empty;
             }
             else
                 RegisterError = "Wszystkie pola powinny być wypełnione!";
-            Password.Password= string.Empty;
-            ConfirmPassword.Password = string.Empty;
             ReturnEnabled = true;
             RegisterEnabled = true;
             mainVM.Loading = false;
