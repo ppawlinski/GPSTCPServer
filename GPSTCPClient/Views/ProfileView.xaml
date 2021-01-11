@@ -26,5 +26,9 @@
             </Button.CommandParameter>
         </Button>
         <TextBlock FontSize="14" Text="{Binding ChangePasswordError}" Foreground="{Binding ErrorColor}" TextWrapping="Wrap" FontWeight="Normal" HorizontalAlignment="Center" Height="50" Margin="0,273,0,0" VerticalAlignment="Top" Width="210"/>
+
+        <md:DialogHost Identifier = "Dialog" CloseOnClickAway = "True" >
+
+        </md:DialogHost >
     </Grid>
 </UserControl>

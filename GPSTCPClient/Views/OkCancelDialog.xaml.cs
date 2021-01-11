@@ -1,5 +1,4 @@
-﻿using MaterialDesignThemes.Wpf;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,11 +16,11 @@ using System.Windows.Shapes;
 namespace GPSTCPClient.Views
 {
     /// <summary>
-    /// Interaction logic for RegisterView.xaml
+    /// Interaction logic for OkCancelDialog.xaml
     /// </summary>
-    public partial class RegisterView : UserControl
+    public partial class OkCancelDialog : UserControl
     {
-        public RegisterView()
+        public OkCancelDialog()
         {
             InitializeComponent();
         }

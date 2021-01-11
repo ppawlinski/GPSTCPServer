@@ -1,4 +1,6 @@
 ﻿using GPSTCPClient.ViewModel.MVVM;
+using GPSTCPClient.Views;
+using MaterialDesignThemes.Wpf;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -30,30 +32,35 @@ namespace GPSTCPClient.ViewModel
             ChangePasswordEnabled = false;
             ErrorColor = "Red";
 
-            if (((IEnumerable)arg).Cast<object>()
+            string result = (string)await DialogHost.Show(new OkCancelDialog(), "Dialog");
+            if(result == "Accept")
+            {
+                if (((IEnumerable)arg).Cast<object>()
                             .Select(x => (PasswordBox)x)
                             .ToArray() is PasswordBox[] arr)
-            {
-                if (arr[0].Password != string.Empty && arr[1].Password != string.Empty && arr[2].Password != string.Empty)
                 {
-                    if (arr[1].Password == arr[2].Password)
+                    if (arr[0].Password != string.Empty && arr[1].Password != string.Empty && arr[2].Password != string.Empty)
                     {
-                        if (await Client.ChangePassword(arr[0].Password, arr[1].Password))
+                        if (arr[1].Password == arr[2].Password)
                         {
-                            ChangePasswordError = "Hasło zmienione pomyślnie, za chwilę nastąpi wylogowanie...";
-                            ErrorColor = "Green";
-                            await Task.Delay(4000);
-                            MainVM.NavigateTo("Logout");
+                            if (await Client.ChangePassword(arr[0].Password, arr[1].Password))
+                            {
+                                ChangePasswordError = "Hasło zmienione pomyślnie, za chwilę nastąpi wylogowanie...";
+                                ErrorColor = "Green";
+                                await Task.Delay(4000);
+                                MainVM.NavigateTo("Logout");
+                            }
+                            else
+                                ChangePasswordError = "Nie udało się zmienić hasła!";
                         }
                         else
-                            ChangePasswordError = "Nie udało się zmienić hasła!";
+                            ChangePasswordError = "Hasła muszą być takie same!";
                     }
                     else
-                        ChangePasswordError = "Hasła muszą być takie same!";
+                        ChangePasswordError = "Wszystkie pola muszą być wypełnione!";
                 }
-                else
-                    ChangePasswordError = "Wszystkie pola muszą być wypełnione!";
             }
+            
 
             ChangePasswordEnabled = true;
             MainVM.Loading = false;

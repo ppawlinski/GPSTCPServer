@@ -1,5 +1,6 @@
 ﻿using GPSTCPClient.ViewModel.Components;
 using GPSTCPClient.ViewModel.MVVM;
+using GPSTCPClient.Views;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -20,6 +21,7 @@ namespace GPSTCPClient.ViewModel
         private string serverAddress;
         private string serverPort;
         private string errorColor;
+        private MainVM mainVM;
         public RegisterVM(MainVM mainVM_)
         {
             mainVM = mainVM_;
@@ -30,6 +32,7 @@ namespace GPSTCPClient.ViewModel
             Login = string.Empty;
             registerEnabled = true;
             returnEnabled = true;
+            ErrorColor = "Red";
         }
 
         private void ReturnAction()
@@ -73,8 +76,6 @@ namespace GPSTCPClient.ViewModel
             RegisterEnabled = true;
             mainVM.Loading = false;
         }
-
-        public MainVM mainVM { get; set; }
         public ICommand RegisterClickCommand { get; set; }
         public ICommand ReturnClickCommand { get; }
         public string ServerAddress

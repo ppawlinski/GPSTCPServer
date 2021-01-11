@@ -31,35 +31,5 @@
             <md:PackIcon Kind="ArrowBack"/>
         </Button>
         <TextBlock FontSize="14" Name="RegisterError" Text="{Binding RegisterError, UpdateSourceTrigger=PropertyChanged}" Foreground="{Binding ErrorColor}" TextWrapping="Wrap" HorizontalAlignment="Center" Height="50" TextAlignment="Center" Margin="0,407,0,0" VerticalAlignment="Top" Width="144"/>
-        <!--<md:DialogHost CloseOnClickAway="True">
-            <StackPanel VerticalAlignment="Center">
-                the request to open the dialog will bubble up to the top-most DialogHost,
-                        but we can used the attached property based event to handle the response 
-                <Button
-                        Command="{x:Static md:DialogHost.OpenDialogCommand}"
-                        md:DialogHost.DialogClosingAttached="Sample2_DialogHost_OnDialogClosing"
-                        Width="128"
-                        Content="PASS VIEW">
-                    <Button.CommandParameter>
-                        <StackPanel Margin="16">
-                            <Button
-                                    Style="{StaticResource MaterialDesignFlatButton}"
-                                    IsCancel="True" 
-                                    Command="{x:Static md:DialogHost.CloseDialogCommand}"
-                                    CommandParameter="Cancel"
-                                    HorizontalAlignment="Center"
-                                    Content="Anuluj"/>
-                            <Button
-                                    Style="{StaticResource MaterialDesignFlatButton}"
-                                    IsCancel="True" 
-                                    Command="{x:Static md:DialogHost.CloseDialogCommand}"
-                                    CommandParameter="OK"
-                                    HorizontalAlignment="Center"
-                                    Content="OK"/>
-                        </StackPanel>
-                    </Button.CommandParameter>
-                </Button>
-            </StackPanel>
-        </md:DialogHost>-->
     </Grid>
 </UserControl>
