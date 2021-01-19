@@ -1,7 +1,9 @@
-﻿using GPSTCPClient.ViewModel.Components;
+﻿using GPSTCPClient.ViewModel;
+using GPSTCPClient.ViewModel.Components;
 using Microsoft.Maps.MapControl.WPF;
 using System.Collections.ObjectModel;
 using System.Windows;
+using System.Windows.Controls;
 
 namespace GPSTCPClient.Components
 {
@@ -9,8 +11,10 @@ namespace GPSTCPClient.Components
     {
         public BindableMap() : base()
         {
-            //this.MouseDoubleClick += (o, e) => e.Handled = true;
-            this.Children.Clear();
+            this.Unloaded += (o, s) =>
+            {
+                this.Children.Clear();
+            };
         }
 
         #region ULPins
@@ -52,7 +56,10 @@ namespace GPSTCPClient.Components
             //Add the new pushpins
             if (e.NewItems != null)
                 foreach (UserLocation ul in e.NewItems)
-                    if(ul.Pin != null) this.Children.Add(ul.Pin);
+                {
+                    if (ul.Pin.Parent != this && ul.Pin.Parent != null) this.Children.Add(new Pushpin() { Location = ul.Pin.Location, ToolTip = ul.Pin.ToolTip });
+                    else this.Children.Add(ul.Pin);
+                }
         }
         #endregion
 
@@ -95,7 +102,12 @@ namespace GPSTCPClient.Components
             //Add the new pushpins
             if (e.NewItems != null)
                 foreach (Pushpin pin in e.NewItems)
-                    this.Children.Add(pin);
+                {
+                    //this.RemoveLogicalChild(pin);
+                    //this.AddLogicalChild(pin);
+                    this.Children.Add(new Pushpin() { Location = pin.Location, ToolTip = pin.ToolTip });
+                }
+                    
         }
         #endregion
     }

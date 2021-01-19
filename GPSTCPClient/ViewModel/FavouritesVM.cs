@@ -248,7 +248,7 @@ namespace GPSTCPClient.ViewModel
                 FavAddressSearch.Addresses.Add(described);
                 FavAddressSearch.SelectedAddress = described;
                 FavAddressSearch.SelectedAddressText = described.DisplayName;
-                FavMap.MainLoc = new Pin(described);
+                FavMap.Pins.Add(new Pushpin() { Location = point }); //Tu raczej jako jedno trzeba by było robić
             }
         }
 

@@ -71,7 +71,7 @@
         <Button Margin="102,304,1058,496" Height="40" Width="40" Background="Red" BorderBrush="Red" Padding="0" Command="{Binding ClearAddingCommand}">
             <md:PackIcon Kind="Clear"/>
         </Button>
-        <cc:BindableMap ULPins="{Binding Locations}" Margin="40,420,40,40" x:Name="FavMap" MouseDoubleClick="FavMap_MouseDoubleClick"
+        <cc:BindableMap Pins="{Binding FavMap.Pins}" ULPins="{Binding Locations}" Margin="40,420,40,40" x:Name="FavMap"
                          ZoomLevel="{Binding FavMap.ZoomLevel, Mode=TwoWay}" Center="{Binding FavMap.Center, Mode=TwoWay, UpdateSourceTrigger=Explicit}" Culture="en-EN">
         </cc:BindableMap>
 

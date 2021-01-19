@@ -9,8 +9,8 @@
              xmlns:local="clr-namespace:GPSTCPClient.Views"
              xmlns:vm="clr-namespace:GPSTCPClient.ViewModel"
              xmlns:wpf="clr-namespace:Microsoft.Maps.MapControl.WPF;assembly=Microsoft.Maps.MapControl.WPF"
-             mc:Ignorable="d" 
-             d:DesignHeight="840" d:DesignWidth="1200">
+             mc:Ignorable="d"
+             d:DesignHeight="840" d:DesignWidth="1200" x:Name="NavView">
     <Grid>
         <Button Margin="782,101,0,0" Command="{Binding SwapAddressesCommand}" VerticalAlignment="Top" HorizontalAlignment="Left" Height="44" Width="200" Padding="0">
             <md:PackIcon Kind="ArrowUpDownBold"/>
