@@ -1,5 +1,6 @@
 ﻿using GPSTCPClient.Models;
 using GPSTCPClient.ViewModel.MVVM;
+using Microsoft.Maps.MapControl.WPF;
 using System.Globalization;
 
 namespace GPSTCPClient.ViewModel.Components
@@ -40,6 +41,8 @@ namespace GPSTCPClient.ViewModel.Components
                 OnPropertyChanged(nameof(Address));
             }
         }
+
+        public Pushpin Pin => new Pushpin() { Location = new Location(address.Lat, address.Lon), ToolTip = Name };
 
         public string Name
         {

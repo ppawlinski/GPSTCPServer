@@ -126,7 +126,6 @@ namespace GPSTCPClient.ViewModel
         public ICommand CenterOnUserLocationCommand { get; set; }
         public ICommand SearchLocationEnterClick { get; set; }
 
-
         private async void FindRoute()
         {
             FavVM.MainVM.Loading = true;

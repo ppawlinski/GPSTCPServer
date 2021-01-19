@@ -2,7 +2,9 @@
 using GPSTCPClient.ViewModel.MVVM;
 using Microsoft.Maps.MapControl.WPF;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Globalization;
+using System.Windows.Input;
 
 namespace GPSTCPClient.ViewModel.Components
 {
@@ -16,6 +18,8 @@ namespace GPSTCPClient.ViewModel.Components
             MainLoc = new Pin();
             FromPin = new Pin();
             ToPin = new Pin();
+            MapDoubleClickCommand = new Command((arg) => MapDoubleClick(arg));
+            Pins = new ObservableCollection<Pushpin>();
         }
         private Location center;
         public Location Center
@@ -37,6 +41,20 @@ namespace GPSTCPClient.ViewModel.Components
             double lon_ = double.Parse(lon, CultureInfo.InvariantCulture);
             Center = new Location(lat_, lon_);
         }
+        private ObservableCollection<Pushpin> pins;
+        public ObservableCollection<Pushpin> Pins
+        {
+            get
+            {
+                return pins;
+            }
+            set
+            {
+                pins = value;
+                OnPropertyChanged(nameof(Pins));
+            }
+        }
+
         private Pin mainLoc;
         public Pin MainLoc
         {
@@ -116,6 +134,18 @@ namespace GPSTCPClient.ViewModel.Components
             {
                 zoomLevel = value;
                 OnPropertyChanged(nameof(ZoomLevel));
+            }
+        }
+
+        public ICommand MapDoubleClickCommand { get; set; }
+
+        public void MapDoubleClick(object arg)
+        {
+            if (arg is Location point)
+            {
+                Pushpin pin = new Pushpin();
+                pin.Location = point;
+                Pins.Add(pin);
             }
         }
 

@@ -8,6 +8,7 @@ using System.Windows.Input;
 using System.Linq;
 using MaterialDesignThemes.Wpf;
 using GPSTCPClient.Views;
+using System.Collections.Generic;
 
 namespace GPSTCPClient.ViewModel
 {
@@ -139,6 +140,8 @@ namespace GPSTCPClient.ViewModel
         }
 
         private string dialogContent;
+        
+
         public string DialogContent
         {
             get
@@ -149,6 +152,20 @@ namespace GPSTCPClient.ViewModel
             {
                 dialogContent = value;
                 OnPropertyChanged(nameof(DialogContent));
+            }
+        }
+
+        private ObservableCollection<Pushpin> pins;
+        public ObservableCollection<Pushpin> Pins
+        {
+            get
+            {
+                return pins;
+            }
+            set
+            {
+                pins = value;
+                OnPropertyChanged(nameof(Pins));
             }
         }
 

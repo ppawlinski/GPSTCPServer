@@ -1,4 +1,5 @@
-﻿using Microsoft.Maps.MapControl.WPF;
+﻿using GPSTCPClient.ViewModel;
+using Microsoft.Maps.MapControl.WPF;
 using System.Windows.Controls;
 
 namespace GPSTCPClient.Views
@@ -12,6 +13,11 @@ namespace GPSTCPClient.Views
         {
             InitializeComponent();
             MainMap.CredentialsProvider = new ApplicationIdCredentialsProvider(GPSTCPClient.Client.ApiKey);
+            MainMap.MouseDoubleClick += (o, e) =>
+            {
+                e.Handled = true;
+                ((NavigationVM)DataContext).MainMap.MapDoubleClickCommand.Execute(MainMap.ViewportPointToLocation(e.GetPosition(MainMap)));
+            };
         }
     }
 }

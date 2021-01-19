@@ -71,18 +71,9 @@
         <Button Margin="102,304,1058,496" Height="40" Width="40" Background="Red" BorderBrush="Red" Padding="0" Command="{Binding ClearAddingCommand}">
             <md:PackIcon Kind="Clear"/>
         </Button>
-        <wpf:Map Margin="40,420,40,40" x:Name="FavMap" MouseDoubleClick="FavMap_MouseDoubleClick"
+        <cc:BindableMap ULPins="{Binding Locations}" Margin="40,420,40,40" x:Name="FavMap" MouseDoubleClick="FavMap_MouseDoubleClick"
                          ZoomLevel="{Binding FavMap.ZoomLevel, Mode=TwoWay}" Center="{Binding FavMap.Center, Mode=TwoWay, UpdateSourceTrigger=Explicit}" Culture="en-EN">
-            <wpf:Pushpin wpf:MapLayer.Position="{Binding FavMap.MainLoc.Location}" Visibility="{Binding FavMap.MainLoc.Visibility}">
-                <ToolTipService.ToolTip>
-                    <ToolTip Background="#424242" Foreground="#2196f3">
-                        <TextBlock Text="{Binding FavMap.MainLoc.Name}" FontWeight="Bold" FontFamily="{StaticResource MaterialDesignFont}"/>
-                    </ToolTip>
-                </ToolTipService.ToolTip>
-                <md:PackIcon Kind="Home">
-                </md:PackIcon>
-            </wpf:Pushpin>
-        </wpf:Map>
+        </cc:BindableMap>
 
         <md:DialogHost Identifier = "DeleteFavDialog" Style="{StaticResource MaterialDesignEmbeddedDialogHost}" CloseOnClickAway = "True" >
 

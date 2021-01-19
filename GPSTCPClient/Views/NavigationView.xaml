@@ -6,6 +6,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:cc="clr-namespace:GPSTCPClient.Components"
+             xmlns:local="clr-namespace:GPSTCPClient.Views"
+             xmlns:vm="clr-namespace:GPSTCPClient.ViewModel"
              xmlns:wpf="clr-namespace:Microsoft.Maps.MapControl.WPF;assembly=Microsoft.Maps.MapControl.WPF"
              mc:Ignorable="d" 
              d:DesignHeight="840" d:DesignWidth="1200">
@@ -49,27 +51,10 @@
                 <MouseBinding Gesture="LeftDoubleClick" Command="{Binding CenterOnUserLocationCommand}" CommandParameter="{Binding ElementName=MyAddressesDG, Path=SelectedItem}"/>
             </DataGrid.InputBindings>
         </DataGrid>
-        <wpf:Map HorizontalAlignment="Left" Margin="530,240,0,0" VerticalAlignment="Top" Height="560" Width="630" x:Name="MainMap" 
-                         ZoomLevel="{Binding MainMap.ZoomLevel, Mode=TwoWay}" Center="{Binding MainMap.Center, Mode=TwoWay, UpdateSourceTrigger=Explicit}" Culture="en-EN" >
-            <wpf:MapItemsControl  ItemsSource="{Binding MainMap.MapMarkers, Mode=TwoWay, UpdateSourceTrigger=Explicit}" />
-            <wpf:Pushpin wpf:MapLayer.Position="{Binding MainMap.MainLoc.Location}" Visibility="{Binding MainMap.MainLoc.Visibility}">
-                <ToolTipService.ToolTip>
-                    <ToolTip Background="#424242" Foreground="#2196f3">
-                        <TextBlock Text="{Binding MainMap.MainLoc.Name}" FontWeight="Bold" FontFamily="{StaticResource MaterialDesignFont}"/>
-                    </ToolTip>
-                </ToolTipService.ToolTip>
-                <md:PackIcon Kind="Home">
-                </md:PackIcon>
-            </wpf:Pushpin>
-            <wpf:Pushpin  wpf:MapLayer.Position="{Binding MainMap.FromPin.Location}" Visibility="{Binding MainMap.FromPin.Visibility}">
-                <md:PackIcon Kind="Location">
-                </md:PackIcon>
-            </wpf:Pushpin>
-            <wpf:Pushpin wpf:MapLayer.Position="{Binding MainMap.ToPin.Location}" Visibility="{Binding MainMap.ToPin.Visibility}">
-                <md:PackIcon Kind="Location">
-                </md:PackIcon>
-            </wpf:Pushpin>
+        <cc:BindableMap Pins="{Binding MainMap.Pins, Mode=TwoWay}" ULPins="{Binding FavVM.Locations}" HorizontalAlignment="Left" Margin="530,240,0,0" VerticalAlignment="Top" Height="560" Width="630" x:Name="MainMap" 
+                         ZoomLevel="{Binding MainMap.ZoomLevel, Mode=TwoWay}" Center="{Binding MainMap.Center, Mode=TwoWay, UpdateSourceTrigger=Explicit}" Culture="en-EN">
+            <wpf:MapItemsControl ItemsSource="{Binding MainMap.MapMarkers, Mode=TwoWay, UpdateSourceTrigger=Explicit}" />
             <wpf:MapPolyline x:Name="MapPolyline" Locations="{Binding MainMap.PolylineLocations}"  Stroke="Blue" StrokeThickness="5" Opacity="0.7" Grid.Row="0"/>
-        </wpf:Map>
+        </cc:BindableMap>
     </Grid>
 </UserControl>
