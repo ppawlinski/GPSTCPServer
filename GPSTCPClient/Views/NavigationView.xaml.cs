@@ -1,6 +1,8 @@
 ﻿using GPSTCPClient.ViewModel;
 using Microsoft.Maps.MapControl.WPF;
+using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 
 namespace GPSTCPClient.Views
 {
@@ -16,15 +18,17 @@ namespace GPSTCPClient.Views
             MainMap.MouseDoubleClick += (o, e) =>
             {
                 e.Handled = true;
-                ((NavigationVM)DataContext).MainMap.MapDoubleClickCommand.Execute(MainMap.ViewportPointToLocation(e.GetPosition(MainMap)));
+                ((NavigationVM)DataContext).MapDoubleClickCommand.Execute(MainMap.ViewportPointToLocation(e.GetPosition(MainMap)));
             };
             this.Loaded += (s, e) =>
             {
-                var locs = ((NavigationVM)DataContext).FavVM.Locations;
-                var customPins = ((NavigationVM)DataContext).MainMap.Pins;
+                var nvm = (NavigationVM)DataContext;
+                var locs = nvm.FavVM.Locations;
+                var customPins = nvm.Pins;
                 foreach (var loc in locs) MainMap.Children.Add(loc.Pin);
-                foreach (var pin in customPins) MainMap.Children.Add(new Pushpin() { Location = pin.Location, ToolTip = pin.ToolTip });
+                foreach (var pin in customPins) MainMap.Children.Add(new Pushpin() {Content = pin.Content, Location = pin.Location, ToolTip = pin.ToolTip });
             };
         }
+
     }
 }

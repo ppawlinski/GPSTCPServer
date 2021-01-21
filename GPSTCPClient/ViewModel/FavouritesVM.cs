@@ -9,6 +9,7 @@ using System.Linq;
 using MaterialDesignThemes.Wpf;
 using GPSTCPClient.Views;
 using System.Collections.Generic;
+using System;
 
 namespace GPSTCPClient.ViewModel
 {
@@ -39,6 +40,7 @@ namespace GPSTCPClient.ViewModel
                 {
                     if (asS.SelectedAddress == null) return;
                     var currPin = Pins?.FirstOrDefault();
+                    if (currPin != null && (Math.Abs(currPin.Location.Latitude - asS.SelectedAddress.Lat) < 1 || Math.Abs(currPin.Location.Longitude - asS.SelectedAddress.Lon) < 1)) return;
                     if (currPin != null)
                     {
                         Pins.Clear();
@@ -47,8 +49,9 @@ namespace GPSTCPClient.ViewModel
                     }
                     else
                     {
-                        Pins.Add(new Pushpin() { Location = new Location(asS.SelectedAddress.Lat, asS.SelectedAddress.Lon), Content = Tools.CreateIcon((Editing == null)? PackIconKind.Plus : PackIconKind.Edit) });
+                        if(!Locations.Any(p => p.Address == asS.SelectedAddress)) Pins.Add(new Pushpin() { Location = new Location(asS.SelectedAddress.Lat, asS.SelectedAddress.Lon), Content = Tools.CreateIcon((Editing == null) ? PackIconKind.Plus : PackIconKind.Edit) });
                     }
+                    FavMap.Center = new Location(asS.SelectedAddress.Lat, asS.SelectedAddress.Lon);
                 }
                 
             }
@@ -289,10 +292,7 @@ namespace GPSTCPClient.ViewModel
             if (arg is Location point)
             {
                 var described = await Client.DescribeAddress(point.Latitude, point.Longitude);
-                FavAddressSearch.Addresses.Clear();
-                FavAddressSearch.Addresses.Add(described);
-                FavAddressSearch.SelectedAddress = described;
-                FavAddressSearch.SelectedAddressText = described.DisplayName;
+                
                 Pins.Clear();
                 if(Editing == null)
                 {
@@ -307,7 +307,11 @@ namespace GPSTCPClient.ViewModel
                         Pins.Add(new Pushpin() { Location = new Location(described.Lat, described.Lon), ToolTip = this.AddingLocationName, Content = Tools.CreateIcon(PackIconKind.Edit)});
                     }
                 }
-                
+                FavAddressSearch.Addresses.Clear();
+                FavAddressSearch.Addresses.Add(described);
+                FavAddressSearch.SelectedAddress = described;
+                FavAddressSearch.SelectedAddressText = described.DisplayName;
+
             }
         }
 

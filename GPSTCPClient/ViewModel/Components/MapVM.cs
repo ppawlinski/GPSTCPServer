@@ -13,12 +13,7 @@ namespace GPSTCPClient.ViewModel.Components
         public MapVM()
         {
             Center = new Location();
-            MapMarkers = new List<Pushpin>();
             ZoomLevel = 10;
-            FromPin = new Pin();
-            ToPin = new Pin();
-            MapDoubleClickCommand = new Command((arg) => MapDoubleClick(arg));
-            Pins = new ObservableCollection<Pushpin>();
         }
         private Location center;
         public Location Center
@@ -40,57 +35,7 @@ namespace GPSTCPClient.ViewModel.Components
             double lon_ = double.Parse(lon, CultureInfo.InvariantCulture);
             Center = new Location(lat_, lon_);
         }
-        private ObservableCollection<Pushpin> pins;
-        public ObservableCollection<Pushpin> Pins
-        {
-            get
-            {
-                return pins;
-            }
-            set
-            {
-                pins = value;
-                OnPropertyChanged(nameof(Pins));
-            }
-        }
-
-        public Pin FromPin
-        {
-            get
-            {
-                return fromPin;
-            }
-            set
-            {
-                fromPin = value;
-                OnPropertyChanged(nameof(FromPin));
-            }
-        }
-        public Pin ToPin
-        {
-            get
-            {
-                return toPin;
-            }
-            set
-            {
-                toPin = value;
-                OnPropertyChanged(nameof(ToPin));
-            }
-        }
-        private List<Pushpin> mapMarkers;
-        public List<Pushpin> MapMarkers
-        {
-            get
-            {
-                return mapMarkers;
-            }
-            set
-            {
-                mapMarkers = value;
-                OnPropertyChanged(nameof(MapMarkers));
-            }
-        }
+        
 
         private LocationCollection polylineLocations;
         public LocationCollection PolylineLocations
@@ -107,8 +52,7 @@ namespace GPSTCPClient.ViewModel.Components
         }
 
         private int zoomLevel;
-        private Pin fromPin;
-        private Pin toPin;
+        
 
         public int ZoomLevel
         {
@@ -123,17 +67,6 @@ namespace GPSTCPClient.ViewModel.Components
             }
         }
 
-        public ICommand MapDoubleClickCommand { get; set; }
-
-        public void MapDoubleClick(object arg)
-        {
-            if (arg is Location point)
-            {
-                Pushpin pin = new Pushpin();
-                pin.Location = point;
-                Pins.Add(pin);
-            }
-        }
 
         public void FillWithFavs(IEnumerable<UserLocation> userLocations)
         {
@@ -142,7 +75,6 @@ namespace GPSTCPClient.ViewModel.Components
                 Pushpin pin = new Pushpin();
                 pin.Location = GetLocation(ul.Address);
                 pin.Name = ul.Name;
-                MapMarkers.Add(pin);
             }
         }
 

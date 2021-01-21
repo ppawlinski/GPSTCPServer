@@ -15,6 +15,9 @@
         <Button Margin="782,101,0,0" Command="{Binding SwapAddressesCommand}" VerticalAlignment="Top" HorizontalAlignment="Left" Height="44" Width="200" Padding="0">
             <md:PackIcon Kind="ArrowUpDownBold"/>
         </Button>
+        <ToggleButton Style="{StaticResource MaterialDesignFlatToggleButton}" Padding="0" IsChecked="{Binding FromToggle}" HorizontalAlignment="Left" Height="40" Margin="722,42,0,0" VerticalAlignment="Top" Width="40">
+            <md:PackIcon Kind="MapMarkerOutline" Height="24" Width="24"/>
+        </ToggleButton>
         <cc:SearchingBox Style="{StaticResource MaterialDesignFloatingHintComboBox}" IsEditable="true" md:HintAssist.Hint="Z..." Padding="5" IsTextSearchEnabled="False" x:Name="FromAddressCB" ItemsSource="{Binding FromAddressessSearch.Locations}" SelectedItem="{Binding FromAddressessSearch.SelectedLocation}" Text="{Binding FromAddressessSearch.SelectedLocationText}" IsDropDownOpen="{Binding FromAddressessSearch.IsDropDownOpen}" HorizontalAlignment="Left" Height="40" Margin="782,40,0,0" VerticalAlignment="Top" Width="200">
             <cc:SearchingBox.InputBindings>
                 <KeyBinding
@@ -22,6 +25,9 @@
                     Command="{Binding SearchLocationEnterClick}"/>
             </cc:SearchingBox.InputBindings>
         </cc:SearchingBox>
+        <ToggleButton Style="{StaticResource MaterialDesignFlatToggleButton}" Padding="0" IsChecked="{Binding ToToggle}" HorizontalAlignment="Left" Height="40" Margin="722,152,0,0" VerticalAlignment="Top" Width="40">
+            <md:PackIcon Kind="MapMarkerOutline" Height="24" Width="24"/>
+        </ToggleButton>
         <cc:SearchingBox Style="{StaticResource MaterialDesignFloatingHintComboBox}" IsEditable="true" md:HintAssist.Hint="Do..." Padding="5" IsTextSearchEnabled="False" ItemsSource="{Binding ToAddressessSearch.Locations}" SelectedItem="{Binding ToAddressessSearch.SelectedLocation}" Text="{Binding ToAddressessSearch.SelectedLocationText}" IsDropDownOpen="{Binding ToAddressessSearch.IsDropDownOpen}" x:Name="ToAddressCB" HorizontalAlignment="Left" Height="40" Margin="782,150,0,0" VerticalAlignment="Top" Width="200" >
             <cc:SearchingBox.InputBindings>
                 <KeyBinding
@@ -51,10 +57,10 @@
                 <MouseBinding Gesture="LeftDoubleClick" Command="{Binding CenterOnUserLocationCommand}" CommandParameter="{Binding ElementName=MyAddressesDG, Path=SelectedItem}"/>
             </DataGrid.InputBindings>
         </DataGrid>
-        <cc:BindableMap Pins="{Binding MainMap.Pins, Mode=TwoWay}" ULPins="{Binding FavVM.Locations}" HorizontalAlignment="Left" Margin="530,240,0,0" VerticalAlignment="Top" Height="560" Width="630" x:Name="MainMap" 
+        <cc:BindableMap Pins="{Binding Pins, Mode=TwoWay}" ULPins="{Binding FavVM.Locations}" HorizontalAlignment="Left" Margin="530,240,0,0" VerticalAlignment="Top" Height="560" Width="630" x:Name="MainMap" 
                          ZoomLevel="{Binding MainMap.ZoomLevel, Mode=TwoWay}" Center="{Binding MainMap.Center, Mode=TwoWay, UpdateSourceTrigger=Explicit}" Culture="en-EN">
-            <wpf:MapItemsControl ItemsSource="{Binding MainMap.MapMarkers, Mode=TwoWay, UpdateSourceTrigger=Explicit}" />
-            <wpf:MapPolyline x:Name="MapPolyline" Locations="{Binding MainMap.PolylineLocations}"  Stroke="Blue" StrokeThickness="5" Opacity="0.7" Grid.Row="0"/>
+            <wpf:MapPolyline x:Name="MapPolyline" Locations="{Binding MainMap.PolylineLocations}"  Stroke="Blue" StrokeThickness="5" Opacity="0.7" />
         </cc:BindableMap>
+
     </Grid>
 </UserControl>

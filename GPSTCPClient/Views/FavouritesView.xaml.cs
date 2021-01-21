@@ -25,7 +25,7 @@ namespace GPSTCPClient.Views
             this.Loaded += (s, e) =>
             {
                 var locs = ((FavouritesVM)DataContext).Locations;
-                var customPins = ((FavouritesVM)DataContext).FavMap.Pins;
+                var customPins = ((FavouritesVM)DataContext).Pins;
                 foreach (var loc in locs) {
                     Pushpin np = new Pushpin() { Location = loc.Pin.Location, Content = loc.Pin.Content };
                     ToolTip tt = new ToolTip();
