@@ -160,9 +160,8 @@ namespace GPSTCPClient.ViewModel
                         Pins.Add(newPin);
                         FromAddressessSearch.SearchingLocations.Clear();
                         FromAddressessSearch.SearchingLocations.Add(new UserLocation(described));
-                        FromAddressessSearch.SelectedLocationText = described.DisplayName;
                         FromAddressessSearch.SelectedLocation = new UserLocation(described);
-                        FromAddressessSearch.IsDropDownOpen = false;
+                        FromAddressessSearch.SelectedLocationText = described.DisplayName;
                     }
                     else if (ToToggle)
                     {
@@ -171,9 +170,8 @@ namespace GPSTCPClient.ViewModel
                         Pins.Add(new Pushpin() { Location = describedLoaction, Content = "Do" });
                         ToAddressessSearch.SearchingLocations.Clear();
                         ToAddressessSearch.SearchingLocations.Add(new UserLocation(described));
-                        ToAddressessSearch.SelectedLocationText = described.DisplayName;
                         ToAddressessSearch.SelectedLocation = new UserLocation(described);
-                        ToAddressessSearch.IsDropDownOpen = false;
+                        ToAddressessSearch.SelectedLocationText = described.DisplayName;
                     }
                 }
                 
@@ -186,8 +184,25 @@ namespace GPSTCPClient.ViewModel
             {
                 if (!double.IsNaN(ms.SelectedLocation?.Address.Lat ?? double.NaN))
                 {
-                    MainMap.Center = MapVM.GetLocation(ms.SelectedLocation.Address);
-                    if (!FavVM.Locations.Contains(ms.SelectedLocation)) Pins[0].Location = new Location(ms.SelectedLocation.Address.Lat, ms.SelectedLocation.Address.Lon);
+                    var pin = Pins.First(p => p.Content == "Z");
+                    if (pin != null)
+                    {
+                        if (Math.Abs(pin.Location.Latitude - ms.SelectedLocation.Address.Lat) > 1 && Math.Abs(pin.Location.Longitude - ms.SelectedLocation.Address.Lon) > 1)
+                        {
+                            MainMap.Center = MapVM.GetLocation(ms.SelectedLocation.Address);
+                        }
+                        Pushpin newPin = new Pushpin() { Content = "Z", Location = MapVM.GetLocation(ms.SelectedLocation.Address) };
+                        if (pin != null) Pins.Remove(pin);
+                        Pins.Add(newPin);
+                    }
+                    else
+                    {
+                        Pushpin newPin = new Pushpin() { Content = "Z", Location = MapVM.GetLocation(ms.SelectedLocation.Address) };
+                        if (pin != null) Pins.Remove(pin);
+                        Pins.Add(newPin);
+                        MainMap.Center = MapVM.GetLocation(ms.SelectedLocation.Address);
+
+                    }
                 }
             }
         }
@@ -198,8 +213,25 @@ namespace GPSTCPClient.ViewModel
             {
                 if (!double.IsNaN(ms.SelectedLocation?.Address.Lat ?? double.NaN))
                 {
-                    MainMap.Center = MapVM.GetLocation(ms.SelectedLocation.Address);
-                    if (!FavVM.Locations.Contains(ms.SelectedLocation)) Pins[1].Location = new Location(ms.SelectedLocation.Address.Lat, ms.SelectedLocation.Address.Lon);
+                    var pin = Pins.First(p => p.Content == "Do");
+                    if(pin != null)
+                    {
+                        if(Math.Abs(pin.Location.Latitude - ms.SelectedLocation.Address.Lat) > 1 && Math.Abs(pin.Location.Longitude - ms.SelectedLocation.Address.Lon) > 1)
+                        {
+                            MainMap.Center = MapVM.GetLocation(ms.SelectedLocation.Address);
+                        }
+                        Pushpin newPin = new Pushpin() { Content = "Do", Location = MapVM.GetLocation(ms.SelectedLocation.Address) };
+                        if (pin != null) Pins.Remove(pin);
+                        Pins.Add(newPin);
+                    }
+                    else
+                    {
+                        Pushpin newPin = new Pushpin() { Content = "Do", Location = MapVM.GetLocation(ms.SelectedLocation.Address) };
+                        if (pin != null) Pins.Remove(pin);
+                        Pins.Add(newPin);
+                        MainMap.Center = MapVM.GetLocation(ms.SelectedLocation.Address);
+
+                    }
                 }
             }
         }
