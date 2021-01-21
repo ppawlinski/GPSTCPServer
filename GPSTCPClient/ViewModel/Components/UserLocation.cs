@@ -2,6 +2,7 @@
 using GPSTCPClient.ViewModel.MVVM;
 using Microsoft.Maps.MapControl.WPF;
 using System.Globalization;
+using MaterialDesignThemes.Wpf;
 
 namespace GPSTCPClient.ViewModel.Components
 {
@@ -42,7 +43,7 @@ namespace GPSTCPClient.ViewModel.Components
             }
         }
 
-        public Pushpin Pin => new Pushpin() { Location = new Location(address.Lat, address.Lon), ToolTip = Name };
+        public Pushpin Pin => new Pushpin() { Location = new Location(address.Lat, address.Lon), ToolTip = Name, Content = new PackIcon() { Kind = PackIconKind.Star } };
 
         public string Name
         {

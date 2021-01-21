@@ -26,8 +26,34 @@ namespace GPSTCPClient.ViewModel
             CenterOnUserLocationCommand = new Command(arg => CenterOnUserLocation(arg));
             AddLocationCommand = new Command(arg => AddLocation());
             ClearAddingCommand = new Command(arg => ClearAdding());
+            Pins = new ObservableCollection<Pushpin>();
+            FavAddressSearch.PropertyChanged += FavAddressSearch_PropertyChanged;
             LoadData();
         }
+
+        private void FavAddressSearch_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if(e.PropertyName == "SelectedAddress")
+            {
+                if(sender is AddressesSearch asS)
+                {
+                    if (asS.SelectedAddress == null) return;
+                    var currPin = Pins?.FirstOrDefault();
+                    if (currPin != null)
+                    {
+                        Pins.Clear();
+                        currPin.Location = new Location(asS.SelectedAddress.Lat, asS.SelectedAddress.Lon);
+                        Pins.Add(currPin);
+                    }
+                    else
+                    {
+                        Pins.Add(new Pushpin() { Location = new Location(asS.SelectedAddress.Lat, asS.SelectedAddress.Lon), Content = Tools.CreateIcon((Editing == null)? PackIconKind.Plus : PackIconKind.Edit) });
+                    }
+                }
+                
+            }
+        }
+
         private void LoadData()
         {
             Task.Run(async () =>
@@ -40,7 +66,6 @@ namespace GPSTCPClient.ViewModel
                 Locations.AddRange(task.Result);
                 if (Locations.Count > 0)
                 {
-                    FavMap.MainLoc = new Pin(Locations.First());
                     FavMap.Center = MapVM.GetLocation(Locations.First().Address);
                 }
                 OnPropertyChanged(nameof(Locations));
@@ -49,6 +74,26 @@ namespace GPSTCPClient.ViewModel
         }
 
         private UserLocation editing;
+        public UserLocation Editing
+        {
+            get
+            {
+                return editing;
+            }
+            set
+            {
+                editing = value;
+                var currPin = Pins?.FirstOrDefault();
+                if (currPin != null)
+                {
+                    Pins.Clear();
+                    if(value == null) currPin.Content = Tools.CreateIcon(PackIconKind.Plus);
+                    else currPin.Content = Tools.CreateIcon(PackIconKind.Edit);
+                    Pins.Add(currPin);
+                }
+
+            }
+        }
         public MainVM MainVM { get; set; }
         public ICommand DeleteCommand { get; set; }
         public ICommand EditCommand { get; set; }
@@ -174,7 +219,7 @@ namespace GPSTCPClient.ViewModel
             MainVM.Loading = true;
             if (AddingLocationName != "" && !double.IsNaN(FavAddressSearch.SelectedAddress?.Lat ?? double.NaN))
             {
-                if (editing == null)
+                if (Editing == null)
                 {
                     if (await Client.AddAddress(FavAddressSearch.SelectedAddress, AddingLocationName))
                     {
@@ -185,9 +230,9 @@ namespace GPSTCPClient.ViewModel
                 }
                 else
                 {
-                    if (editing.Address == FavAddressSearch.SelectedAddress && editing.Name == AddingLocationName)
+                    if (Editing.Address == FavAddressSearch.SelectedAddress && Editing.Name == AddingLocationName)
                     {
-                        editing = null;
+                        Editing = null;
                         AddingLocationName = "";
                         FavAddressSearch.SelectedAddress = null;
                         FavAddressSearch.SelectedAddressText = "";
@@ -195,9 +240,9 @@ namespace GPSTCPClient.ViewModel
                     }
                     else
                     {
-                        if (await Client.EditAddress(editing.Name, AddingLocationName, FavAddressSearch.SelectedAddress))
+                        if (await Client.EditAddress(Editing.Name, AddingLocationName, FavAddressSearch.SelectedAddress))
                         {
-                            editing = null;
+                            Editing = null;
                             AddingLocationName = "";
                             FavAddressSearch.SelectedAddress = null;
                             FavAddressSearch.SelectedAddressText = "";
@@ -217,7 +262,7 @@ namespace GPSTCPClient.ViewModel
             }
             else
             {
-                editing = null;
+                Editing = null;
                 FavAddressSearch.Addresses.Clear();
             }
             MainVM.Loading = false;
@@ -248,20 +293,35 @@ namespace GPSTCPClient.ViewModel
                 FavAddressSearch.Addresses.Add(described);
                 FavAddressSearch.SelectedAddress = described;
                 FavAddressSearch.SelectedAddressText = described.DisplayName;
-                FavMap.Pins.Add(new Pushpin() { Location = point }); //Tu raczej jako jedno trzeba by było robić
+                Pins.Clear();
+                if(Editing == null)
+                {
+                    if (described.Lat != 0 && described.Lon != 0)
+                    {
+                        Pins.Add(new Pushpin() { Location = new Location(described.Lat, described.Lon), Content = Tools.CreateIcon(PackIconKind.Plus) });
+                    }
+                } else
+                {
+                    if (described.Lat != 0 && described.Lon != 0)
+                    {
+                        Pins.Add(new Pushpin() { Location = new Location(described.Lat, described.Lon), ToolTip = this.AddingLocationName, Content = Tools.CreateIcon(PackIconKind.Edit)});
+                    }
+                }
+                
             }
         }
+
 
         private void EditLocation(object selected)
         {
             if (selected != null && selected is UserLocation ul)
             {
-                editing = ul;
-                AddingLocationName = editing.Name;
+                Editing = ul;
+                AddingLocationName = Editing.Name;
                 FavAddressSearch.Addresses.Clear();
-                FavAddressSearch.Addresses.Add(editing.Address);
-                FavAddressSearch.SelectedAddress = editing.Address;
-                FavAddressSearch.SelectedAddressText = editing.Address?.DisplayName ?? "";
+                FavAddressSearch.Addresses.Add(Editing.Address);
+                FavAddressSearch.SelectedAddress = Editing.Address;
+                FavAddressSearch.SelectedAddressText = Editing.Address?.DisplayName ?? "";
             }
         }
         private void CenterOnUserLocation(object arg)
@@ -275,11 +335,12 @@ namespace GPSTCPClient.ViewModel
 
         private void ClearAdding()
         {
-            editing = null;
+            Editing = null;
             AddingLocationName = "";
             FavAddressSearch.Addresses.Clear();
             FavAddressSearch.SelectedAddress = null;
             FavAddressSearch.SelectedAddressText = "";
+            Pins.Clear();
         }
     }
 }

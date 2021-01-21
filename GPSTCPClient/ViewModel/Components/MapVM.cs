@@ -15,7 +15,6 @@ namespace GPSTCPClient.ViewModel.Components
             Center = new Location();
             MapMarkers = new List<Pushpin>();
             ZoomLevel = 10;
-            MainLoc = new Pin();
             FromPin = new Pin();
             ToPin = new Pin();
             MapDoubleClickCommand = new Command((arg) => MapDoubleClick(arg));
@@ -55,19 +54,6 @@ namespace GPSTCPClient.ViewModel.Components
             }
         }
 
-        private Pin mainLoc;
-        public Pin MainLoc
-        {
-            get
-            {
-                return mainLoc;
-            }
-            set
-            {
-                mainLoc = value;
-                OnPropertyChanged(nameof(MainLoc));
-            }
-        }
         public Pin FromPin
         {
             get

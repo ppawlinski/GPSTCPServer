@@ -151,7 +151,7 @@ namespace GPSTCPClient
 
         public static async Task<bool> AddAddress(Address address, string name)
         {
-            Send($"ADDADDRESS {name} {address.OsmType} {address.OsmId}");
+            Send($"ADDADDRESS {name.Replace('+',' ')} {address.OsmType} {address.OsmId}");
             return await getUserInput(new byte[1024]) == "SUCCESS";
         }
 

@@ -4,6 +4,9 @@ using Microsoft.Maps.MapControl.WPF;
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
+using System.Linq;
+using System.Collections.Generic;
+using System.Windows.Media;
 
 namespace GPSTCPClient.Components
 {
@@ -48,17 +51,28 @@ namespace GPSTCPClient.Components
 
         private void ULPins_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
+
+            Pushpin[] temp = this.Children.Cast<Pushpin>().ToArray();
             //Remove the old pushpins
             if (e.OldItems != null)
                 foreach (UserLocation ul in e.OldItems)
-                    this.Children.Remove(ul.Pin);
+                    this.Children.Remove(temp.FirstOrDefault(p => p.Location == ul.Pin.Location && p.ToolTip == ul.Pin.ToolTip));
+
+            if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Reset)
+            {
+                foreach (Pushpin pin in temp)
+                {
+                    if (!Pins.Any(p => p.Location == pin.Location)) this.Children.Remove(pin);
+                }
+            }
 
             //Add the new pushpins
             if (e.NewItems != null)
                 foreach (UserLocation ul in e.NewItems)
                 {
-                    if (ul.Pin.Parent != this && ul.Pin.Parent != null) this.Children.Add(new Pushpin() { Location = ul.Pin.Location, ToolTip = ul.Pin.ToolTip });
-                    else this.Children.Add(ul.Pin);
+                    Pushpin np = new Pushpin() { Location = ul.Pin.Location, Content = ul.Pin.Content };
+                    np.ToolTip = Tools.CreateTootip(ul.Name);
+                    this.Children.Add(np);
                 }
         }
         #endregion
@@ -94,6 +108,14 @@ namespace GPSTCPClient.Components
 
         private void Pins_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
+            if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Reset)
+            {
+                Pushpin[] temp = this.Children.Cast<Pushpin>().ToArray();
+                foreach(Pushpin pin in temp)
+                {
+                    if (!ULPins.Any(p => p.Pin.Location == pin.Location)) this.Children.Remove(pin);
+                }
+            }
             //Remove the old pushpins
             if (e.OldItems != null)
                 foreach (Pushpin pin in e.OldItems)
@@ -103,9 +125,12 @@ namespace GPSTCPClient.Components
             if (e.NewItems != null)
                 foreach (Pushpin pin in e.NewItems)
                 {
-                    //this.RemoveLogicalChild(pin);
-                    //this.AddLogicalChild(pin);
-                    this.Children.Add(new Pushpin() { Location = pin.Location, ToolTip = pin.ToolTip });
+                    Pushpin np = new Pushpin() { Location = pin.Location, Content = pin.Content };
+                    if (pin.ToolTip != null)
+                    {
+                        np.ToolTip = Tools.CreateTootip(pin.ToolTip.ToString());
+                    }
+                    this.Children.Add(np);
                 }
                     
         }

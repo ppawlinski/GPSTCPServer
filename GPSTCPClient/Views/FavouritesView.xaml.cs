@@ -3,6 +3,7 @@ using GPSTCPClient.ViewModel.Components;
 using Microsoft.Maps.MapControl.WPF;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 
 namespace GPSTCPClient.Views
 {
@@ -25,8 +26,27 @@ namespace GPSTCPClient.Views
             {
                 var locs = ((FavouritesVM)DataContext).Locations;
                 var customPins = ((FavouritesVM)DataContext).FavMap.Pins;
-                foreach (var loc in locs) FavMap.Children.Add(loc.Pin);
-                foreach (var pin in customPins) FavMap.Children.Add(new Pushpin() { Location = pin.Location, ToolTip = pin.ToolTip });
+                foreach (var loc in locs) {
+                    Pushpin np = new Pushpin() { Location = loc.Pin.Location, Content = loc.Pin.Content };
+                    ToolTip tt = new ToolTip();
+                    tt.Background = new SolidColorBrush(Color.FromRgb(0x42, 0x42, 0x42));
+                    tt.Foreground = new SolidColorBrush(Color.FromRgb(0x21, 0x96, 0xf3));
+                    tt.Content = loc.Name;
+                    np.ToolTip = tt;
+                    FavMap.Children.Add(np);
+                }
+                foreach (var pin in customPins) {
+                    Pushpin np = new Pushpin() { Location = pin.Location, Content = pin.Content };
+                    if (pin.ToolTip != null)
+                    {
+                        ToolTip tt = new ToolTip();
+                        tt.Background = new SolidColorBrush(Color.FromRgb(0x42, 0x42, 0x42));
+                        tt.Foreground = new SolidColorBrush(Color.FromRgb(0x21, 0x96, 0xf3));
+                        tt.Content = pin.ToolTip.ToString();
+                        np.ToolTip = tt;
+                    }
+                    FavMap.Children.Add(np);
+                } 
             };
         }
 

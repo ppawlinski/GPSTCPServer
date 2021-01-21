@@ -87,7 +87,7 @@ namespace GPSTCPClient.ViewModel
                 {
                     if (FavVM.Locations.Count > 0)
                     {
-                        MainMap.MainLoc = new Pin(FavVM.Locations.First());
+                        //MainMap.MainLoc = new Pin(FavVM.Locations.First());
                         MainMap.Center = MapVM.GetLocation(FavVM.Locations.First().Address);
                     }
                 }
