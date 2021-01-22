@@ -30,7 +30,7 @@ namespace GPSTCPServer
                       {
                           string input = await getUserInput(user.client, buffer);
                           Array.Clear(buffer, 0, buffer.Length);
-                          Console.WriteLine($"CLIENT: {input}");
+                          //Console.WriteLine($"CLIENT: {input}");
                           _ = Task.Run(async () =>
                             {
                                 string response = "";
@@ -43,7 +43,7 @@ namespace GPSTCPServer
                                     throw new Exception(ex.Message);
                                 }
                                 
-                              Console.WriteLine($"SERVER: {response}");
+                              //.WriteLine($"SERVER: {response}");
                               await Send(user.client, response);
                             });
                       }

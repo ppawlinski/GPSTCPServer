@@ -1,6 +1,8 @@
 ﻿using GPSTCPClient.ViewModel.MVVM;
 using System.Collections;
+using System.Diagnostics;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Windows.Controls;
 using System.Windows.Input;
 
@@ -49,16 +51,28 @@ namespace GPSTCPClient.ViewModel
                 {
                     if (arr[0].Password == arr[1].Password)
                     {
-                        if (!await Client.Connect(serverAddress, int.Parse(ServerPort)))
-                            RegisterError = "Błąd połączenia";
-                        else if (await Client.Register(login, arr[0].Password))
+#if !DEBUG
+                        var valid = new Regex(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\da-zA-Z]).{8,15}$");
+                        if (valid.IsMatch(arr[0].Password))
                         {
-                            RegisterError = "Pomyślnie utworzono konto.";
-                            ErrorColor = "Green";
-                            Login = string.Empty;
+#endif
+                            if (!await Client.Connect(serverAddress, int.Parse(ServerPort)))
+                                RegisterError = "Błąd połączenia";
+                            else if (await Client.Register(login, arr[0].Password))
+                            {
+                                RegisterError = "Pomyślnie utworzono konto.";
+                                ErrorColor = "Green";
+                                Login = string.Empty;
+                            }
+                            else
+                                RegisterError = "Nie udało się utworzyć konta!";
+#if !DEBUG
                         }
                         else
-                            RegisterError = "Nie udało się utworzyć konta!";
+                        {
+                            RegisterError = "Hasło powinno składać się z 8-15 znaków, zawierać duże i małe litery, cyfry oraz znaki specjalne.";
+                        }
+#endif
                     }
                     else
                         RegisterError = "Hasła muszą być takie same!";

@@ -30,6 +30,6 @@
         <Button BorderBrush="{x:Null}" Name ="Login" IsEnabled="{Binding ReturnEnabled}" Command="{Binding ReturnClickCommand}" CommandParameter="{Binding ElementName=Login, Path=Name}" HorizontalAlignment="Left" Height="100" VerticalAlignment="Top" Width="100">
             <md:PackIcon Kind="ArrowBack"/>
         </Button>
-        <TextBlock FontSize="14" Name="RegisterError" Text="{Binding RegisterError, UpdateSourceTrigger=PropertyChanged}" Foreground="{Binding ErrorColor}" TextWrapping="Wrap" HorizontalAlignment="Center" Height="50" TextAlignment="Center" Margin="0,407,0,0" VerticalAlignment="Top" Width="144"/>
+        <TextBlock FontSize="14" Name="RegisterError" Text="{Binding RegisterError, UpdateSourceTrigger=PropertyChanged}" Foreground="{Binding ErrorColor}" TextWrapping="Wrap" HorizontalAlignment="Center" Height="50" TextAlignment="Center" Margin="0,407,0,0" VerticalAlignment="Top" Width="210"/>
     </Grid>
 </UserControl>
