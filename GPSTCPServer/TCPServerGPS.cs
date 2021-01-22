@@ -12,9 +12,9 @@ namespace GPSTCPServer
     public class TCPServerGPS : TCPServerCore
     {
         private Database db;
-        public TCPServerGPS(IPAddress iP, int port, Database db) : base(iP, port)
+        public TCPServerGPS(IPAddress iP, int port) : base(iP, port)
         {
-            this.db = db;
+            this.db = new Database();
         }
 
         public async Task RunServer()

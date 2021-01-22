@@ -1,74 +1,63 @@
-﻿using System;
+﻿using GPSTCPServer.Config;
+using System;
 using System.Collections.Generic;
-using System.Data.SQLite;
-using System.IO;
-using System.Security.Cryptography;
-using System.Text;
+using System.Data.SqlClient;
 
 namespace GPSTCPServer
 {
     public class Database
     {
-        //private SQLiteConnection connection;
+        //private SqlConnection connection;
         private string connectionString;
-        public Database(string connectionStr)
+        public Database()
         {
-            connectionString = connectionStr;
-            if (!File.Exists("./database.sqlite3"))
+            connectionString = ConfigHelper.CnnVal("GpsDB");
+            CreateDatabaseIfNotExists(connectionString, "GPS");
+            initDatabase();
+        }
+        public void CreateDatabaseIfNotExists(string connectionString, string dbName)
+        {
+            SqlCommand cmd = null;
+            using (var connection = new SqlConnection(connectionString))
             {
-                SQLiteConnection.CreateFile("database.sqlite3");
-                initDatabase();
+                connection.Open();
+
+                using (cmd = new SqlCommand($"If(db_id(N'{dbName}') IS NULL) CREATE DATABASE [{dbName}]", connection))
+                {
+                    cmd.ExecuteNonQuery();
+                }
             }
         }
 
         private void initDatabase()
         {
-            using (var con = new SQLiteConnection(connectionString))
+            using (var con = new SqlConnection(connectionString))
             {
                 con.Open();
-                using (SQLiteCommand command = new SQLiteCommand("CREATE TABLE \"user\" (\"id\"    INTEGER,\"password\"  TEXT NOT NULL,\"username\"  TEXT NOT NULL UNIQUE,PRIMARY KEY(\"id\" AUTOINCREMENT))", con))
+                con.ChangeDatabase("GPS");
+                using (SqlCommand command = new SqlCommand("IF OBJECT_ID(N'dbo.user', N'U') IS NULL BEGIN CREATE TABLE \"user\" (\"id\" INTEGER IDENTITY(1,1) PRIMARY KEY, \"password\" varchar(255) NOT NULL, \"username\"  varchar(20) NOT NULL UNIQUE); END;", con))
                 {
                     command.ExecuteNonQuery();
                 }
 
-                using (SQLiteCommand command = new SQLiteCommand("CREATE TABLE \"locations\" ( \"id\"    INTEGER, \"name\"  TEXT NOT NULL,\"userID\"    INTEGER NOT NULL,\"osmID\" TEXT NOT NULL,PRIMARY KEY(\"id\" AUTOINCREMENT))", con))
+                using (SqlCommand command = new SqlCommand("IF OBJECT_ID(N'dbo.locations', N'U') IS NULL BEGIN CREATE TABLE \"locations\" (\"id\" INTEGER IDENTITY(1,1) PRIMARY KEY, \"name\" varchar(30) NOT NULL, \"userID\" INTEGER NOT NULL, \"osmID\" varchar(50) NOT NULL); END;", con))
                 {
                     command.ExecuteNonQuery();
                 }
             }
         }
-
-        public void FillWithTestData()
-        {
-            string password = Encoding.UTF8.GetString(Encoding.Default.GetBytes("test"));
-            SQLiteConnection.CreateFile("database.sqlite3");
-            initDatabase();
-            using (var con = new SQLiteConnection(connectionString))
-            {
-                con.Open();
-                using (SQLiteCommand command = new SQLiteCommand($"insert into \"user\" values (1,\"{password}\", \"test\")", con))
-                {
-                    command.ExecuteNonQuery();
-                }
-
-                using (SQLiteCommand command = new SQLiteCommand("insert into \"locations\" values (1,\"Poznan\",\"1\",\"R2989158\")", con))
-                {
-                    command.ExecuteNonQuery();
-                }
-            }
-        }
-
         public bool UserLogin(string username, string password)
         {
-            string query = $"select password from user where username='{username}'";
-            using (var con = new SQLiteConnection(connectionString))
+            string query = $"select password from [user] where [username]='{username}'";
+            using (var con = new SqlConnection(connectionString))
             {
                 con.Open();
-                using (var command = new SQLiteCommand(query, con))
+                con.ChangeDatabase("GPS");
+                using (var command = new SqlCommand(query, con))
                 {
                     try
                     {
-                        SQLiteDataReader result = command.ExecuteReader();
+                        var result = command.ExecuteReader();
                         if (result.HasRows)
                         {
                             result.Read();
@@ -93,11 +82,12 @@ namespace GPSTCPServer
         public bool CreateUser(string username, string password)
         {
             int result=-1;
-            string query = $"insert into user(username, password) values (\"{username}\",\"{password}\")";
-            using (var con = new SQLiteConnection(connectionString))
+            string query = $"insert into [user]([username], [password]) values ('{username}','{password}')";
+            using (var con = new SqlConnection(connectionString))
             {
                 con.Open();
-                using (SQLiteCommand command = new SQLiteCommand(query, con))
+                con.ChangeDatabase("GPS");
+                using (SqlCommand command = new SqlCommand(query, con))
                 {
                     try
                     {
@@ -129,11 +119,12 @@ namespace GPSTCPServer
         {
             if (!UserLogin(username, password)) return false;
             int result=-1;
-            string query = $"update user set password=\"{newpassword}\" where username=\"{username}\"";
-            using (var con = new SQLiteConnection(connectionString))
+            string query = $"update [user] set [password]='{newpassword}' where [username]='{username}'";
+            using (var con = new SqlConnection(connectionString))
             {
                 con.Open();
-                using (SQLiteCommand command = new SQLiteCommand(query, con))
+                con.ChangeDatabase("GPS");
+                using (SqlCommand command = new SqlCommand(query, con))
                 {
                     try
                     {
@@ -147,7 +138,6 @@ namespace GPSTCPServer
                         }
                         catch (Exception)
                         {
-                            //Console.WriteLine(ex.Message);
                         }
                         finally
                         {
@@ -185,10 +175,11 @@ namespace GPSTCPServer
                     osm = "R" + osmId;
                     break;
             }
-            using(var con = new SQLiteConnection(connectionString))
+            using(var con = new SqlConnection(connectionString))
             {
                 con.Open();
-                using (SQLiteCommand command = new SQLiteCommand($"select osmID from locations where name == '{name}' AND userID IN ( select userID from user where username = '{user}')",con))
+                con.ChangeDatabase("GPS");
+                using (SqlCommand command = new SqlCommand($"select [osmID] from [locations] where [name] == '{name}' AND [userID] IN ( select [userID] from [user] where [username] = '{user}')",con))
                 {
                     try
                     {
@@ -198,9 +189,8 @@ namespace GPSTCPServer
                             return false;
                         }
                     }
-                    catch (Exception ex )
+                    catch (Exception)
                     {
-                        Console.WriteLine(ex.Message);
                     }
                     finally
                     {
@@ -210,11 +200,12 @@ namespace GPSTCPServer
                 }
             }
 
-            string query = $"insert into locations(name,userID,osmID) values (\"{name}\",(select id from user where username=\"{user}\"),\"{osm}\")";
-            using (var con = new SQLiteConnection(connectionString))
+            string query = $"insert into [locations]([name],[userID],[osmID]) values ('{name}',(select [id] from [user] where [username]='{user}'),'{osm}')";
+            using (var con = new SqlConnection(connectionString))
             {
                 con.Open();
-                using (SQLiteCommand command = new SQLiteCommand(query, con))
+                con.ChangeDatabase("GPS");
+                using (SqlCommand command = new SqlCommand(query, con))
                 {
                     try
                     {
@@ -241,14 +232,15 @@ namespace GPSTCPServer
 
         public List<string> GetUserLocations(string user)
         {
-            string query = $"select name from locations where userID=(select id from user where username=\"{user}\")";
+            string query = $"select [name] from [locations] where [userID]=(select [id] from [user] where [username]='{user}')";
             List<string> names = new List<string>();
-            using (var con = new SQLiteConnection(connectionString))
+            using (var con = new SqlConnection(connectionString))
             {
                 con.Open();
-                using (var command = new SQLiteCommand(query, con))
+                con.ChangeDatabase("GPS");
+                using (var command = new SqlCommand(query, con))
                 {
-                    SQLiteDataReader result = command.ExecuteReader();
+                    var result = command.ExecuteReader();
                     try
                     {
                         if (result.HasRows)
@@ -277,11 +269,12 @@ namespace GPSTCPServer
         public bool DeleteLocation(string user, string location)
         {
             int result = -1;
-            string query = $"delete from locations where userID=(select id from user where username=\"{user}\") and name=\"{location}\"";
-            using (var con = new SQLiteConnection(connectionString))
+            string query = $"delete from [locations] where [userID]=(select [id] from [user] where [username]='{user}') and [name]='{location}'";
+            using (var con = new SqlConnection(connectionString))
             {
                 con.Open();
-                using (var command = new SQLiteCommand(query, con))
+                con.ChangeDatabase("GPS");
+                using (var command = new SqlCommand(query, con))
                 {
 
                     try
@@ -290,7 +283,6 @@ namespace GPSTCPServer
                     }
                     catch(Exception)
                     {
-                        //Console.WriteLine(ex.Message);
                     }
                     finally
                     {
@@ -309,20 +301,23 @@ namespace GPSTCPServer
             int result = -1;
             string query;
             if (address == null)
-                query = $"update locations set name=\"{newName}\" where userID=(select id from user where username=\"{user}\") and name=\"{name}\"";
+                query = $"update [locations] set [name]='{newName}' where [userID]=(select [id] from [user] where [username]='{user}') and [name]='{name}'";
             else
-                query = $"update locations set osmID=\"{address}\", name=\"{newName}\" where userID=(select id from user where username=\"{user}\") and name=\"{name}\"";
-            using (var con = new SQLiteConnection(connectionString))
+                query = $"update [locations] set [osmID]='{address}', [name]='{newName}' where [userID]=(select [id] from [user] where [username]='{user}') and [name]='{name}'";
+            using (var con = new SqlConnection(connectionString))
             {
                 con.Open();
-                using (var command = new SQLiteCommand(query, con))
+                con.ChangeDatabase("GPS");
+                using (var command = new SqlCommand(query, con))
                 {
 
                     try
                     {
                         result = command.ExecuteNonQuery();
                     }
-                    catch { }
+                    catch (Exception)
+                    {
+                    }
                     finally
                     {
                         command.Dispose();
@@ -337,13 +332,14 @@ namespace GPSTCPServer
 
         public string GetAddress(string user, string name)
         {
-            string query = $"select osmID from locations where userID=(select id from user where username=\"{user}\" and name=\"{name}\")";
-            using (var con = new SQLiteConnection(connectionString))
+            string query = $"select [osmID] from [locations] where [userID]=(select [id] from [user] where [username]='{user}' and [name]='{name}')";
+            using (var con = new SqlConnection(connectionString))
             {
                 con.Open();
-                using (var command = new SQLiteCommand(query, con))
+                con.ChangeDatabase("GPS");
+                using (var command = new SqlCommand(query, con))
                 {
-                    SQLiteDataReader result = command.ExecuteReader();
+                    var result = command.ExecuteReader();
                     try
                     {
                         if (result.HasRows)

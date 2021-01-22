@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net.Sockets;
 
-namespace GPSTCPServer
+namespace GPSTCPServer.Models
 {
     internal class GPSUser
     {
