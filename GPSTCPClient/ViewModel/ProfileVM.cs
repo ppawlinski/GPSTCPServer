@@ -3,6 +3,7 @@ using GPSTCPClient.Views;
 using MaterialDesignThemes.Wpf;
 using System.Collections;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -41,15 +42,27 @@ namespace GPSTCPClient.ViewModel
                     {
                         if (arr[1].Password == arr[2].Password)
                         {
-                            if (await Client.ChangePassword(arr[0].Password, arr[1].Password))
+#if !DEBUG
+                            var valid = new Regex(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\da-zA-Z]).{8,15}$");
+                            if (valid.IsMatch(arr[1].Password))
                             {
-                                ChangePasswordError = "Hasło zmienione pomyślnie, za chwilę nastąpi wylogowanie...";
-                                ErrorColor = "Green";
-                                await Task.Delay(4000);
-                                MainVM.NavigateTo("Logout");
+#endif
+                                if (await Client.ChangePassword(arr[0].Password, arr[1].Password))
+                                {
+                                    ChangePasswordError = "Hasło zmienione pomyślnie, za chwilę nastąpi wylogowanie...";
+                                    ErrorColor = "Green";
+                                    await Task.Delay(4000);
+                                    MainVM.NavigateTo("Logout");
+                                }
+                                else
+                                    ChangePasswordError = "Nie udało się zmienić hasła!";
+#if !DEBUG
                             }
                             else
-                                ChangePasswordError = "Nie udało się zmienić hasła!";
+                            {
+                                ChangePasswordError = "Hasło powinno składać się z 8-15 znaków, zawierać duże i małe litery, cyfry oraz znaki specjalne.";
+                            }
+#endif
                         }
                         else
                             ChangePasswordError = "Hasła muszą być takie same!";
