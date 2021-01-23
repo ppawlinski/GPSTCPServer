@@ -28,32 +28,31 @@ namespace GPSTCPClient.ViewModel
             AddLocationCommand = new Command(arg => AddLocation());
             ClearAddingCommand = new Command(arg => ClearAdding());
             Pins = new ObservableCollection<Pushpin>();
-            FavAddressSearch.PropertyChanged += FavAddressSearch_PropertyChanged;
+            FavAddressSearch.OnSelectedAction += FavAddressSearch_OnSelectedAction;
             LoadData();
         }
 
-        private void FavAddressSearch_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        private void FavAddressSearch_OnSelectedAction(object sender, EventArgs e)
         {
-            if(e.PropertyName == "SelectedAddress")
+            if (sender is AddressesSearch asS)
             {
-                if(sender is AddressesSearch asS)
+                if (asS.SelectedAddress == null) return;
+                var currPin = Pins?.FirstOrDefault();
+                if (currPin != null)
                 {
-                    if (asS.SelectedAddress == null) return;
-                    var currPin = Pins?.FirstOrDefault();
-                    if (currPin != null && (Math.Abs(currPin.Location.Latitude - asS.SelectedAddress.Lat) < 1 || Math.Abs(currPin.Location.Longitude - asS.SelectedAddress.Lon) < 1)) return;
-                    if (currPin != null)
+                    Pins.Clear();
+                    currPin.Location = new Location(asS.SelectedAddress.Lat, asS.SelectedAddress.Lon);
+                    Pins.Add(currPin);
+                }
+                else
+                {
+                    if (!Locations.Any(p => p.Address == asS.SelectedAddress))
                     {
                         Pins.Clear();
-                        currPin.Location = new Location(asS.SelectedAddress.Lat, asS.SelectedAddress.Lon);
-                        Pins.Add(currPin);
+                        Pins.Add(new Pushpin() { Location = new Location(asS.SelectedAddress.Lat, asS.SelectedAddress.Lon), Content = Tools.CreateIcon((Editing == null) ? PackIconKind.Plus : PackIconKind.Edit) });
                     }
-                    else
-                    {
-                        if(!Locations.Any(p => p.Address == asS.SelectedAddress)) Pins.Add(new Pushpin() { Location = new Location(asS.SelectedAddress.Lat, asS.SelectedAddress.Lon), Content = Tools.CreateIcon((Editing == null) ? PackIconKind.Plus : PackIconKind.Edit) });
-                    }
-                    FavMap.Center = new Location(asS.SelectedAddress.Lat, asS.SelectedAddress.Lon);
                 }
-                
+                if (!(currPin != null && (Math.Abs(currPin.Location.Latitude - asS.SelectedAddress.Lat) < 1 || Math.Abs(currPin.Location.Longitude - asS.SelectedAddress.Lon) < 1))) FavMap.Center = new Location(asS.SelectedAddress.Lat, asS.SelectedAddress.Lon);
             }
         }
 
@@ -70,6 +69,11 @@ namespace GPSTCPClient.ViewModel
                 if (Locations.Count > 0)
                 {
                     FavMap.Center = MapVM.GetLocation(Locations.First().Address);
+                }
+                else
+                {
+                    FavMap.Center = new Location(52.0, 19.0);
+                    FavMap.ZoomLevel = 5;
                 }
                 OnPropertyChanged(nameof(Locations));
                 MainVM.Loading = false;
@@ -228,7 +232,9 @@ namespace GPSTCPClient.ViewModel
                     {
                         Locations.Add(new UserLocation(AddingLocationName, FavAddressSearch.SelectedAddress));
                         AddingLocationName = "";
-                        FavAddressSearch = new AddressesSearch();
+                        FavAddressSearch.SelectedAddress = null;
+                        FavAddressSearch.SelectedAddressText = "";
+                        FavAddressSearch.Addresses.Clear();
                     }
                 }
                 else
@@ -283,6 +289,9 @@ namespace GPSTCPClient.ViewModel
                     if (await Client.DeleteAddress(ul.Name))
                     {
                         Locations.Remove(ul);
+                        var currPin = Pins.FirstOrDefault();
+                        Pins.Clear();
+                        if (currPin != null) Pins.Add(currPin);
                     }
                 }
             }

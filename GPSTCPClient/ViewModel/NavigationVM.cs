@@ -12,6 +12,44 @@ namespace GPSTCPClient.ViewModel
 {
     public class NavigationVM : ViewModelBase
     {
+        public FavouritesVM FavVM { get; set; }
+        public NavigationVM(ViewModelBase favVM_)
+        {
+            FromToggle = true;
+            Pins = new ObservableCollection<Pushpin>();
+            FavVM = favVM_ as FavouritesVM;
+            ToAddressessSearch = new MixedSearch();
+            ToAddressessSearch.OnSelectedAction += ToAddressessSearch_OnSelectedAction;
+            FromAddressessSearch = new MixedSearch();
+            FromAddressessSearch.OnSelectedAction += FromAddressessSearch_OnSelectedAction;
+            MainMap = new MapVM();
+            FindRouteCommand = new Command(arg => FindRoute());
+            CenterOnRouteCommand = new Command(arg => CenterOnRoute(arg));
+            CenterOnUserLocationCommand = new Command(arg => CenterOnUserLocation(arg));
+            SwapAddressesCommand = new Command(arg => SwapAddresses());
+            SearchLocationEnterClick = new Command(arg => FindRoute());
+            MapDoubleClickCommand = new Command(arg => MapDoubleClick(arg));
+            FromAddressessSearch.StoredLocations = FavVM.Locations;
+            ToAddressessSearch.StoredLocations = FavVM.Locations;
+
+            FavVM.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == "Locations")
+                {
+                    if (FavVM.Locations.Count > 0)
+                    {
+                        MainMap.Center = MapVM.GetLocation(FavVM.Locations.First().Address);
+                    }
+                    else
+                    {
+                        MainMap.Center = new Location(52.0, 19.0);
+                        MainMap.ZoomLevel = 5;
+                    }
+                }
+            };
+        }
+
+
         private bool toToggle;
         public bool ToToggle
         {
@@ -110,38 +148,7 @@ namespace GPSTCPClient.ViewModel
             }
         }
 
-        public FavouritesVM FavVM { get; set; }
-        public NavigationVM(ViewModelBase favVM_)
-        {
-            FromToggle = true;
-            Pins = new ObservableCollection<Pushpin>();
-            FavVM = favVM_ as FavouritesVM;
-            ToAddressessSearch = new MixedSearch();
-            ToAddressessSearch.OnSelectedAction += ToAddressessSearch_OnSelectedAction;
-            FromAddressessSearch = new MixedSearch();
-            FromAddressessSearch.OnSelectedAction += FromAddressessSearch_OnSelectedAction;
-            MainMap = new MapVM();
-            FindRouteCommand = new Command(arg => FindRoute());
-            CenterOnRouteCommand = new Command(arg => CenterOnRoute(arg));
-            CenterOnUserLocationCommand = new Command(arg => CenterOnUserLocation(arg));
-            SwapAddressesCommand = new Command(arg => SwapAddresses());
-            SearchLocationEnterClick = new Command(arg => FindRoute());
-            MapDoubleClickCommand = new Command(arg => MapDoubleClick(arg));
-            FromAddressessSearch.StoredLocations = FavVM.Locations;
-            ToAddressessSearch.StoredLocations = FavVM.Locations;
-            
-            FavVM.PropertyChanged += (s, e) =>
-            {
-                if (e.PropertyName == "Locations")
-                {
-                    if (FavVM.Locations.Count > 0)
-                    {
-                        //MainMap.MainLoc = new Pin(FavVM.Locations.First());
-                        MainMap.Center = MapVM.GetLocation(FavVM.Locations.First().Address);
-                    }
-                }
-            };
-        }
+        
 
         private async void MapDoubleClick(object arg)
         {
@@ -158,16 +165,31 @@ namespace GPSTCPClient.ViewModel
                         if (zPin != null) Pins.Remove(zPin);
                         var newPin = new Pushpin() { Location = describedLoaction, Content = "Z" };
                         Pins.Add(newPin);
+                        if (!String.IsNullOrEmpty(FromAddressessSearch?.SelectedLocation?.Name))
+                        {
+                            FromAddressessSearch.SearchingLocations.Clear();
+                            FromAddressessSearch.SearchingLocations.Add(new UserLocation(described));
+                            FromAddressessSearch.SelectedLocationText = described.DisplayName;
+                            FromAddressessSearch.SelectedLocation = new UserLocation(described);
+                        }
                         FromAddressessSearch.SearchingLocations.Clear();
                         FromAddressessSearch.SearchingLocations.Add(new UserLocation(described));
                         FromAddressessSearch.SelectedLocation = new UserLocation(described);
                         FromAddressessSearch.SelectedLocationText = described.DisplayName;
+
                     }
                     else if (ToToggle)
                     {
                         var doPin = Pins.FirstOrDefault(p => p.Content == "Do");
                         if (doPin != null) Pins.Remove(doPin);
                         Pins.Add(new Pushpin() { Location = describedLoaction, Content = "Do" });
+                        if (!String.IsNullOrEmpty(ToAddressessSearch?.SelectedLocation?.Name))
+                        {
+                            ToAddressessSearch.SearchingLocations.Clear();
+                            ToAddressessSearch.SearchingLocations.Add(new UserLocation(described));
+                            ToAddressessSearch.SelectedLocationText = described.DisplayName;
+                            ToAddressessSearch.SelectedLocation = new UserLocation(described);
+                        }
                         ToAddressessSearch.SearchingLocations.Clear();
                         ToAddressessSearch.SearchingLocations.Add(new UserLocation(described));
                         ToAddressessSearch.SelectedLocation = new UserLocation(described);
@@ -184,7 +206,7 @@ namespace GPSTCPClient.ViewModel
             {
                 if (!double.IsNaN(ms.SelectedLocation?.Address.Lat ?? double.NaN))
                 {
-                    var pin = Pins.First(p => p.Content == "Z");
+                    var pin = Pins.FirstOrDefault(p => p.Content == "Z");
                     if (pin != null)
                     {
                         if (Math.Abs(pin.Location.Latitude - ms.SelectedLocation.Address.Lat) > 1 && Math.Abs(pin.Location.Longitude - ms.SelectedLocation.Address.Lon) > 1)
@@ -213,7 +235,7 @@ namespace GPSTCPClient.ViewModel
             {
                 if (!double.IsNaN(ms.SelectedLocation?.Address.Lat ?? double.NaN))
                 {
-                    var pin = Pins.First(p => p.Content == "Do");
+                    var pin = Pins.FirstOrDefault(p => p.Content == "Do");
                     if(pin != null)
                     {
                         if(Math.Abs(pin.Location.Latitude - ms.SelectedLocation.Address.Lat) > 1 && Math.Abs(pin.Location.Longitude - ms.SelectedLocation.Address.Lon) > 1)
@@ -245,6 +267,7 @@ namespace GPSTCPClient.ViewModel
 
         private async void FindRoute()
         {
+            if (FromAddressessSearch.SelectedLocation == null || ToAddressessSearch.SelectedLocation == null) return;
             FavVM.MainVM.Loading = true;
             RouteInstrucions = new StepModel[]
             {

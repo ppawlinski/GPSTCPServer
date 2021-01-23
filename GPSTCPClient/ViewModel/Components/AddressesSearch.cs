@@ -1,6 +1,8 @@
 ﻿using GPSTCPClient.Models;
 using GPSTCPClient.ViewModel.MVVM;
+using System;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -89,6 +91,7 @@ namespace GPSTCPClient.ViewModel.Components
             set
             {
                 selectedAddress = value;
+                OnSelected(new PropertyChangedEventArgs(nameof(value)));
                 OnPropertyChanged(nameof(SelectedAddress));
             }
         }
@@ -115,6 +118,12 @@ namespace GPSTCPClient.ViewModel.Components
             }, TaskScheduler.FromCurrentSynchronizationContext());
         }
 
+        public event EventHandler OnSelectedAction;
+        protected virtual void OnSelected(EventArgs e)
+        {
+            EventHandler handler = OnSelectedAction;
+            handler?.Invoke(this, e);
+        }
 
     }
 }

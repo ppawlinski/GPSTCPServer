@@ -55,14 +55,23 @@ namespace GPSTCPClient.Components
         private void ULPins_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
 
-            IEnumerable<Pushpin> temp = this.Children.Cast<object>().Where(p => p is Pushpin).Cast<Pushpin>();
-            //Remove the old pushpins
+            Pushpin[] temp = this.Children.Cast<object>().Where(p => p is Pushpin).Cast<Pushpin>().ToArray().Clone() as Pushpin[];
+
             if (e.OldItems != null)
-                foreach (UserLocation ul in e.OldItems)
+            {
+                //foreach (UserLocation ul in e.OldItems)
+                //    this.Children.Remove(temp.FirstOrDefault(p => p.ToolTip == ul.Name));
+                clearPins();
+                foreach (var pin in temp)
                 {
-                    this.Children.Remove(temp.FirstOrDefault(p => p.Location == ul.Pin.Location && p.ToolTip == ul.Pin.ToolTip));
+                    if (e.OldItems.Cast<UserLocation>().Any(p => p.Name == ((ToolTip)pin?.ToolTip)?.Content)) continue;
+                    Pushpin np = new Pushpin() { Location = pin.Location, Content = pin.Content };
+                    np.ToolTip = pin.ToolTip;
+                    this.Children.Add(np);
                 }
-                    
+
+            }
+                
 
             if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Reset)
             {
@@ -80,6 +89,7 @@ namespace GPSTCPClient.Components
                     np.ToolTip = Tools.CreateTootip(ul.Name);
                     this.Children.Add(np);
                 }
+            this.UpdateLayout();
         }
         #endregion
 
@@ -115,12 +125,12 @@ namespace GPSTCPClient.Components
 
         private void Pins_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
-            IEnumerable<Pushpin> temp = this.Children.Cast<object>().Where(p => p is Pushpin).Cast<Pushpin>();
+            Pushpin[] temp = this.Children.Cast<object>().Where(p => p is Pushpin).Cast<Pushpin>().ToArray().Clone() as Pushpin[];
             if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Reset)
             {
                 foreach(Pushpin pin in temp)
                 {
-                    if (!ULPins.Any(p => p.Pin.Location == pin.Location)) this.Children.Remove(pin);
+                    if (!ULPins?.Any(p => p.Pin.Location == pin.Location) ?? false) this.Children.Remove(pin);
                 }
             }
             //Remove the old pushpins
@@ -145,7 +155,7 @@ namespace GPSTCPClient.Components
 
         private void clearPins()
         {
-            var temp = this.Children.Cast<object>().ToArray();
+            var temp = this.Children.Cast<object>().ToArray().Clone() as object[];
             foreach(var child in temp)
             {
                 if(child is Pushpin pp)

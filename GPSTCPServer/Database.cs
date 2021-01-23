@@ -20,8 +20,14 @@ namespace GPSTCPServer
             SqlCommand cmd = null;
             using (var connection = new SqlConnection(connectionString))
             {
-                connection.Open();
+                try{
+                    connection.Open();
+                }
+                catch(Exception ex)
+                {
 
+                }
+                
                 using (cmd = new SqlCommand($"If(db_id(N'{dbName}') IS NULL) CREATE DATABASE [{dbName}]", connection))
                 {
                     cmd.ExecuteNonQuery();
