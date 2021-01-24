@@ -148,17 +148,17 @@ namespace GPSTCPClient.ViewModel
             }
         }
 
-        
+
 
         private async void MapDoubleClick(object arg)
         {
-            if(arg is Location loc)
+            if (arg is Location loc)
             {
                 var described = await Client.DescribeAddress(loc.Latitude, loc.Longitude);
-                if(described.Lat != 0  && described.Lon != 0)
+                if (described.Lat != 0 && described.Lon != 0)
                 {
                     var describedLoaction = new Location(described.Lat, described.Lon);
-                     
+
                     if (FromToggle)
                     {
                         var zPin = Pins.FirstOrDefault(p => p.Content == "Z");
@@ -196,7 +196,7 @@ namespace GPSTCPClient.ViewModel
                         ToAddressessSearch.SelectedLocationText = described.DisplayName;
                     }
                 }
-                
+
             }
         }
 
@@ -236,9 +236,9 @@ namespace GPSTCPClient.ViewModel
                 if (!double.IsNaN(ms.SelectedLocation?.Address.Lat ?? double.NaN))
                 {
                     var pin = Pins.FirstOrDefault(p => p.Content == "Do");
-                    if(pin != null)
+                    if (pin != null)
                     {
-                        if(Math.Abs(pin.Location.Latitude - ms.SelectedLocation.Address.Lat) > 1 && Math.Abs(pin.Location.Longitude - ms.SelectedLocation.Address.Lon) > 1)
+                        if (Math.Abs(pin.Location.Latitude - ms.SelectedLocation.Address.Lat) > 1 && Math.Abs(pin.Location.Longitude - ms.SelectedLocation.Address.Lon) > 1)
                         {
                             MainMap.Center = MapVM.GetLocation(ms.SelectedLocation.Address);
                         }
@@ -290,8 +290,28 @@ namespace GPSTCPClient.ViewModel
                         MainMap.PolylineLocations.Add(new Location(geoCoordinate.Latitude, geoCoordinate.Longitude));
                     }
                 }
-                //MainMap.Center = MainMap.PolylineLocations.First();
-                MainMap.ZoomLevel = 15;
+
+                MainMap.Center = MainMap.PolylineLocations[MainMap.PolylineLocations.Count() / 2];
+
+                if (rm.Distance > 10000000) MainMap.ZoomLevel = 1;
+                else if (rm.Distance > 8000000) MainMap.ZoomLevel = 2;
+                else if (rm.Distance > 4000000) MainMap.ZoomLevel = 3;
+                else if (rm.Distance > 2000000) MainMap.ZoomLevel = 4;
+                else if (rm.Distance > 1000000) MainMap.ZoomLevel = 5;
+                else if (rm.Distance > 500000) MainMap.ZoomLevel = 6;
+                else if (rm.Distance > 200000) MainMap.ZoomLevel = 7;
+                else if (rm.Distance > 80000) MainMap.ZoomLevel = 8;
+                else if (rm.Distance > 50000) MainMap.ZoomLevel = 9;
+                else if (rm.Distance > 25000) MainMap.ZoomLevel = 10;
+                else if (rm.Distance > 10000) MainMap.ZoomLevel = 11;
+                else if (rm.Distance > 7000) MainMap.ZoomLevel = 12;
+                else if (rm.Distance > 4000) MainMap.ZoomLevel = 13;
+                else if (rm.Distance > 2000) MainMap.ZoomLevel = 14;
+                else if (rm.Distance > 1000) MainMap.ZoomLevel = 15;
+                else if (rm.Distance > 500) MainMap.ZoomLevel = 16;
+                else if (rm.Distance > 100) MainMap.ZoomLevel = 17;
+                else if (rm.Distance > 50) MainMap.ZoomLevel = 19;
+                else MainMap.ZoomLevel = 20;
                 RouteInstrucions = rm.Steps;
             }
             else
@@ -313,7 +333,26 @@ namespace GPSTCPClient.ViewModel
             if (sender is StepModel rm)
             {
                 MainMap.Center = new Location(rm.Maneuver.Item1, rm.Maneuver.Item2);
-                //TODO ustawić zoom w zależności od dystansu (przedziały metodą prób i błędów)
+
+                if (rm.Distance > 10000000) MainMap.ZoomLevel = 1;
+                else if (rm.Distance > 8000000) MainMap.ZoomLevel = 2;
+                else if (rm.Distance > 4000000) MainMap.ZoomLevel = 3;
+                else if (rm.Distance > 2000000) MainMap.ZoomLevel = 4;
+                else if (rm.Distance > 1000000) MainMap.ZoomLevel = 5;
+                else if (rm.Distance > 500000) MainMap.ZoomLevel = 6;
+                else if (rm.Distance > 200000) MainMap.ZoomLevel = 7;
+                else if (rm.Distance > 80000) MainMap.ZoomLevel = 8;
+                else if (rm.Distance > 50000) MainMap.ZoomLevel = 9;
+                else if (rm.Distance > 25000) MainMap.ZoomLevel = 10;
+                else if (rm.Distance > 10000) MainMap.ZoomLevel = 11;
+                else if (rm.Distance > 7000) MainMap.ZoomLevel = 12;
+                else if (rm.Distance > 4000) MainMap.ZoomLevel = 13;
+                else if (rm.Distance > 2000) MainMap.ZoomLevel = 14;
+                else if (rm.Distance > 1000) MainMap.ZoomLevel = 15;
+                else if (rm.Distance > 500) MainMap.ZoomLevel = 16;
+                else if (rm.Distance > 100) MainMap.ZoomLevel = 17;
+                else if (rm.Distance > 50) MainMap.ZoomLevel = 19;
+                else MainMap.ZoomLevel = 20;
             }
         }
 
