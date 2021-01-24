@@ -161,7 +161,7 @@ namespace GPSTCPClient.ViewModel
 
                     if (FromToggle)
                     {
-                        var zPin = Pins.FirstOrDefault(p => p.Content == "Z");
+                        var zPin = Pins.FirstOrDefault(p => (string)p.Content == "Z");
                         if (zPin != null) Pins.Remove(zPin);
                         var newPin = new Pushpin() { Location = describedLoaction, Content = "Z" };
                         Pins.Add(newPin);
@@ -180,7 +180,7 @@ namespace GPSTCPClient.ViewModel
                     }
                     else if (ToToggle)
                     {
-                        var doPin = Pins.FirstOrDefault(p => p.Content == "Do");
+                        var doPin = Pins.FirstOrDefault(p => (string)p.Content == "Do");
                         if (doPin != null) Pins.Remove(doPin);
                         Pins.Add(new Pushpin() { Location = describedLoaction, Content = "Do" });
                         if (!String.IsNullOrEmpty(ToAddressessSearch?.SelectedLocation?.Name))
@@ -206,7 +206,7 @@ namespace GPSTCPClient.ViewModel
             {
                 if (!double.IsNaN(ms.SelectedLocation?.Address.Lat ?? double.NaN))
                 {
-                    var pin = Pins.FirstOrDefault(p => p.Content == "Z");
+                    var pin = Pins.FirstOrDefault(p => (string)p.Content == "Z");
                     if (pin != null)
                     {
                         if (Math.Abs(pin.Location.Latitude - ms.SelectedLocation.Address.Lat) > 1 && Math.Abs(pin.Location.Longitude - ms.SelectedLocation.Address.Lon) > 1)
@@ -235,7 +235,7 @@ namespace GPSTCPClient.ViewModel
             {
                 if (!double.IsNaN(ms.SelectedLocation?.Address.Lat ?? double.NaN))
                 {
-                    var pin = Pins.FirstOrDefault(p => p.Content == "Do");
+                    var pin = Pins.FirstOrDefault(p => (string)p.Content == "Do");
                     if (pin != null)
                     {
                         if (Math.Abs(pin.Location.Latitude - ms.SelectedLocation.Address.Lat) > 1 && Math.Abs(pin.Location.Longitude - ms.SelectedLocation.Address.Lon) > 1)

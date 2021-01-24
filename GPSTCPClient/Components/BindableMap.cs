@@ -64,7 +64,7 @@ namespace GPSTCPClient.Components
                 clearPins();
                 foreach (var pin in temp)
                 {
-                    if (e.OldItems.Cast<UserLocation>().Any(p => p.Name == ((ToolTip)pin?.ToolTip)?.Content)) continue;
+                    if (e.OldItems.Cast<UserLocation>().Any(p => p.Name == (string)((ToolTip)pin?.ToolTip)?.Content)) continue;
                     Pushpin np = new Pushpin() { Location = pin.Location, Content = pin.Content };
                     np.ToolTip = pin.ToolTip;
                     this.Children.Add(np);
