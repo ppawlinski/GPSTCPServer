@@ -167,7 +167,6 @@ namespace GPSTCPServer
         public bool AddLocation(string user, string name, string osmType, string osmId)
         {
             int result = -1;
-            //int userID = getUserID(user);
             string osm = "";
             switch (osmType)
             {
@@ -185,7 +184,7 @@ namespace GPSTCPServer
             {
                 con.Open();
                 con.ChangeDatabase("GPS");
-                using (SqlCommand command = new SqlCommand($"select [osmID] from [locations] where [name] == '{name}' AND [userID] IN ( select [userID] from [user] where [username] = '{user}')",con))
+                using (SqlCommand command = new SqlCommand($"select [osmID] from [locations] where [name] = '{name}' AND [userID] IN ( select [id] from [user] where [username] = '{user}')",con))
                 {
                     try
                     {
