@@ -11,13 +11,15 @@
         <TextBlock Text="{Binding DialogContent}" HorizontalAlignment="Center" FontSize="16" />
         <StackPanel Margin="16" HorizontalAlignment="Center" Orientation="Horizontal">
             <Button
+                                    Margin="0,0,15,0"
                                     Style="{StaticResource MaterialDesignFlatButton}"
                                     IsCancel="True" 
                                     Command="{x:Static md:DialogHost.CloseDialogCommand}"
                                     CommandParameter="Cancel"
                                     HorizontalAlignment="Center"
                                     Content="Anuluj"/>
-            <Button                                    
+            <Button                 
+                                    Margin="15,0,0,0"
                                     Style="{StaticResource MaterialDesignRaisedButton}"
                                     Command="{x:Static md:DialogHost.CloseDialogCommand}"
                                     CommandParameter="Accept"

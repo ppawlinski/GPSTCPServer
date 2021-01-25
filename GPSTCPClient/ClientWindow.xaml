@@ -71,13 +71,7 @@
                                             <TextBlock Text="Profil" VerticalAlignment="Center" Margin="20,0,0,0"/>
                                         </StackPanel>
                                     </Button>
-                                    <Button Margin="10,520,10,10" Height="50" Width="200" HorizontalAlignment="Left" Padding="0">
-                                        <StackPanel Orientation="Horizontal" Width="160" HorizontalAlignment="Left">
-                                            <md:PackIcon Kind="SettingsOutline" Width="32" Height="32"/>
-                                            <TextBlock Text="Ustawienia" VerticalAlignment="Center" Margin="20,0,0,0"/>
-                                        </StackPanel>
-                                    </Button>
-                                    <Button Margin="10,10,10,10" Height="50" Width="200" Background="Red" BorderBrush="Red" Name="Logout" HorizontalAlignment="Left" Padding="0" Command="{Binding LogoutDialogCommand}" CommandParameter="{Binding ElementName=Logout, Path=Name}">
+                                    <Button Margin="10,590,10,10" Height="50" Width="200" Background="Red" BorderBrush="Red" Name="Logout" HorizontalAlignment="Left" Padding="0" Command="{Binding LogoutDialogCommand}" CommandParameter="{Binding ElementName=Logout, Path=Name}">
                                         <StackPanel Orientation="Horizontal" Width="160" HorizontalAlignment="Left">
                                             <md:PackIcon Kind="Logout" Width="32" Height="32"/>
                                             <TextBlock Text="Wyloguj się" VerticalAlignment="Center" Margin="20,0,0,0"/>
