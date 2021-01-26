@@ -77,7 +77,7 @@ namespace GPSTCPClient.Components
             {
                 foreach (Pushpin pin in temp)
                 {
-                    if (!Pins.Any(p => p.Location == pin.Location)) this.Children.Remove(pin);
+                    if (!Pins?.Any(p => p.Location == pin.Location) ?? false) this.Children.Remove(pin);
                 }
             }
 

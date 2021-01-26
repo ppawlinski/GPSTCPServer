@@ -90,6 +90,7 @@ namespace GPSTCPClient.ViewModel
             set
             {
                 editing = value;
+                if (value == null) return;
                 var currPin = Pins?.FirstOrDefault();
                 if (currPin != null)
                 {
